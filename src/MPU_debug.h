@@ -24,7 +24,7 @@
 #include "Print.h"
 
 extern "C" {
-bool system_update_cpu_freq(uint8 freq);
+  bool system_update_cpu_freq(uint8 freq);
 }
 
 // Define an mechanism for quickly calling the various debug levels provided by the system.
@@ -49,10 +49,10 @@ bool system_update_cpu_freq(uint8 freq);
 // Defines some values for buffering output.
 //#define CLIENT_BUFFERING true
 #ifdef CLIENT_BUFFERING
-// Minimum time before sending the buffer.
-#define DELAY_TO_SEND 10
-// Maximum size of packet (limit of TCP/IP).
-#define MAX_SIZE_SEND 1460
+  // Minimum time before sending the buffer.
+  #define DELAY_TO_SEND 10
+  // Maximum size of packet (limit of TCP/IP).
+  #define MAX_SIZE_SEND 1460
 #endif
 
 // ANSI color codes.
@@ -84,82 +84,81 @@ bool system_update_cpu_freq(uint8 freq);
 
 
 
-class MiPDebug: public Print
-{
+class MiPDebug: public Print {
 public:
-    void begin(String hostname, uint8_t startingDebugLevel = VERBOSE);
-    void stop();
+  void begin(String hostname, uint8_t startingDebugLevel = VERBOSE);
+  void stop();
 
-    void handle();
-    void setSerialEnabled(bool enable);
-    void setResetCmdEnabled(bool enable);
-    void setHelpProjectsCmds(String help);
-    void setCallBackProjectCmds(void (*callback)());
-    String getLastCommand();
-    void clearLastCommand();
+  void handle();
+  void setSerialEnabled(bool enable);
+  void setResetCmdEnabled(bool enable);
+  void setHelpProjectsCmds(String help);
+  void setCallBackProjectCmds(void (*callback)());
+  String getLastCommand();
+  void clearLastCommand();
 
-    void showTime(bool show);
-    void showProfiler(bool show, uint32_t minTime = 0);
-    void showDebugLevel(bool show);
-    void showColors(bool show);
+  void showTime(bool show);
+  void showProfiler(bool show, uint32_t minTime = 0);
+  void showDebugLevel(bool show);
+  void showColors(bool show);
 
-    void autoProfilerLevel(uint32_t millisElapsed);
+  void autoProfilerLevel(uint32_t millisElapsed);
 
-    void setFilter(String filter);
-    void setNoFilter();
+  void setFilter(String filter);
+  void setNoFilter();
 
-    bool isActive(uint8_t debugLevel = DEBUG);
+  bool isActive(uint8_t debugLevel = DEBUG);
 
-    // These are the extended write methods for the Print class.
-    virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *buffer, size_t size);
+  // These are the extended write methods for the Print class.
+  virtual size_t write(uint8_t);
+  virtual size_t write(const uint8_t *buffer, size_t size);
 
-    // Definitions for each of the debug levels.
-    static const uint8_t PROFILER = 0;  // Used to show time of execution of pieces of code (profiler).
-    static const uint8_t VERBOSE = 1;   // Used to show verbose messages.
-    static const uint8_t DEBUG = 2;     // Used to show debug messages.
-    static const uint8_t INFO = 3;      // Used to show info messages.
-    static const uint8_t WARNING = 4;   // Used to show warning messages.
-    static const uint8_t ERROR = 5;     // Used to show error messages.
-    static const uint8_t ANY = 6;       // Used to show messages at any debug level.
+  // Definitions for each of the debug levels.
+  static const uint8_t PROFILER = 0;  // Used to show time of execution of pieces of code (profiler).
+  static const uint8_t VERBOSE = 1;   // Used to show verbose messages.
+  static const uint8_t DEBUG = 2;     // Used to show debug messages.
+  static const uint8_t INFO = 3;      // Used to show info messages.
+  static const uint8_t WARNING = 4;   // Used to show warning messages.
+  static const uint8_t ERROR = 5;     // Used to show error messages.
+  static const uint8_t ANY = 6;       // Used to show messages at any debug level.
 
-    // Expand "CR/LF" characters to "\\r" and "\\n".
-    String expand(String string);
+  // Expand "CR/LF" characters to "\\r" and "\\n".
+  String expand(String string);
 
 protected:
-    void   showHelp();
-    void   processCommand();
-    String formatNumber(uint32_t value, uint8_t size, char insert='0');
-    bool   isCRLF(char character);
+  void   showHelp();
+  void   processCommand();
+  String formatNumber(uint32_t value, uint8_t size, char insert = '0');
+  bool   isCRLF(char character);
 
-    String   m_hostname = "";               // The user-defined hostname for the telnet server.
-    bool     m_connected = false;           // Is a client connected?
-    uint8_t  m_clientDebugLevel = DEBUG;    // The debug level set by the user in telnet.
-    uint8_t  m_lastDebugLevel = DEBUG;      // Last debug level set by active().
-    uint32_t m_lastTimePrint = millis();    // The last time a line was printed.
-    uint8_t  m_levelBeforeProfiler = DEBUG; // Last level before setting the profiler level.
-    uint32_t m_levelProfilerDisable = 0;    // Time in millis to disable the profiler level.
-    uint32_t m_autoLevelProfiler = 0;       // Automatic change to profiler level if time between handles is greater than n millis
-    bool     m_showTime = false;            // Show time in milliseconds.
-    bool     m_showProfiler = false;        // Show time between messages.
-    uint32_t m_minTimeShowProfiler = 0;     // Minimum time to show profiler.
-    bool     m_showDebugLevel = true;       // Show debug level on each debug message.
-    bool     m_showColors = false;          // Show colors.
-    bool     m_serialEnabled = false;       // Send debug messages to serial too.
-    bool     m_resetCommandEnabled = false; // Allow the telnet server to reset the ESP8266.
-    bool     m_newLine = true;              // New line write ?
-    String   m_command = "";                // The current command received from the user.
-    String   m_lastCommand = "";            // The last command received from the user.
-    uint32_t m_lastTimeCommand = millis();  // Time that the last command was received.
-    String   m_helpProjectCmds = "";        // Help commands set by the project (sketch).
-    void     (*m_callbackProjectCmds)();    // Callable for project commands.
-    String   m_filter = "";                 // The filter string.
-    bool     m_filterActive = false;        // Is the filter active?
-    String   m_bufferPrint = "";            // Print buffer for telnet output.
+  String   m_hostname = "";               // The user-defined hostname for the telnet server.
+  bool     m_connected = false;           // Is a client connected?
+  uint8_t  m_clientDebugLevel = DEBUG;    // The debug level set by the user in telnet.
+  uint8_t  m_lastDebugLevel = DEBUG;      // Last debug level set by active().
+  uint32_t m_lastTimePrint = millis();    // The last time a line was printed.
+  uint8_t  m_levelBeforeProfiler = DEBUG; // Last level before setting the profiler level.
+  uint32_t m_levelProfilerDisable = 0;    // Time in millis to disable the profiler level.
+  uint32_t m_autoLevelProfiler = 0;       // Automatic change to profiler level if time between handles is greater than n millis
+  bool     m_showTime = false;            // Show time in milliseconds.
+  bool     m_showProfiler = false;        // Show time between messages.
+  uint32_t m_minTimeShowProfiler = 0;     // Minimum time to show profiler.
+  bool     m_showDebugLevel = true;       // Show debug level on each debug message.
+  bool     m_showColors = false;          // Show colors.
+  bool     m_serialEnabled = false;       // Send debug messages to serial too.
+  bool     m_resetCommandEnabled = false; // Allow the telnet server to reset the ESP8266.
+  bool     m_newLine = true;              // New line write ?
+  String   m_command = "";                // The current command received from the user.
+  String   m_lastCommand = "";            // The last command received from the user.
+  uint32_t m_lastTimeCommand = millis();  // Time that the last command was received.
+  String   m_helpProjectCmds = "";        // Help commands set by the project (sketch).
+  void (*m_callbackProjectCmds)();        // Callable for project commands.
+  String   m_filter = "";                 // The filter string.
+  bool     m_filterActive = false;        // Is the filter active?
+  String   m_bufferPrint = "";            // Print buffer for telnet output.
 #ifdef CLIENT_BUFFERING
-    String   m_bufferSend = "";             // Buffer for sending data to telnet client.
-    uint16_t m_sizeBufferSend = 0;          // The size of the buffer.
-    uint32_t m_lastTimeSend = 0;            // The last time the command sent data.
+  String   m_bufferSend = "";             // Buffer for sending data to telnet client.
+  uint16_t m_sizeBufferSend = 0;          // The size of the buffer.
+  uint32_t m_lastTimeSend = 0;            // The last time the command sent data.
 #endif
 };
 
