@@ -1,0 +1,18 @@
+---
+# Arduino-compatible ClangFormat rules
+BasedOnStyle: Chromium
+Language: Cpp
+
+# Core Formatting
+IndentWidth: 2
+UseTab: Never
+BreakBeforeBraces: Attach
+
+# Strict Line Length Limits
+ColumnLimit: 80                  # Enforces a hard wrap boundary at 80 characters
+BreakBeforeBinaryOperators: None # Wrap lines after binary operators
+BinPackArguments: false          # Put argument lists on separate lines if wrapping
+BinPackParameters: false         # Put parameter lists on separate lines if wrapping
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+...

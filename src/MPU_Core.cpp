@@ -13,7 +13,7 @@
    limitations under the License.
 */
 /* Contains the constructor, destructor and basic connection initialization.
-*/
+ */
 #include "MPU_D1_mini.h"
 
 // Number of times that begin() method should try to initialize the MiP.
@@ -32,21 +32,32 @@
 #define MIP_SLOW_BAUD_RATE 9600
 
 // MiP Protocol Commands related to core functions.
-// These command codes are placed in the first byte of requests sent to the MiP and responses sent back from the MiP.
-// See https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md for the complete list.
+// These command codes are placed in the first byte of requests sent to the MiP
+// and responses sent back from the MiP. See
+// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
+// for the complete list.
 #define MIP_CMD_DISCONNECT_APP 0xFE
 #define MIP_CMD_SLEEP 0xFA
 
-// Define an assert mechanism that can be used to log and halt when the user is found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) if (!(EXPRESSION)) mipAssert(__LINE__);
+// Define an assert mechanism that can be used to log and halt when the user is
+// found to be calling the API incorrectly.
+#define MIP_ASSERT(EXPRESSION) \
+  if (!(EXPRESSION))           \
+    mipAssert(__LINE__);
 
 static void mipAssert(uint32_t lineNumber) {
   MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Core.cpp: %d\n", lineNumber);
-  while (1) { delay(100); }
+  while (1) {
+    delay(100);
+  }
 }
 
-MiP::MiP() { clear(); }
-MiP::~MiP() { end(); }
+MiP::MiP() {
+  clear();
+}
+MiP::~MiP() {
+  end();
+}
 
 void MiP::clear() {
   m_lastRequestTime = millis();
@@ -80,24 +91,29 @@ bool MiP::begin() {
   clear();
 
   // Roll the timers back so that the first calls can occur immediately.
-  m_lastRequestTime = millis() - 10; // MIP_REQUEST_DELAY; // (10) offset slightly
-  m_lastContinuousDriveTime = millis() - 50; // MIP_CONTINUOUS_DRIVE_DELAY; // (50)
+  m_lastRequestTime =
+      millis() - 10;  // MIP_REQUEST_DELAY; // (10) offset slightly
+  m_lastContinuousDriveTime =
+      millis() - 50;  // MIP_CONTINUOUS_DRIVE_DELAY; // (50)
 
-  // Assume that the connection to MiP will be successfully initialized. Will clear the flag if a connection
-  // error is detected. If this wasn't done then the calls to rawSend() and rawGetStatus() below would fail.
+  // Assume that the connection to MiP will be successfully initialized. Will
+  // clear the flag if a connection error is detected. If this wasn't done then
+  // the calls to rawSend() and rawGetStatus() below would fail.
   m_flags |= MRI_FLAG_INITIALIZED;
 
-  // Sometimes the init fails. It seems to happen when the MiP is busy at power-up doing other things like
-  // attempting to balance.
+  // Sometimes the init fails. It seems to happen when the MiP is busy at
+  // power-up doing other things like attempting to balance.
   int8_t retry;
-  for (retry = 0 ; retry < MIP_MAX_BEGIN_RETRIES ; retry++) {
+  for (retry = 0; retry < MIP_MAX_BEGIN_RETRIES; retry++) {
     // Try to connect at 115200 baud, the rate used by some MiPs.
     int8_t result = attemptMiPConnection(MIP_FAST_BAUD_RATE);
-    if (result == MIP_ERROR_NONE) return true;
+    if (result == MIP_ERROR_NONE)
+      return true;
 
     // Try to connect at 9600 baud if the fast attempt failed.
     result = attemptMiPConnection(MIP_SLOW_BAUD_RATE);
-    if (result == MIP_ERROR_NONE) return true;
+    if (result == MIP_ERROR_NONE)
+      return true;
   }
 
   // Get here if the connection attempt to MiP never succeeds.
@@ -106,8 +122,8 @@ bool MiP::begin() {
   return false;
 }
 
-// This internal protected method provides the common code for connection attempts at
-// baud rates of 115200 or 9600.
+// This internal protected method provides the common code for connection
+// attempts at baud rates of 115200 or 9600.
 int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
   // Set baud rate to specified rate.
   Serial.begin(baudRate);
@@ -115,23 +131,27 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
   // Swap the UART of the D1 mini to the alternate pins.
   Serial.swap();
 
-  // Send 0xFF to the MiP via UART to enable the UART communication channel in the MiP.
-  const uint8_t initMipCommand[] = { 0xFF };
+  // Send 0xFF to the MiP via UART to enable the UART communication channel in
+  // the MiP.
+  const uint8_t initMipCommand[] = {0xFF};
   rawSend(initMipCommand, sizeof(initMipCommand));
 
-  // The MiP UART documentation indicates that this delay is required after sending 0xFF.
+  // The MiP UART documentation indicates that this delay is required after
+  // sending 0xFF.
   delay(30);
 
   // Flush any outstanding junk data in receive buffer.
   discardUnexpectedSerialData();
 
-  // Attempt to get MiP's latest status to see if the connection was successful or not.
+  // Attempt to get MiP's latest status to see if the connection was successful
+  // or not.
   int8_t result = rawGetStatus(m_lastStatus);
   if (result == MIP_ERROR_NONE) {
     // Let the user know at which baud rate the connection to MiP was made.
     MIP_DEBUG_INFO_PRINTF("MiP: Connected at %d baud\n\r", baudRate);
   } else {
-    // Sleep a bit before returning to code which will retry connection at alternate baud rate.
+    // Sleep a bit before returning to code which will retry connection at
+    // alternate baud rate.
     delay(MIP_BEGIN_RETRY_WAIT);
   }
   return result;
@@ -142,9 +162,9 @@ void MiP::end() {
     // Restore MiP's default volume in case it was changed by the user.
     writeVolume(MIP_VOLUME_7);
 
-    // Send the disconnect command.  If it is successful the app will be disconnected, indicated by a
-    // blue chest LED.
-    const uint8_t command[] = { MIP_CMD_DISCONNECT_APP };
+    // Send the disconnect command.  If it is successful the app will be
+    // disconnected, indicated by a blue chest LED.
+    const uint8_t command[] = {MIP_CMD_DISCONNECT_APP};
     rawSend(command, sizeof(command));
   }
 
@@ -161,7 +181,7 @@ void MiP::end() {
 void MiP::sleep() {
   // Put the MiP to sleep.
   // The MiP will need to be reset before another begin() will succeed.
-  const uint8_t command[] = { MIP_CMD_SLEEP };
+  const uint8_t command[] = {MIP_CMD_SLEEP};
   rawSend(command, sizeof(command));
 }
 
@@ -170,16 +190,20 @@ void MiP::printLastCallResult() {
     MIP_DEBUG_ERROR_PRINT(F("MiP: API returned "));
     switch (m_lastError) {
       case MIP_ERROR_TIMEOUT:
-        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
         break;
       case MIP_ERROR_NO_EVENT:
-        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
         break;
       case MIP_ERROR_BAD_RESPONSE:
-        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
         break;
       case MIP_ERROR_MAX_RETRIES:
-        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
         break;
       default:
         MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));

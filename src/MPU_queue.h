@@ -12,17 +12,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Circular queue used internally by the MPU library. Overwrites oldest items once it is full.
-   This class is not thread safe.  This class does not interact with MiP.
+/* Circular queue used internally by the MPU library. Overwrites oldest items
+   once it is full. This class is not thread safe.  This class does not interact
+   with MiP.
 */
 #ifndef QUEUE_H_
 #define QUEUE_H_
 
 #include <stdint.h>
 
-template<class ElementType, uint8_t Size>
+template <class ElementType, uint8_t Size>
 class CircularQueue {
-public:
+ public:
   CircularQueue() {
     clear();
   }
@@ -47,7 +48,8 @@ public:
     if (m_count < Size) {
       m_count++;
     } else {
-      // Queue was full so oldest response was overwritten. Increment read index to discard oldest.
+      // Queue was full so oldest response was overwritten. Increment read index
+      // to discard oldest.
       advanceReadIndex();
     }
   }
@@ -64,7 +66,7 @@ public:
     return true;
   }
 
-protected:
+ protected:
   void advanceWriteIndex() {
     if (m_writeIndex == Size - 1) {
       // Wrap around to beginning of circular queue.
@@ -84,9 +86,9 @@ protected:
   }
 
   ElementType m_elements[Size];
-  uint8_t     m_count;
-  uint8_t     m_readIndex;
-  uint8_t     m_writeIndex;
+  uint8_t m_count;
+  uint8_t m_readIndex;
+  uint8_t m_writeIndex;
 };
 
-#endif // QUEUE_H_
+#endif  // QUEUE_H_

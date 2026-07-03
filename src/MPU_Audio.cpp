@@ -21,21 +21,29 @@
 #define MIP_RETRY_WAIT 50
 
 // MiP Protocol Commands related to audio playback.
-// These command codes are placed in the first byte of requests sent to the MiP and responses sent back from the MiP.
-// See https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md for the complete list.
+// These command codes are placed in the first byte of requests sent to the MiP
+// and responses sent back from the MiP. See
+// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
+// for the complete list.
 #define MIP_CMD_PLAY_SOUND 0x06
 #define MIP_CMD_SET_VOLUME 0x15
 #define MIP_CMD_GET_VOLUME 0x16
 
-// Define an assert mechanism that can be used to log and halt when the user is found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) if (!(EXPRESSION)) mipAssert(__LINE__);
+// Define an assert mechanism that can be used to log and halt when the user is
+// found to be calling the API incorrectly.
+#define MIP_ASSERT(EXPRESSION) \
+  if (!(EXPRESSION))           \
+    mipAssert(__LINE__);
 
 static void mipAssert(uint32_t lineNumber) {
   MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Audio.cpp: %d\n", lineNumber);
-  while (1) { delay(100); }
+  while (1) {
+    delay(100);
+  }
 }
 
-void MiP::playSound(MiPSoundIndex sound, MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
+void MiP::playSound(MiPSoundIndex sound,
+                    MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
   beginSoundList();
   addEntryToSoundList(sound, 0, volume);
   playSoundList();
@@ -47,18 +55,22 @@ void MiP::beginSoundList() {
   m_lastError = MIP_ERROR_NONE;
 }
 
-void MiP::addEntryToSoundList(MiPSoundIndex sound, uint16_t delayTime /* = 0 */, MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
+void MiP::addEntryToSoundList(MiPSoundIndex sound,
+                              uint16_t delayTime /* = 0 */,
+                              MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
   // Must call beginSoundList() before calling this function.
   MIP_ASSERT(m_soundIndex != -1);
 
   // Delay is in units of 30 msecs and can't exceed 255 * 30.
   MIP_ASSERT(delayTime <= 255 * 30);
 
-  // Volume can only be set to values between 0 and 7 or 0xFF (which means keep volume as it was).
+  // Volume can only be set to values between 0 and 7 or 0xFF (which means keep
+  // volume as it was).
   MIP_ASSERT(volume <= MIP_VOLUME_7 || volume == MIP_VOLUME_DEFAULT);
 
   // Need to issue volume command if volume is being changed and
-  // if we have to inject a volume instruction, verify we don't overflow the buffer.
+  // if we have to inject a volume instruction, verify we don't overflow the
+  // buffer.
   if (volume != MIP_VOLUME_DEFAULT && volume != m_playVolume) {
     // Safe check to prevent index 18 out-of-bounds write.
     // The sound list can only hold 8 sound entries.
@@ -79,7 +91,8 @@ void MiP::addEntryToSoundList(MiPSoundIndex sound, uint16_t delayTime /* = 0 */,
 }
 
 void MiP::playSoundList(uint8_t repeatCount) {
-  // Must call beginSoundList() and addSoundToList() before calling this function.
+  // Must call beginSoundList() and addSoundToList() before calling this
+  // function.
   MIP_ASSERT(m_soundIndex >= 1);
   m_playCommand[0] = MIP_CMD_PLAY_SOUND;
 
@@ -93,10 +106,12 @@ void MiP::playSoundList(uint8_t repeatCount) {
   // The last byte in the command is the repeat count.
   m_playCommand[17] = repeatCount;
 
-  // Send this command blindly with no error checking since there is no way to determine if it has failed.
+  // Send this command blindly with no error checking since there is no way to
+  // determine if it has failed.
   rawSend(m_playCommand, sizeof(m_playCommand));
 
-  // Set the index to 8 to flag that no more items can be added to the sound list but you can still play it again.
+  // Set the index to 8 to flag that no more items can be added to the sound
+  // list but you can still play it again.
   m_soundIndex = 8;
   m_lastError = MIP_ERROR_NONE;
 }
@@ -104,9 +119,9 @@ void MiP::playSoundList(uint8_t repeatCount) {
 void MiP::writeVolume(uint8_t volume) {
   int8_t result;
 
-  // Send the set command and then issue the corresponding get command. Retry if the get fails or doesn't return the
-  // expected new setting.
-  for (uint8_t retry = 0 ; retry < MIP_MAX_RETRIES ; retry++) {
+  // Send the set command and then issue the corresponding get command. Retry if
+  // the get fails or doesn't return the expected new setting.
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
     rawSetVolume(volume);
 
     // Read back and make sure that it was set as expected.
@@ -127,7 +142,8 @@ void MiP::writeVolume(uint8_t volume) {
     // Kept getting an error back from read attempt.
     m_lastError = result;
   } else {
-    // Read was successful but didn't match setting to which we were attempting to change.
+    // Read was successful but didn't match setting to which we were attempting
+    // to change.
     m_lastError = MIP_ERROR_MAX_RETRIES;
   }
 }
@@ -136,7 +152,7 @@ uint8_t MiP::readVolume() {
   int8_t result;
 
   // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0 ; retry < MIP_MAX_RETRIES ; retry++) {
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
     uint8_t volume;
     result = rawGetVolume(volume);
     if (result == MIP_ERROR_NONE) {
@@ -153,25 +169,27 @@ uint8_t MiP::readVolume() {
   return 0;
 }
 
-// This internal protected method sends the set volume command with no error checking. The error handling /
-// recovery happens at a higher level of the driver.
+// This internal protected method sends the set volume command with no error
+// checking. The error handling / recovery happens at a higher level of the
+// driver.
 void MiP::rawSetVolume(uint8_t volume) {
   MIP_ASSERT(volume <= 7);
-  uint8_t command[1 + 1] = { MIP_CMD_SET_VOLUME, volume };
+  uint8_t command[1 + 1] = {MIP_CMD_SET_VOLUME, volume};
   rawSend(command, sizeof(command));
 }
 
-// This internal protected method sends the get volume command with minimal error handling. The error
-// recovery happens at a higher level of the driver.
+// This internal protected method sends the get volume command with minimal
+// error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP::rawGetVolume(uint8_t& volume) {
-  const uint8_t getVolume[1] = { MIP_CMD_GET_VOLUME };
-  uint8_t       response[1 + 1];
-  size_t        responseLength;
+  const uint8_t getVolume[1] = {MIP_CMD_GET_VOLUME};
+  uint8_t response[1 + 1];
+  size_t responseLength;
   volume = 0;
-  int8_t result = rawReceive(getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
-  if (result) return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_VOLUME ||
+  int8_t result = rawReceive(
+      getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
+  if (result)
+    return result;
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_VOLUME ||
       response[1] > 7) {
     return MIP_ERROR_BAD_RESPONSE;
   }

@@ -13,7 +13,7 @@
    limitations under the License.
 */
 /* Contains all the large enumerations and data structures.
-*/
+ */
 #ifndef MPU_TYPES_H
 #define MPU_TYPES_H
 
@@ -21,63 +21,62 @@
 
 enum MiPGestureRadarMode : uint8_t {
   MIP_GESTURE_RADAR_DISABLED = 0x00,
-  MIP_GESTURE                = 0x02,
-  MIP_RADAR                  = 0x04,
+  MIP_GESTURE = 0x02,
+  MIP_RADAR = 0x04,
 };
 
 enum MiPRadar : uint8_t {
-  MIP_RADAR_NONE      = 0x01,
+  MIP_RADAR_NONE = 0x01,
   MIP_RADAR_10CM_30CM = 0x02,
-  MIP_RADAR_0CM_10CM  = 0x03,
-  MIP_RADAR_INVALID   = 0xFF          // Is set to this value when there are no current radar events.
+  MIP_RADAR_0CM_10CM = 0x03,
+  MIP_RADAR_INVALID =
+      0xFF  // Is set to this value when there are no current radar events.
 };
 
 enum MiPGesture : uint8_t {
-  MIP_GESTURE_LEFT               = 0x0A,
-  MIP_GESTURE_RIGHT              = 0x0B,
-  MIP_GESTURE_CENTER_SWEEP_LEFT  = 0x0C,
+  MIP_GESTURE_LEFT = 0x0A,
+  MIP_GESTURE_RIGHT = 0x0B,
+  MIP_GESTURE_CENTER_SWEEP_LEFT = 0x0C,
   MIP_GESTURE_CENTER_SWEEP_RIGHT = 0x0D,
-  MIP_GESTURE_CENTER_HOLD        = 0x0E,
-  MIP_GESTURE_FORWARD            = 0x0F,
-  MIP_GESTURE_BACKWARD           = 0x10,
-  MIP_GESTURE_INVALID            = 0xFF   // Is set to this value when there are no current gesture events.
+  MIP_GESTURE_CENTER_HOLD = 0x0E,
+  MIP_GESTURE_FORWARD = 0x0F,
+  MIP_GESTURE_BACKWARD = 0x10,
+  MIP_GESTURE_INVALID =
+      0xFF  // Is set to this value when there are no current gesture events.
 };
 
 enum MiPHeadLED : uint8_t {
-  MIP_HEAD_LED_OFF        = 0,
-  MIP_HEAD_LED_ON         = 1,
+  MIP_HEAD_LED_OFF = 0,
+  MIP_HEAD_LED_ON = 1,
   MIP_HEAD_LED_BLINK_SLOW = 2,
   MIP_HEAD_LED_BLINK_FAST = 3,
 };
 
 enum MiPDriveDirection : uint8_t {
-  MIP_DRIVE_FORWARD  = 0x00,
+  MIP_DRIVE_FORWARD = 0x00,
   MIP_DRIVE_BACKWARD = 0x01,
 };
 
-enum MiPTurnDirection : uint8_t {
-  MIP_TURN_LEFT  = 0x00,
-  MIP_TURN_RIGHT = 0x01
-};
+enum MiPTurnDirection : uint8_t { MIP_TURN_LEFT = 0x00, MIP_TURN_RIGHT = 0x01 };
 
 enum MiPFallDirection : uint8_t {
-  MIP_FALL_ON_BACK   = 0x00,
+  MIP_FALL_ON_BACK = 0x00,
   MIP_FALL_FACE_DOWN = 0x01
 };
 
 enum MiPPosition : uint8_t {
-  MIP_POSITION_ON_BACK                = 0x00,
-  MIP_POSITION_FACE_DOWN              = 0x01,
-  MIP_POSITION_UPRIGHT                = 0x02,
-  MIP_POSITION_PICKED_UP              = 0x03,
-  MIP_POSITION_HAND_STAND             = 0x04,
-  MIP_POSITION_FACE_DOWN_ON_TRAY      = 0x05,
+  MIP_POSITION_ON_BACK = 0x00,
+  MIP_POSITION_FACE_DOWN = 0x01,
+  MIP_POSITION_UPRIGHT = 0x02,
+  MIP_POSITION_PICKED_UP = 0x03,
+  MIP_POSITION_HAND_STAND = 0x04,
+  MIP_POSITION_FACE_DOWN_ON_TRAY = 0x05,
   MIP_POSITION_ON_BACK_WITH_KICKSTAND = 0x06,
 };
 
 enum MiPGetUp : uint8_t {
-  MIP_GETUP_FROM_FRONT  = 0x00,
-  MIP_GETUP_FROM_BACK   = 0x01,
+  MIP_GETUP_FROM_FRONT = 0x00,
+  MIP_GETUP_FROM_BACK = 0x01,
   MIP_GETUP_FROM_EITHER = 0x02
 };
 
@@ -189,57 +188,61 @@ enum MiPSoundIndex : uint8_t {
   MIP_SOUND_SHORT_MUTE_FOR_STOP,
   MIP_SOUND_FREESTYLE_TRACKING_2,
   MIP_SOUND_VOLUME_OFF = 0xF7,
-  MIP_SOUND_VOLUME_1   = 0xF8,
-  MIP_SOUND_VOLUME_2   = 0xF9,
-  MIP_SOUND_VOLUME_3   = 0xFA,
-  MIP_SOUND_VOLUME_4   = 0xFB,
-  MIP_SOUND_VOLUME_5   = 0xFC,
-  MIP_SOUND_VOLUME_6   = 0xFD,
-  MIP_SOUND_VOLUME_7   = 0xFE
+  MIP_SOUND_VOLUME_1 = 0xF8,
+  MIP_SOUND_VOLUME_2 = 0xF9,
+  MIP_SOUND_VOLUME_3 = 0xFA,
+  MIP_SOUND_VOLUME_4 = 0xFB,
+  MIP_SOUND_VOLUME_5 = 0xFC,
+  MIP_SOUND_VOLUME_6 = 0xFD,
+  MIP_SOUND_VOLUME_7 = 0xFE
 };
 
 enum MiPVolume : uint8_t {
   MIP_VOLUME_OFF = 0,
-  MIP_VOLUME_1   = 1,
-  MIP_VOLUME_2   = 2,
-  MIP_VOLUME_3   = 3,
-  MIP_VOLUME_4   = 4,
-  MIP_VOLUME_5   = 5,
-  MIP_VOLUME_6   = 6,
-  MIP_VOLUME_7   = 7,
+  MIP_VOLUME_1 = 1,
+  MIP_VOLUME_2 = 2,
+  MIP_VOLUME_3 = 3,
+  MIP_VOLUME_4 = 4,
+  MIP_VOLUME_5 = 5,
+  MIP_VOLUME_6 = 6,
+  MIP_VOLUME_7 = 7,
   MIP_VOLUME_DEFAULT = 0xFF
 };
 
 enum MiPClapEnabled : uint8_t {
   MIP_CLAP_DISABLED = 0x00,
-  MIP_CLAP_ENABLED  = 0x01,
+  MIP_CLAP_ENABLED = 0x01,
 };
 
 enum MiPGameMode : uint8_t {
-  MIP_APP_MODE      = 0x01,
-  MIP_CAGE_MODE     = 0x02,
+  MIP_APP_MODE = 0x01,
+  MIP_CAGE_MODE = 0x02,
   MIP_TRACKING_MODE = 0x03,
-  MIP_DANCE_MODE    = 0x04,
-  MIP_DEFAULT_MODE  = 0x05,
-  MIP_STACK_MODE    = 0x06,
-  MIP_TRICK_MODE    = 0x07,
-  MIP_ROAM_MODE     = 0x08
+  MIP_DANCE_MODE = 0x04,
+  MIP_DEFAULT_MODE = 0x05,
+  MIP_STACK_MODE = 0x06,
+  MIP_TRICK_MODE = 0x07,
+  MIP_ROAM_MODE = 0x08
 };
 
 class MiPStatus {
-public:
-  MiPStatus() { clear(); }
+ public:
+  MiPStatus() {
+    clear();
+  }
   void clear() {
     battery = 0.0f;
     position = MIP_POSITION_ON_BACK_WITH_KICKSTAND;
   }
-  float       battery;
+  float battery;
   MiPPosition position;
 };
 
 class MiPChestLED {
-public:
-  MiPChestLED() { clear(); }
+ public:
+  MiPChestLED() {
+    clear();
+  }
   void clear() {
     onTime = 0;
     offTime = 0;
@@ -249,14 +252,16 @@ public:
   }
   uint16_t onTime;
   uint16_t offTime;
-  uint8_t  red;
-  uint8_t  green;
-  uint8_t  blue;
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
 };
 
 class MiPHeadLEDs {
-public:
-  MiPHeadLEDs() { clear(); }
+ public:
+  MiPHeadLEDs() {
+    clear();
+  }
   void clear() {
     led1 = MIP_HEAD_LED_OFF;
     led2 = MIP_HEAD_LED_OFF;
@@ -270,8 +275,10 @@ public:
 };
 
 class MiPSoftwareVersion {
-public:
-  MiPSoftwareVersion() { clear(); }
+ public:
+  MiPSoftwareVersion() {
+    clear();
+  }
   void clear() {
     year = 0;
     month = 0;
@@ -279,14 +286,16 @@ public:
     uniqueVersion = 0;
   }
   uint16_t year;
-  uint8_t  month;
-  uint8_t  day;
-  uint8_t  uniqueVersion;
+  uint8_t month;
+  uint8_t day;
+  uint8_t uniqueVersion;
 };
 
 class MiPHardwareInfo {
-public:
-  MiPHardwareInfo() { clear(); }
+ public:
+  MiPHardwareInfo() {
+    clear();
+  }
   void clear() {
     voiceChip = 0;
     hardware = 0;
@@ -296,14 +305,16 @@ public:
 };
 
 class MiPClapSettings {
-public:
-  MiPClapSettings() { clear(); }
+ public:
+  MiPClapSettings() {
+    clear();
+  }
   void clear() {
     enabled = MIP_CLAP_DISABLED;
     delay = 0;
   }
   MiPClapEnabled enabled;
-  uint16_t       delay;
+  uint16_t delay;
 };
 
-#endif // MPU_TYPES_H
+#endif  // MPU_TYPES_H

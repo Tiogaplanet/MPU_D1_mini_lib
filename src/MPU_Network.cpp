@@ -12,8 +12,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Encapsulates the network bindings for the D1 mini, handling mDNS and ArduinoOTA (Over The Air)
-   updates.  No direct interaction with MiP happens in this module.
+/* Encapsulates the network bindings for the D1 mini, handling mDNS and
+   ArduinoOTA (Over The Air) updates.  No direct interaction with MiP happens in
+   this module.
 */
 #include "MPU_D1_mini.h"
 
@@ -46,45 +47,55 @@ bool MiP::begin(const char* ssid, const char* password, const char* hostname) {
   if (WiFi.status() == WL_CONNECTED) {
     MIP_DEBUG_INFO_PRINTLN(F("MiP: WiFi connected successfully"));
   } else {
-    MIP_DEBUG_WARN_PRINTLN(F("MiP: WiFi connection failed after maximum attempts"));
+    MIP_DEBUG_WARN_PRINTLN(
+        F("MiP: WiFi connection failed after maximum attempts"));
     // Still return the UART result, but user can check WiFi.status()
   }
 
   ArduinoOTA.onStart([]() {
-    String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
-    // NOTE: If updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end().
+    String type =
+        (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
+    // NOTE: If updating SPIFFS this would be the place to unmount SPIFFS using
+    // SPIFFS.end().
     MIP_DEBUG_INFO_PRINT(F("MiP: Start updating "));
     MIP_DEBUG_INFO_PRINTLN(type);
   });
-  ArduinoOTA.onEnd([]() {
-    MIP_DEBUG_INFO_PRINTLN(F("End"));
-  });
+  ArduinoOTA.onEnd([]() { MIP_DEBUG_INFO_PRINTLN(F("End")); });
   // Correct formatted percentage string to address bug:
   // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/27
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    if (total == 0) return;
+    if (total == 0)
+      return;
     MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
   });
   ArduinoOTA.onError([](ota_error_t error) {
     MIP_DEBUG_ERROR_PRINTF("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) { MIP_DEBUG_ERROR_PRINTLN(F("Auth Failed")); }
-    else if (error == OTA_BEGIN_ERROR) { MIP_DEBUG_ERROR_PRINTLN(F("Begin Failed")); }
-    else if (error == OTA_CONNECT_ERROR) { MIP_DEBUG_ERROR_PRINTLN(F("Connect Failed")); }
-    else if (error == OTA_RECEIVE_ERROR) { MIP_DEBUG_ERROR_PRINTLN(F("Receive Failed"));}
-    else if (error == OTA_END_ERROR) { MIP_DEBUG_ERROR_PRINTLN(F("End Failed")); }
+    if (error == OTA_AUTH_ERROR) {
+      MIP_DEBUG_ERROR_PRINTLN(F("Auth Failed"));
+    } else if (error == OTA_BEGIN_ERROR) {
+      MIP_DEBUG_ERROR_PRINTLN(F("Begin Failed"));
+    } else if (error == OTA_CONNECT_ERROR) {
+      MIP_DEBUG_ERROR_PRINTLN(F("Connect Failed"));
+    } else if (error == OTA_RECEIVE_ERROR) {
+      MIP_DEBUG_ERROR_PRINTLN(F("Receive Failed"));
+    } else if (error == OTA_END_ERROR) {
+      MIP_DEBUG_ERROR_PRINTLN(F("End Failed"));
+    }
   });
 
   ArduinoOTA.begin();
 
   MIP_DEBUG_INFO_PRINTLN(F("MiP: IP address: ") + WiFi.localIP().toString());
 
-  // Set up mDNS responder using the user-specified hostname and ending with ".local".
-  // For example, if the user provides the hostname "HappyMiP" the fully-qualified
-  // domain name is "HappyMiP.local".
+  // Set up mDNS responder using the user-specified hostname and ending with
+  // ".local". For example, if the user provides the hostname "HappyMiP" the
+  // fully-qualified domain name is "HappyMiP.local".
   if (!MDNS.begin(m_hostname)) {
     MIP_DEBUG_ERROR_PRINTLN(F("MiP: Error setting up mDNS responder."));
   } else {
-    MIP_DEBUG_INFO_PRINTF("MiP: mDNS responder started with hostname of %s.local\r\n", m_hostname);
+    MIP_DEBUG_INFO_PRINTF(
+        "MiP: mDNS responder started with hostname of %s.local\r\n",
+        m_hostname);
   }
 
   return returnValue;

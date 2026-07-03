@@ -13,13 +13,15 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-   This is the implementation of the MiPDebug server for outputting debug messages to Telnet.
-   Written by Samuel Trassare and based on Joao Lopes' original RemoteDebug library.
+   This is the implementation of the MiPDebug server for outputting debug
+   messages to Telnet. Written by Samuel Trassare and based on Joao Lopes'
+   original RemoteDebug library.
 */
 #include "MPU_Debug.h"
 #include <Arduino.h>
 
-// Define a version number just for this Telnet server, not the overall MPU library.
+// Define a version number just for this Telnet server, not the overall MPU
+// library.
 #define VERSION "1.0.1"
 
 // The Telnet server instance.
@@ -71,16 +73,20 @@ void MiPDebug::handle() {
   }
 
 #ifdef ALPHA_VERSION
-  // Automatically change to profiler level if time between handles is greater than n millis.
+  // Automatically change to profiler level if time between handles is greater
+  // than n millis.
   if (m_autoLevelProfiler > 0 && m_clientDebugLevel != PROFILER) {
     uint32_t diff = (millis() - lastTime);
 
     if (diff >= m_autoLevelProfiler) {
       m_levelBeforeProfiler = m_clientDebugLevel;
       m_clientDebugLevel = PROFILER;
-      m_levelProfilerDisable = 1000; // Disable it at 1 second.
+      m_levelProfilerDisable = 1000;  // Disable it at 1 second.
       if (m_connected) {
-        telnetClient.printf("* Debug level profile is now active - time between handles: %u\r\n", diff);
+        telnetClient.printf(
+            "* Debug level profile is now active - time between handles: "
+            "%u\r\n",
+            diff);
       }
     }
     lastTime = millis();
@@ -89,9 +95,7 @@ void MiPDebug::handle() {
 
   // Look for a connected client.
   if (telnetServer.hasClient()) {
-
     if (telnetClient && telnetClient.connected()) {
-
       // Verify if the connecting IP is same as the previous connection.
 
       WiFiClient newClient;
@@ -142,7 +146,8 @@ void MiPDebug::handle() {
     showHelp();
 
 #ifdef CLIENT_BUFFERING
-    // Client buffering - send data in intervals to avoid delays or if it is too big.
+    // Client buffering - send data in intervals to avoid delays or if it is too
+    // big.
     m_bufferSend = "";
     m_sizeBufferSend = 0;
     m_lastTimeSend = millis();
@@ -155,15 +160,15 @@ void MiPDebug::handle() {
     }
   }
 
-  // Is a client connected? Let's check to reduce overhead if there's no active connection.
+  // Is a client connected? Let's check to reduce overhead if there's no active
+  // connection.
   m_connected = (telnetClient && telnetClient.connected());
 
   // Get the user's command from telnet.
   if (m_connected) {
-    char last = ' '; // To avoid processing the "\r\n" twice.
+    char last = ' ';  // To avoid processing the "\r\n" twice.
 
     while (telnetClient.available()) {
-
       // Get a single character.
       char character = telnetClient.read();
 
@@ -191,9 +196,11 @@ void MiPDebug::handle() {
     }
 
 #ifdef CLIENT_BUFFERING
-    // Client buffering - send data in intervals to avoid delays or if its is too big
+    // Client buffering - send data in intervals to avoid delays or if its is
+    // too big
 
-    if ((millis() - m_lastTimeSend) >= DELAY_TO_SEND || m_sizeBufferSend >= MAX_SIZE_SEND) {
+    if ((millis() - m_lastTimeSend) >= DELAY_TO_SEND ||
+        m_sizeBufferSend >= MAX_SIZE_SEND) {
       telnetClient.print(m_bufferSend);
       m_bufferSend = "";
       m_sizeBufferSend = 0;
@@ -202,8 +209,8 @@ void MiPDebug::handle() {
 #endif
 
     if (MAX_TIME_INACTIVE > 0) {
-      // Inactivity - close connection if no commands have been received from the user in a
-      // defined interval.
+      // Inactivity - close connection if no commands have been received from
+      // the user in a defined interval.
       if ((millis() - m_lastTimeCommand) > MAX_TIME_INACTIVE) {
         telnetClient.println("* Closing session due to inactivity.");
         telnetClient.stop();
@@ -236,8 +243,8 @@ void MiPDebug::showProfiler(bool show, uint32_t minTime) {
 }
 
 #ifdef ALPHA_VERSION
-// Automatically change to profiler level if time between handles is greater than n milliseconds
-// (0 - disable).
+// Automatically change to profiler level if time between handles is greater
+// than n milliseconds (0 - disable).
 void MiPDebug::autoProfilerLevel(uint32_t millisElapsed) {
   m_autoLevelProfiler = millisElapsed;
 }
@@ -254,17 +261,18 @@ void MiPDebug::showColors(bool show) {
   if (m_serialEnabled == false) {
     m_showColors = show;
   } else {
-    m_showColors = false; // Disable this for Serial1.
+    m_showColors = false;  // Disable this for Serial1.
   }
 }
 
-// Is a particular debug level active?  Useful for printing messages at a desired level.
+// Is a particular debug level active?  Useful for printing messages at a
+// desired level.
 bool MiPDebug::isActive(uint8_t debugLevel) {
   // Active -> Debug level ok and
   //           telnet connected or
   //           Serial enabled.
-  bool ret = (debugLevel >= m_clientDebugLevel
-              && (m_connected || m_serialEnabled));
+  bool ret =
+      (debugLevel >= m_clientDebugLevel && (m_connected || m_serialEnabled));
 
   if (ret) {
     m_lastDebugLevel = debugLevel;
@@ -284,7 +292,7 @@ void MiPDebug::setCallBackProjectCmds(void (*callback)()) {
 }
 
 // Print the user's debug message.
-size_t MiPDebug::write(const uint8_t *buffer, size_t size) {
+size_t MiPDebug::write(const uint8_t* buffer, size_t size) {
   for (size_t i = 0; i < size; i++) {
     write((uint8_t)buffer[i]);
   }
@@ -375,7 +383,7 @@ size_t MiPDebug::write(uint8_t character) {
       }
       if (m_showColors) {
         if (elapsed < 250) {
-          ; // No color for this.
+          ;  // No color for this.
         } else if (elapsed < 1000) {
           show.concat(COLOR_BACKGROUND_CYAN);
           resetColors = true;
@@ -428,7 +436,7 @@ size_t MiPDebug::write(uint8_t character) {
   }
 
   // Write to the telnet buffer.
-  m_bufferPrint.concat((char) character);
+  m_bufferPrint.concat((char)character);
 
   // Send the buffered characters.
   if (doPrint) {
@@ -469,7 +477,8 @@ size_t MiPDebug::write(uint8_t character) {
         m_bufferSend.concat(m_bufferPrint);
         m_sizeBufferSend += size;
 
-        // Client buffering - send data in intervals to avoid delays or if it is too big.
+        // Client buffering - send data in intervals to avoid delays or if it is
+        // too big.
         if ((millis() - m_lastTimeSend) >= DELAY_TO_SEND) {
           telnetClient.print(m_bufferSend);
           m_bufferSend = "";
@@ -533,7 +542,9 @@ void MiPDebug::showHelp() {
   help.concat("    l -> show debug level\r\n");
   help.concat("    t -> show time in milliseconds\r\n");
   help.concat("    profiler:\r\n");
-  help.concat("      p      -> show time between actual and last message (in millis)\r\n");
+  help.concat(
+      "      p      -> show time between actual and last message (in "
+      "millis)\r\n");
   help.concat("      p min  -> show only if time is this minimal\r\n");
   help.concat("      P time -> set debug level to profiler\r\n");
 #ifdef ALPHA_VERSION
@@ -541,7 +552,9 @@ void MiPDebug::showHelp() {
 #endif
   help.concat("    c -> show colors\r\n");
   help.concat("    filter:\r\n");
-  help.concat("          filter <string> -> show only debug messages containing this value\r\n");
+  help.concat(
+      "          filter <string> -> show only debug messages containing this "
+      "value\r\n");
   help.concat("          nofilter        -> disable the filter\r\n");
   help.concat("    cpu80  -> Set the ESP8266 CPU to 80 MHz\r\n");
   help.concat("    cpu160 -> Set the ESP8266 CPU to 160 MHz\r\n");
@@ -562,7 +575,8 @@ void MiPDebug::showHelp() {
 
   help.concat("\r\n");
   help.concat(
-    "* Please type the command and press enter to execute.(? or h for this help)\r\n");
+      "* Please type the command and press enter to execute.(? or h for this "
+      "help)\r\n");
   help.concat("***\r\n");
 
   telnetClient.print(help);
@@ -579,7 +593,8 @@ void MiPDebug::clearLastCommand() {
   m_lastCommand = "";
 }
 
-// This is an internal protected method to process the user's command received from telnet.
+// This is an internal protected method to process the user's command received
+// from telnet.
 void MiPDebug::processCommand() {
   telnetClient.print("* Debug: Command received: ");
   telnetClient.println(m_command);
@@ -664,9 +679,8 @@ void MiPDebug::processCommand() {
       if (aux > 0) {
         m_showProfiler = true;
         m_minTimeShowProfiler = aux;
-        telnetClient.printf(
-          "* Show profiler: on (with minimal time: %u)\r\n",
-          m_minTimeShowProfiler);
+        telnetClient.printf("* Show profiler: on (with minimal time: %u)\r\n",
+                            m_minTimeShowProfiler);
       }
     }
   } else if (m_command == "P") {
@@ -689,8 +703,8 @@ void MiPDebug::processCommand() {
     }
 
     telnetClient.printf(
-      "* Debug level set to Profiler (disable in %u millis)\r\n",
-      m_levelProfilerDisable);
+        "* Debug level set to Profiler (disable in %u millis)\r\n",
+        m_levelProfilerDisable);
   } else if (m_command == "A") {
     // Auto debug level profile.  Default of 1 second.
     m_autoLevelProfiler = 1000;
@@ -703,14 +717,13 @@ void MiPDebug::processCommand() {
     }
 
     telnetClient.printf(
-      "* Auto profiler debug level active (time >= %u millis)\r\n",
-      m_autoLevelProfiler);
+        "* Auto profiler debug level active (time >= %u millis)\r\n",
+        m_autoLevelProfiler);
   } else if (m_command == "c") {
     // Show status of colors.
     m_showColors = !m_showColors;
 
-    telnetClient.printf("* Show colors: %s\r\n",
-                        m_showColors ? "on" : "off");
+    telnetClient.printf("* Show colors: %s\r\n", m_showColors ? "on" : "off");
   } else if (m_command.startsWith("filter ") && options.length() > 0) {
     setFilter(options);
   } else if (m_command == "nofilter") {
@@ -775,8 +788,8 @@ String MiPDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
   return ret;
 }
 
-// This is an internal protected method to determine if a character is a carriage return or
-// line feed.
+// This is an internal protected method to determine if a character is a
+// carriage return or line feed.
 bool MiPDebug::isCRLF(char character) {
   return (character == '\r' || character == '\n');
 }
