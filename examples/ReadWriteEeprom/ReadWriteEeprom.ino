@@ -40,7 +40,7 @@ void setup() {
   Serial1.print(F(" Original password: "));
   Serial1.printf("0x%02X\n\r", secretPassword); 
 
-  // Power-off the MiP, comment out this line, recompile and load to the ProMini-Pack to see EEPROM
+  // Power-off the MiP, comment out this line, recompile and load to the MPU: D1 mini to see EEPROM
   // data preserved across power cycles.
   mip.setUserData(eepromAddressOffset, secretPassword);
 
