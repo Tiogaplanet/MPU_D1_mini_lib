@@ -16,8 +16,8 @@
    once it is full. This class is not thread safe.  This class does not interact
    with MiP.
 */
-#ifndef QUEUE_H_
-#define QUEUE_H_
+#ifndef MPU_QUEUE_H_
+#define MPU_QUEUE_H_
 
 #include <stdint.h>
 
@@ -91,4 +91,4 @@ class CircularQueue {
   uint8_t m_writeIndex;
 };
 
-#endif  // QUEUE_H_
+#endif  // MPU_QUEUE_H_
