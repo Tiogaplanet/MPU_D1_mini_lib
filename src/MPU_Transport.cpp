@@ -39,19 +39,6 @@
 #define MIP_CMD_GET_STATUS 0x79
 #define MIP_CMD_GET_WEIGHT 0x81
 
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Transport.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
-
 void MiP::rawSend(const uint8_t request[], size_t requestLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
 }

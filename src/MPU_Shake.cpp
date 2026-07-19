@@ -18,19 +18,6 @@
 */
 #include "MPU_D1_mini.h"
 
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Shake.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
-
 bool MiP::hasBeenShaken() {
   MIP_DEBUG_INFO_PRINTLN("MiP->Shake->hasBeenShaken()");
   // Fetch bytes from the Serial receive buffer and process any event data found

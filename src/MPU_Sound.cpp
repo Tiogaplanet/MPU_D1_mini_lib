@@ -16,9 +16,6 @@
 */
 #include "MPU_D1_mini.h"
 
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
-
 // MiP Protocol Commands related to audio playback.
 // These command codes are placed in the first byte of requests sent to the MiP
 // and responses sent back from the MiP. See
@@ -27,19 +24,6 @@
 #define MIP_CMD_PLAY_SOUND 0x06
 #define MIP_CMD_SET_VOLUME 0x15
 #define MIP_CMD_GET_VOLUME 0x16
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Audio.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 void MiP::playSound(MiPSoundIndex sound,
                     MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {

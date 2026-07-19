@@ -16,9 +16,6 @@
  */
 #include "MPU_D1_mini.h"
 
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
-
 // MiP Protocol Commands related to the odometer.
 // These command codes are placed in the first byte of requests sent to the MiP
 // and responses sent back from the MiP. See
@@ -26,19 +23,6 @@
 // for the complete list.
 #define MIP_CMD_READ_ODOMETER 0x85
 #define MIP_CMD_RESET_ODOMETER 0x86
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Odometer.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 float MiP::readDistanceTravelled() {
   MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->readDistanceTravelled()");
