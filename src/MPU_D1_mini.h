@@ -207,6 +207,13 @@ class MiP {
   float readDistanceTravelled();
   void resetDistanceTravelled();
 
+/**
+ * @brief Reads the current battery voltage of the MiP robot.
+ * * This function processes the incoming serial buffer for any pending Out-Of-Band (OOB) 
+ * status events to ensure the cache is up to date, then returns the latest known voltage. 
+ * It does not actively transmit a request to the robot.
+ * * @return float The battery voltage, typically ranging from 4.0V (dead) to 6.4V (fully charged).
+ */
   float readBatteryVoltage();
   MiPPosition readPosition();
   bool isOnBack();
