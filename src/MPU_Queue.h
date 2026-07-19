@@ -12,15 +12,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Circular queue used internally by the MPU library. Overwrites oldest items
-   once it is full. This class is not thread safe.  This class does not interact
-   with MiP.
-*/
+/**
+ * @file MPU_Queue.h
+ * @brief Fixed-size circular queue (ring buffer) used internally by the MiP
+ *        library.
+ *
+ * This template class overwrites the oldest element when full. It is **not**
+ * thread-safe. Used for buffering clap, gesture, IR, and detection events.
+ */
 #ifndef MPU_QUEUE_H_
 #define MPU_QUEUE_H_
 
 #include <stdint.h>
 
+/**
+ * @brief A lightweight circular queue (ring buffer) template.
+ *
+ * Overwrites oldest data when the queue is full. Primarily used to buffer
+ * asynchronous events from the MiP robot.
+ *
+ * @tparam ElementType Type of elements stored in the queue.
+ * @tparam Size        Maximum number of elements the queue can hold.
+ */
 template <class ElementType, uint8_t Size>
 class CircularQueue {
  public:
