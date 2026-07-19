@@ -12,9 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Handles the low-level byte transmission, hex-to-binary parsing, and the
-   critical Out-of-Band (OOB) response reading.
-*/
+/**
+ * @file MPU_Transport.cpp
+ * @brief Low-level UART transport layer for MiP communication.
+ *
+ * Handles raw sending/receiving, hex-to-binary conversion, request/response
+ * timing, and processing of Out-Of-Band (OOB) event notifications.
+ */
 #include "MPU_D1_mini.h"
 
 #define MIP_REQUEST_DELAY 8

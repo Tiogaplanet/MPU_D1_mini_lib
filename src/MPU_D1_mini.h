@@ -910,8 +910,23 @@ class MiP {
    */
   uint8_t availableIRCodeEvents();
 
-  // Lower Level Raw API
+/**
+   * @brief Sends a raw command to the MiP (fire-and-forget).
+   *
+   * Used internally by higher-level verified methods.
+   */
   void rawSend(const uint8_t request[], size_t requestLength);
+  
+  /**
+   * @brief Sends a raw command and waits for the expected response.
+   *
+   * @param request          Command buffer to send.
+   * @param requestLength    Length of the command.
+   * @param responseBuffer   Buffer to store the response.
+   * @param responseBufferSize Size of the response buffer.
+   * @param responseLength   Receives the actual number of bytes read.
+   * @return MIP_ERROR_NONE on success, or an error code.
+   */
   int8_t rawReceive(const uint8_t request[],
                     size_t requestLength,
                     uint8_t responseBuffer[],
