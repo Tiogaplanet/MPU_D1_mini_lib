@@ -12,12 +12,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for IR dongle communication.
-*/
+/** 
+ * @file MPU_Infrared.cpp
+ * @brief Implements MiP detection mode, IR remote control, and IR dongle
+ *        code sending/receiving.
+ *
+ * Supports both MiP-to-MiP detection and IR dongle communication. Most
+ * operations are verified where possible; send commands are fire-and-forget.
+ */
 #include "MPU_D1_mini.h"
-
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
 
 // MiP Protocol Commands related to MiP's IR capability.
 // These command codes are placed in the first byte of requests sent to the MiP
@@ -33,19 +36,6 @@
 #define MIP_IR_DETECTION_MODE_DISABLE 0
 #define MIP_IR_REMOTE_CONTROL_DISABLE 0
 #define MIP_IR_REMOTE_CONTROL_ENABLE 1
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Infrared.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 void MiP::enableMiPDetectionMode(uint8_t id, uint8_t txPower) {
   MIP_DEBUG_INFO_PRINTLN("MiP->Infrared->enableMiPDetectionMode()");

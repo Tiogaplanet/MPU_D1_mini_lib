@@ -495,17 +495,91 @@ class MiP {
    */
   uint8_t getUserData(uint8_t addressOffset);
 
-  // IR & Detection
+  /**
+   * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
+   *
+   * @param id       Unique ID for this MiP (used in detection events).
+   * @param txPower  Transmit power level (1-120).
+   */
   void enableMiPDetectionMode(uint8_t id, uint8_t txPower);
+
+  /**
+   * @brief Disables MiP detection mode.
+   */
   void disableMiPDetectionMode();
+
+  /**
+   * @brief Checks if MiP detection mode is currently enabled.
+   *
+   * @return true if detection mode is active.
+   */
   bool isMiPDetectionModeEnabled();
+
+  /**
+   * @brief Reads the next detected MiP event.
+   *
+   * Processes pending serial data first.
+   *
+   * @return ID of the detected MiP, or 0 if none available.
+   */
   uint8_t readDetectedMiP();
+
+  /**
+   * @brief Returns the number of unread detected MiP events.
+   *
+   * Processes pending serial data first.
+   *
+   * @return Number of available detection events.
+   */
   uint8_t availableDetectedMiPEvents();
+
+  /**
+   * @brief Enables IR remote control mode.
+   *
+   * Verified operation (command + read-back with retry).
+   */
   void enableIRRemoteControl();
+
+  /**
+   * @brief Disables IR remote control mode.
+   *
+   * Verified operation (command + read-back with retry).
+   */
   void disableIRRemoteControl();
+
+  /**
+   * @brief Checks if IR remote control mode is enabled.
+   *
+   * @return true if IR remote control is active.
+   */
   bool isIRRemoteControlEnabled();
+
+  /**
+   * @brief Sends an IR dongle code (fire-and-forget).
+   *
+   * No verification is performed as there is no reliable feedback mechanism.
+   *
+   * @param sendCode      16-bit IR code to transmit.
+   * @param transmitPower Transmit power level.
+   */
   void sendIRDongleCode(uint16_t sendCode, uint8_t transmitPower);
+
+  /**
+   * @brief Reads the next received IR dongle code event.
+   *
+   * Processes pending serial data first.
+   *
+   * @return The 32-bit IR code, or 0xFFFFFFFF if none available.
+   */
   uint32_t readIRDongleCode();
+
+  /**
+   * @brief Returns the number of unread IR dongle code events.
+   *
+   * Processes pending serial data first.
+   *
+   * @return Number of available IR code events.
+   */
   uint8_t availableIRCodeEvents();
 
   // Lower Level Raw API
