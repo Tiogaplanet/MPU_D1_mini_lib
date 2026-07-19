@@ -481,7 +481,7 @@ class MiP {
   void writeVolume(uint8_t volume);
   uint8_t readVolume();
 
-/**
+  /**
    * @brief Reads the total distance travelled by the MiP.
    *
    * Performs a verified read with automatic retries on error.
@@ -489,7 +489,7 @@ class MiP {
    * @return Distance in centimeters. Returns 0.0 on failure.
    */
   float readDistanceTravelled();
-  
+
   /**
    * @brief Resets the odometer distance to zero.
    *
@@ -506,13 +506,64 @@ class MiP {
    * @return Battery voltage, typically 4.0V (low) to 6.4V (fully charged).
    */
   float readBatteryVoltage();
+
+  /**
+   * @brief Reads the current physical position/orientation of the MiP.
+   *
+   * Uses cached status data (updated automatically from OOB events).
+   * No new serial request is sent to the robot.
+   *
+   * @return Current position as a MiPPosition enum value.
+   */
   MiPPosition readPosition();
+
+  /**
+   * @brief Checks if the MiP is lying on its back.
+   *
+   * @return true if on its back.
+   */
   bool isOnBack();
+
+  /**
+   * @brief Checks if the MiP is face down.
+   *
+   * @return true if face down.
+   */
   bool isFaceDown();
+
+  /**
+   * @brief Checks if the MiP is upright.
+   *
+   * @return true if upright.
+   */
   bool isUpright();
+
+  /**
+   * @brief Checks if the MiP has been picked up.
+   *
+   * @return true if picked up.
+   */
   bool isPickedUp();
+
+  /**
+   * @brief Checks if the MiP is in a hand-standing position.
+   *
+   * @return true if hand-standing.
+   */
   bool isHandStanding();
+
+  /**
+   * @brief Checks if the MiP is face down on its tray.
+   *
+   * @return true if face down on tray.
+   */
   bool isFaceDownOnTray();
+
+  /**
+   * @brief Checks if the MiP is on its back with the kickstand deployed.
+   *
+   * @return true if on back with kickstand.
+   */
   bool isOnBackWithKickstand();
 
   int8_t readWeight();

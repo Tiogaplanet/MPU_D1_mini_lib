@@ -12,9 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for MiP's position. Relies on
-   cached data, no serial transmission to MiP.
-*/
+/**
+ * @file MPU_Position.cpp
+ * @brief Implements reading the MiP robot's physical orientation and position.
+ *
+ * All functions rely on cached status data (updated via OOB events) and do not
+ * transmit new requests to the robot.
+ */
 #include "MPU_D1_mini.h"
 
 MiPPosition MiP::readPosition() {
