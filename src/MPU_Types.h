@@ -12,19 +12,31 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Contains all the large enumerations and data structures.
+/**
+ * @file MPU_Types.h
+ * @brief Contains all public enumerations, type definitions, and data
+ *        structures used by the MiP library.
+ *
+ * These types define the MiP robot's modes, sensor values, LED patterns,
+ * sound indices, and status structures.
  */
 #ifndef MPU_TYPES_H
 #define MPU_TYPES_H
 
 #include <stdint.h>
 
+/**
+ * @brief Gesture or Radar operating mode.
+ */
 enum MiPGestureRadarMode : uint8_t {
   MIP_GESTURE_RADAR_DISABLED = 0x00,
   MIP_GESTURE = 0x02,
   MIP_RADAR = 0x04,
 };
 
+/**
+ * @brief Radar distance ranges.
+ */
 enum MiPRadar : uint8_t {
   MIP_RADAR_NONE = 0x01,
   MIP_RADAR_10CM_30CM = 0x02,
@@ -33,6 +45,9 @@ enum MiPRadar : uint8_t {
       0xFF  // Is set to this value when there are no current radar events.
 };
 
+/**
+ * @brief Recognized gesture directions.
+ */
 enum MiPGesture : uint8_t {
   MIP_GESTURE_LEFT = 0x0A,
   MIP_GESTURE_RIGHT = 0x0B,
@@ -45,6 +60,9 @@ enum MiPGesture : uint8_t {
       0xFF  // Is set to this value when there are no current gesture events.
 };
 
+/**
+ * @brief Individual head LED patterns.
+ */
 enum MiPHeadLED : uint8_t {
   MIP_HEAD_LED_OFF = 0,
   MIP_HEAD_LED_ON = 1,
@@ -52,18 +70,30 @@ enum MiPHeadLED : uint8_t {
   MIP_HEAD_LED_BLINK_FAST = 3,
 };
 
+/**
+ * @brief Drive direction for distanceDrive().
+ */
 enum MiPDriveDirection : uint8_t {
   MIP_DRIVE_FORWARD = 0x00,
   MIP_DRIVE_BACKWARD = 0x01,
 };
 
+/**
+ * @brief Turn direction for distanceDrive().
+ */
 enum MiPTurnDirection : uint8_t { MIP_TURN_LEFT = 0x00, MIP_TURN_RIGHT = 0x01 };
 
+/**
+ * @brief Fall direction for internal fall commands.
+ */
 enum MiPFallDirection : uint8_t {
   MIP_FALL_ON_BACK = 0x00,
   MIP_FALL_FACE_DOWN = 0x01
 };
 
+/**
+ * @brief MiP physical orientation/position states.
+ */
 enum MiPPosition : uint8_t {
   MIP_POSITION_ON_BACK = 0x00,
   MIP_POSITION_FACE_DOWN = 0x01,
@@ -74,12 +104,18 @@ enum MiPPosition : uint8_t {
   MIP_POSITION_ON_BACK_WITH_KICKSTAND = 0x06,
 };
 
+/**
+ * @brief Get-up direction options.
+ */
 enum MiPGetUp : uint8_t {
   MIP_GETUP_FROM_FRONT = 0x00,
   MIP_GETUP_FROM_BACK = 0x01,
   MIP_GETUP_FROM_EITHER = 0x02
 };
 
+/**
+ * @brief Sound effects and built-in audio clips.
+ */
 enum MiPSoundIndex : uint8_t {
   MIP_SOUND_ONEKHZ_500MS_8K16BIT = 1,
   MIP_SOUND_ACTION_BURPING,
@@ -197,6 +233,9 @@ enum MiPSoundIndex : uint8_t {
   MIP_SOUND_VOLUME_7 = 0xFE
 };
 
+/**
+ * @brief Speaker volume levels.
+ */
 enum MiPVolume : uint8_t {
   MIP_VOLUME_OFF = 0,
   MIP_VOLUME_1 = 1,
@@ -209,11 +248,17 @@ enum MiPVolume : uint8_t {
   MIP_VOLUME_DEFAULT = 0xFF
 };
 
+/**
+ * @brief Clap event reporting state.
+ */
 enum MiPClapEnabled : uint8_t {
   MIP_CLAP_DISABLED = 0x00,
   MIP_CLAP_ENABLED = 0x01,
 };
 
+/**
+ * @brief Game and App modes.
+ */
 enum MiPGameMode : uint8_t {
   MIP_APP_MODE = 0x01,
   MIP_CAGE_MODE = 0x02,
@@ -225,6 +270,9 @@ enum MiPGameMode : uint8_t {
   MIP_ROAM_MODE = 0x08
 };
 
+/**
+ * @brief Current status of the MiP (battery + position).
+ */
 class MiPStatus {
  public:
   MiPStatus() {
@@ -238,6 +286,9 @@ class MiPStatus {
   MiPPosition position;
 };
 
+/**
+ * @brief Chest LED color and flash timing configuration.
+ */
 class MiPChestLED {
  public:
   MiPChestLED() {
@@ -257,6 +308,9 @@ class MiPChestLED {
   uint8_t blue;
 };
 
+/**
+ * @brief State of all four head LEDs.
+ */
 class MiPHeadLEDs {
  public:
   MiPHeadLEDs() {
@@ -274,6 +328,9 @@ class MiPHeadLEDs {
   MiPHeadLED led4;
 };
 
+/**
+ * @brief MiP software version information.
+ */
 class MiPSoftwareVersion {
  public:
   MiPSoftwareVersion() {
@@ -291,6 +348,9 @@ class MiPSoftwareVersion {
   uint8_t uniqueVersion;
 };
 
+/**
+ * @brief MiP hardware information.
+ */
 class MiPHardwareInfo {
  public:
   MiPHardwareInfo() {
@@ -304,6 +364,9 @@ class MiPHardwareInfo {
   uint8_t hardware;
 };
 
+/**
+ * @brief Current clap detection settings.
+ */
 class MiPClapSettings {
  public:
   MiPClapSettings() {
