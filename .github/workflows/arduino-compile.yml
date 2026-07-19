@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FQBN: "esp8266:esp8266:d1_mini"   # FQBN for Wemos D1 mini; change if needed
-      ARDUINO_CLI_VERSION: "1.8.5"      # pinned arduino-cli version (adjust if desired)
+      ARDUINO_CLI_VERSION: "2.3.10"      # pinned arduino-cli version (adjust if desired)
 
     steps:
       - name: Checkout repository
