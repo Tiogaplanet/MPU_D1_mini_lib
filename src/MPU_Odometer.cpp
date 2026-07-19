@@ -12,7 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for all the odometer.
+/**
+ * @file MPU_Odometer.cpp
+ * @brief Implements reading and resetting the MiP robot's odometer (distance
+ *        travelled).
+ *
+ * The odometer is read with verification and retry logic. Reset is
+ * fire-and-forget as there is no reliable confirmation mechanism.
  */
 #include "MPU_D1_mini.h"
 

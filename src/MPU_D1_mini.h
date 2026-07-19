@@ -481,8 +481,20 @@ class MiP {
   void writeVolume(uint8_t volume);
   uint8_t readVolume();
 
-  // Odometer & Status
+/**
+   * @brief Reads the total distance travelled by the MiP.
+   *
+   * Performs a verified read with automatic retries on error.
+   *
+   * @return Distance in centimeters. Returns 0.0 on failure.
+   */
   float readDistanceTravelled();
+  
+  /**
+   * @brief Resets the odometer distance to zero.
+   *
+   * Fire-and-forget command (no verification possible).
+   */
   void resetDistanceTravelled();
 
   /**
