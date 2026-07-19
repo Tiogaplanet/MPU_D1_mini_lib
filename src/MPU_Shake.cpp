@@ -12,10 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file contains just one API function to ask MiP if it has been shaken.
-   The call to hasBeenShaken() uses cached data and does not cause a serial
-   transmission to MiP.
-*/
+/** 
+ * @file MPU_Shake.cpp
+ * @brief Implements detection of shake events on the WowWee MiP robot.
+ *
+ * Uses cached flag from OOB (Out-Of-Band) status events. No new serial
+ * transmission is sent to the robot when querying.
+ */
 #include "MPU_D1_mini.h"
 
 bool MiP::hasBeenShaken() {

@@ -660,6 +660,14 @@ class MiP {
    */
   uint8_t readClapEvent();
 
+  /**
+   * @brief Checks whether the MiP has been shaken since the last call.
+   *
+   * Uses cached data from status events. The shake flag is cleared after
+   * returning true (one-shot detection).
+   *
+   * @return true if a shake was detected since the last call to this function.
+   */
   bool hasBeenShaken();
 
   // Device Info
