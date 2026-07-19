@@ -33,9 +33,6 @@
 // Slow baud rate for MiP communications.  MiPs support one or the other.
 #define MIP_SLOW_BAUD_RATE 9600
 
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
-
 // MiP Protocol Commands related to core functions.
 // These command codes are placed in the first byte of requests sent to the MiP
 // and responses sent back from the MiP. See

@@ -115,6 +115,12 @@
 #define MIP_RESPONSE_MAX_LEN \
   (5 + 1)  // Longest response is MIP_CMD_REQUEST_CHEST_LED.
 
+// Maximum number of retries for verified operations (clap, chest LED, etc.).
+#define MIP_MAX_RETRIES 2
+
+// Milliseconds to wait between retries.
+#define MIP_RETRY_WAIT 50
+
 class MiP {
  public:
   // EEPROM base address.  When reading or writing to EEPROM the user will pass
@@ -389,8 +395,26 @@ class MiP {
   bool isTrickModeEnabled();
   bool isRoamModeEnabled();
 
-  // EEPROM User Data
+  /**
+   * @brief Writes a byte to the MiP's user EEPROM area and verifies it.
+   *
+   * This function performs a verified write: it sends the data, reads it back,
+   * and retries (up to MIP_MAX_RETRIES) if the value doesn't match or an error
+   * occurs.
+   *
+   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
+   * @param userData      Byte value to store (0-255).
+   */
   void setUserData(uint8_t addressOffset, uint8_t userData);
+
+  /**
+   * @brief Reads a byte from the MiP's user EEPROM area.
+   *
+   * Performs a verified read with retries on communication errors.
+   *
+   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
+   * @return The stored byte value, or 0 on error.
+   */
   uint8_t getUserData(uint8_t addressOffset);
 
   // IR & Detection

@@ -12,12 +12,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements reading and writing to MiP's EEPROM.
+/** 
+ * @file MPU_EEPROM.cpp
+ * @brief Implements reading and writing user data to the MiP robot's EEPROM.
+ *
+ * Provides verified (with read-back confirmation and retry) access to the
+ * 16-byte user data area (addresses 0x20 to 0x2F).
  */
 #include "MPU_D1_mini.h"
-
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
 
 // MiP Protocol Commands related MiP's EEPROM.
 // These command codes are placed in the first byte of requests sent to the MiP
