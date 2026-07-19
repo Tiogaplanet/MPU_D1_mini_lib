@@ -12,9 +12,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This header file describes the public API that an application can use to
-   communicate with the WowWee MiP self-balancing robot.
-*/
+/**
+ * @file MPU_D1_mini.h
+ * @brief A library to interface the WeMos D1 mini and clones to the
+ * WowWee MiP robot.
+ *
+ * This file contains the function declarations and global defines
+ * available for the end-user to add custom capability to MiP.
+ *
+ * @author Tiogaplanet, Adam Green
+ * @date 2026-07-18
+ * @version 1.0.0
+ * @copyright Apache License, Version 2.0
+ */
 #ifndef MPU_D1_MINI_H
 #define MPU_D1_MINI_H
 
@@ -152,22 +162,87 @@ class MiP {
   uint8_t availableGestureEvents();
   MiPGesture readGestureEvent();
 
-  // LEDs
+  /**
+   * @brief Sets the chest LED to a solid RGB color and verifies the change.
+   * * Sends the set command and immediately reads the state back from the MiP
+   * to ensure the color was successfully updated. Retries upon failure.
+   * * @param red   Intensity for the red channel (0-255).
+   * @param green Intensity for the green channel (0-255).
+   * @param blue  Intensity for the blue channel (0-255). Note: MiP truncates
+   * the lower 2 bits.
+   */
   void writeChestLED(uint8_t red, uint8_t green, uint8_t blue);
 
+  /**
+   * @brief Sets the chest LED to flash an RGB color at a specific interval and
+   * verifies the change.
+   * * @param red     Intensity for the red channel (0-255).
+   * @param green   Intensity for the green channel (0-255).
+   * @param blue    Intensity for the blue channel (0-255).
+   * @param onTime  Time in milliseconds the LED stays on. (Converted internally
+   * to 20ms ticks).
+   * @param offTime Time in milliseconds the LED stays off. (Converted
+   * internally to 20ms ticks).
+   */
   void writeChestLED(uint8_t red,
                      uint8_t green,
                      uint8_t blue,
                      uint16_t onTime,
                      uint16_t offTime);
+
+  /**
+   * @brief Sets the chest LED to flash an RGB color at a specific interval and
+   * verifies the change.
+   * * @param chestLED A MiPChestLED instance.
+   */
   void writeChestLED(const MiPChestLED& chestLED);
+
+  /**
+   * @brief Reads the current RGB state and flash timings of the chest LED.
+   * * @param chestLED A reference to a MiPChestLED object where the retrieved
+   * data will be stored.
+   */
   void readChestLED(MiPChestLED& chestLED);
+  /**
+   * @brief Sets the chest LED to a solid RGB color without verifying the
+   * change.
+   * * This is a "fire-and-forget" method. It sends the command but does not
+   * read back the state to check for success, making it faster but less
+   * reliable than writeChestLED().
+   * * @param red   Intensity for the red channel (0-255).
+   * @param green Intensity for the green channel (0-255).
+   * @param blue  Intensity for the blue channel (0-255).
+   */
   void unverifiedWriteChestLED(uint8_t red, uint8_t green, uint8_t blue);
+
+  /**
+   * @brief Sets the chest LED to a solid RGB color without verifying the
+   * change.
+   * * This is a "fire-and-forget" method. It sends the command but does not
+   * read back the state to check for success, making it faster but less
+   * reliable than writeChestLED().
+   * * @param red   Intensity for the red channel (0-255).
+   * @param green Intensity for the green channel (0-255).
+   * @param blue  Intensity for the blue channel (0-255).
+   * @param onTime  Time in milliseconds the LED stays on. (Converted internally
+   * to 20ms ticks).
+   * @param offTime Time in milliseconds the LED stays off. (Converted
+   * internally to 20ms ticks).
+   */
   void unverifiedWriteChestLED(uint8_t red,
                                uint8_t green,
                                uint8_t blue,
                                uint16_t onTime,
                                uint16_t offTime);
+
+  /**
+   * @brief Sets the chest LED to a solid RGB color without verifying the
+   * change.
+   * * This is a "fire-and-forget" method. It sends the command but does not
+   * read back the state to check for success, making it faster but less
+   * reliable than writeChestLED().
+   * * @param chestLED   An instance of MiPChestLED.
+   */
   void unverifiedWriteChestLED(const MiPChestLED& chestLED);
 
   void writeHeadLEDs(MiPHeadLED led1,
@@ -213,13 +288,15 @@ class MiP {
   float readDistanceTravelled();
   void resetDistanceTravelled();
 
-/**
- * @brief Reads the current battery voltage of the MiP robot.
- * * This function processes the incoming serial buffer for any pending Out-Of-Band (OOB) 
- * status events to ensure the cache is up to date, then returns the latest known voltage. 
- * It does not actively transmit a request to the robot.
- * * @return float The battery voltage, typically ranging from 4.0V (dead) to 6.4V (fully charged).
- */
+  /**
+   * @brief Reads the current battery voltage of the MiP robot.
+   * * This function processes the incoming serial buffer for any pending
+   * Out-Of-Band (OOB) status events to ensure the cache is up to date, then
+   * returns the latest known voltage. It does not actively transmit a request
+   * to the robot.
+   * * @return float The battery voltage, typically ranging from 4.0V (dead)
+   * to 6.4V (fully charged).
+   */
   float readBatteryVoltage();
   MiPPosition readPosition();
   bool isOnBack();
@@ -293,7 +370,7 @@ class MiP {
 
   // Centralized assert handler
   void mipAssert(uint32_t lineNumber);
-  
+
   // Helper utilities for sub-functions
   void verifiedSetGestureRadarMode(MiPGestureRadarMode desiredMode);
   bool checkGestureRadarMode(MiPGestureRadarMode expectedMode);

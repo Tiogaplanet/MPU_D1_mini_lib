@@ -12,9 +12,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Implements RGB flashing commands and solid color updates for the chest plate
-   LED.
-*/
+/**
+ * @file MPU_ChestLED.cpp
+ * @brief Implements RGB flashing commands and solid color updates for the MiP
+ * chest plate LED.
+ */
 #include "MPU_D1_mini.h"
 
 #define MIP_MAX_RETRIES 2
@@ -28,19 +30,6 @@
 #define MIP_CMD_GET_CHEST_LED 0x83
 #define MIP_CMD_SET_CHEST_LED 0x84
 #define MIP_CMD_FLASH_CHEST_LED 0x89
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_ChestLED.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 void MiP::writeChestLED(uint8_t red, uint8_t green, uint8_t blue) {
   MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->writeChestLED()");

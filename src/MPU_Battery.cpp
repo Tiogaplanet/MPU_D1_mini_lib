@@ -12,7 +12,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** This file contains one function to read the battery voltage. It relies
+/** 
+ * @file MPU_Battery.cpp
+   @brief This file contains one function to read the battery voltage. It relies
    on cached data and does not cause a serial transmission to MiP.
 */
 #include "MPU_D1_mini.h"
