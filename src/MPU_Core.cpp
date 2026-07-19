@@ -12,7 +12,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Contains the constructor, destructor and basic connection initialization.
+/* Contains the constructor, destructor, fundamental connection establishment
+   to MiP, and functions that are common to multiple subsystems, i.e. radar
+   and gesture, position and battery, etc.
  */
 #include "MPU_D1_mini.h"
 
@@ -31,6 +33,9 @@
 // Slow baud rate for MiP communications.  MiPs support one or the other.
 #define MIP_SLOW_BAUD_RATE 9600
 
+#define MIP_MAX_RETRIES 2
+#define MIP_RETRY_WAIT 50
+
 // MiP Protocol Commands related to core functions.
 // These command codes are placed in the first byte of requests sent to the MiP
 // and responses sent back from the MiP. See
@@ -38,6 +43,9 @@
 // for the complete list.
 #define MIP_CMD_DISCONNECT_APP 0xFE
 #define MIP_CMD_SLEEP 0xFA
+#define MIP_CMD_GET_STATUS 0x79
+#define MIP_CMD_SET_GESTURE_RADAR_MODE 0x0C
+#define MIP_CMD_GET_GESTURE_RADAR_MODE 0x0D
 
 // Define an assert mechanism that can be used to log and halt when the user is
 // found to be calling the API incorrectly.
@@ -210,4 +218,123 @@ void MiP::printLastCallResult() {
         break;
     }
   }
+}
+
+// This internal protected method sends the command to change the radar/gesture
+// mode and then sends a request to get the new state. If this request fails or
+// the new state isn't as expected, it will retry the command.
+void MiP::verifiedSetGestureRadarMode(MiPGestureRadarMode desiredMode) {
+  int8_t result;
+
+  // Always mark cached RADAR data as invalid when changing modes.
+
+  m_flags &= ~MIP_FLAG_RADAR_VALID;
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    rawSetGestureRadarMode(desiredMode);
+
+    // Read back and make sure that it was set as expected.
+    MiPGestureRadarMode actualMode = MIP_GESTURE_RADAR_DISABLED;
+    result = rawGetGestureRadarMode(actualMode);
+    if (result == MIP_ERROR_NONE && actualMode == desiredMode) {
+      // The set was successful so return immediately.
+      m_lastError = MIP_ERROR_NONE;
+      return;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+
+  if (result != MIP_ERROR_NONE) {
+    // Kept getting an error back from rawGetGestureRadarMode().
+    m_lastError = result;
+  } else {
+    // rawGetGestureRadarMode() was successful but didn't match mode to which we
+    // were attempting to change.
+    m_lastError = MIP_ERROR_MAX_RETRIES;
+  }
+}
+
+// This internal protected method requests the current radar/gesture mode and
+// then returns whether it matches the passed in value or not. It includes retry
+// code incase the request should fail.
+bool MiP::checkGestureRadarMode(MiPGestureRadarMode expectedMode) {
+  int8_t result;
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    MiPGestureRadarMode currentMode;
+    result = rawGetGestureRadarMode(currentMode);
+    if (result == MIP_ERROR_NONE)
+      return currentMode == expectedMode;
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+  m_lastError = result;
+  return false;
+}
+
+// This internal protected method sends the set gesture/radar mode command with
+// no error checking. The error handling / recovery happens at a higher level of
+// the driver.
+void MiP::rawSetGestureRadarMode(MiPGestureRadarMode mode) {
+  uint8_t command[1 + 1] = {MIP_CMD_SET_GESTURE_RADAR_MODE, mode};
+  rawSend(command, sizeof(command));
+}
+
+// This internal protected method sends the get gesture/radar mode command with
+// minimal error handling. The error recovery happens at a higher level of the
+// driver.
+int8_t MiP::rawGetGestureRadarMode(MiPGestureRadarMode& mode) {
+  const uint8_t getGestureRadarMode[1] = {MIP_CMD_GET_GESTURE_RADAR_MODE};
+  uint8_t response[1 + 1];
+  size_t responseLength;
+  int8_t result = rawReceive(getGestureRadarMode,
+                             sizeof(getGestureRadarMode),
+                             response,
+                             sizeof(response),
+                             responseLength);
+  if (result)
+    return result;
+  if (responseLength != 2 || response[0] != MIP_CMD_GET_GESTURE_RADAR_MODE ||
+      (response[1] != MIP_GESTURE_RADAR_DISABLED &&
+       response[1] != MIP_GESTURE && response[1] != MIP_RADAR)) {
+    return MIP_ERROR_BAD_RESPONSE;
+  }
+  mode = (MiPGestureRadarMode)response[1];
+  return MIP_ERROR_NONE;
+}
+
+// This internal protected method sends the get status command with minimal
+// error handling. The error recovery happens at a higher level of the driver in
+// begin(). All status updates after begin() come from events.
+int8_t MiP::rawGetStatus(MiPStatus& status) {
+  const uint8_t getStatus[1] = {MIP_CMD_GET_STATUS};
+  uint8_t response[1 + 2];
+  size_t responseLength;
+  int result = rawReceive(
+      getStatus, sizeof(getStatus), response, sizeof(response), responseLength);
+  if (result)
+    return result;
+  return parseStatus(status, response, responseLength);
+}
+
+// This internal protected method takes the status response, validates it,
+// converts it into convenient units and packs the result into a MiPStatus
+// class.
+int8_t MiP::parseStatus(MiPStatus& status,
+                        const uint8_t response[],
+                        size_t responseLength) {
+  if (responseLength != 3 || response[0] != MIP_CMD_GET_STATUS ||
+      response[2] > MIP_POSITION_ON_BACK_WITH_KICKSTAND) {
+    return MIP_ERROR_BAD_RESPONSE;
+  }
+
+  // Convert battery integer value to floating point voltage value.
+  status.battery =
+      (float)(((response[1] - 0x4D) / (float)(0x7C - 0x4D)) * (6.4f - 4.0f)) +
+      4.0f;
+  status.position = (MiPPosition)response[2];
+  return MIP_ERROR_NONE;
 }

@@ -12,8 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This implementation file provides access to audio functions of the WowWee MiP
-   self-balancing robot.
+/* This implementation file provides access MiP's sound functions.
 */
 #include "MPU_D1_mini.h"
 

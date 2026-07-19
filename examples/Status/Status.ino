@@ -27,6 +27,9 @@
 
 MiP     mip;
 
+static float       lastBatteryLevel = 0.0f;
+static MiPPosition lastPosition = (MiPPosition) - 1;
+
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
@@ -38,9 +41,6 @@ void setup() {
 }
 
 void loop() {
-  static float       lastBatteryLevel = 0.0f;
-  static MiPPosition lastPosition = (MiPPosition) - 1;
-
   float              currentBatteryLevel = mip.readBatteryVoltage();
   MiPPosition        currentPosition = mip.readPosition();
 
