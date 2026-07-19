@@ -129,7 +129,11 @@ class MiP {
   // Last addressable address in EEPROM.
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
-  // Constructor/Destructors.
+  // ==========================================================================
+  // Core Lifecycle - All of these functions are in MPU_Core.cpp, except for
+  // begin(const char* ssid, const char* password, const char* hostname),
+  // which is in MPU_Network.cpp.
+  // ==========================================================================
   /**
    * @brief Constructs a new MiP object.
    *
@@ -189,103 +193,22 @@ class MiP {
     return (m_flags & MRI_FLAG_INITIALIZED);
   }
 
-  // When calling the public functions listed below, the MiP library will try
-  // its best to handle any errors encountered by retrying the read/write
-  // operations behind the scenes. If the worst happens and it just can't
-  // recover from a communication issue with MiP, it will provide details about
-  // the cause of the problem through the following functions.
-  int8_t lastCallResult() {
-    return m_lastError;
-  }
-  bool didLastCallFail() {
-    return m_lastError != MIP_ERROR_NONE;
-  }
-
+  // ==========================================================================
+  // Battery - Implemented in MPU_Battery.cpp.
+  // ==========================================================================
   /**
-   * @brief Prints a human-readable description of the last error to the debug
-   *        channel (Serial1).
+   * @brief Reads the current battery voltage of the MiP robot (cached value).
+   *
+   * This function processes any pending Out-Of-Band status events to keep the
+   * cache up to date. It does not transmit a new request.
+   *
+   * @return Battery voltage, typically 4.0V (low) to 6.4V (fully charged).
    */
-  void printLastCallResult();
+  float readBatteryVoltage();
 
-  /**
-   * @brief Enables radar tracking mode on the MiP.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void enableRadarMode();
-
-  /**
-   * @brief Disables radar tracking mode.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void disableRadarMode();
-
-  /**
-   * @brief Enables gesture detection mode on the MiP.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void enableGestureMode();
-
-  /**
-   * @brief Disables gesture detection mode.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void disableGestureMode();
-
-  /**
-   * @brief Checks whether radar tracking mode is currently active.
-   *
-   * @return true if radar mode is enabled.
-   */
-  bool isRadarModeEnabled();
-
-  /**
-   * @brief Checks whether gesture detection mode is currently active.
-   *
-   * @return true if gesture mode is enabled.
-   */
-  bool isGestureModeEnabled();
-
-  /**
-   * @brief Checks whether both gesture and radar modes are disabled.
-   *
-   * @return true if both modes are off (i.e., in MIP_GESTURE_RADAR_DISABLED
-   * state).
-   */
-  bool areGestureAndRadarModesDisabled();
-
-  /**
-   * @brief Reads the most recent radar tracking data.
-   *
-   * Uses cached value from the latest OOB status event. Processes pending
-   * serial data first.
-   *
-   * @return Current radar value or MIP_RADAR_INVALID if no data received yet.
-   */
-  MiPRadar readRadar();
-
-  /**
-   * @brief Returns the number of unread gesture events in the queue.
-   *
-   * Processes any pending serial data first to update the internal queue.
-   *
-   * @return Number of available gesture events.
-   */
-  uint8_t availableGestureEvents();
-
-  /**
-   * @brief Reads the next available gesture event from the queue.
-   *
-   * Processes pending serial data first. Returns MIP_GESTURE_INVALID and sets
-   * last error to MIP_ERROR_NO_EVENT if the queue is empty.
-   *
-   * @return The gesture event code.
-   */
-  MiPGesture readGestureEvent();
-
+  // ==========================================================================
+  // Chest LED - Implemented in MPU_ChestLED.cpp.
+  // ==========================================================================
   /**
    * @brief Sets the chest LED to a solid RGB color and verifies the change.
    * * Sends the set command and immediately reads the state back from the MiP
@@ -369,6 +292,150 @@ class MiP {
    */
   void unverifiedWriteChestLED(const MiPChestLED& chestLED);
 
+  // ==========================================================================
+  // Clap - Implemented in MPU_Clap.cpp.
+  // ==========================================================================
+  /**
+   * @brief Enables clap event reporting from the MiP robot.
+   *
+   * This verified method sends the enable command and reads back settings
+   * to confirm success. It retries on failure.
+   */
+  void enableClapEvents();
+
+  /**
+   * @brief Disables clap event reporting from the MiP robot.
+   *
+   * This verified method sends the disable command and reads back settings
+   * to confirm success. It retries on failure.
+   */
+  void disableClapEvents();
+
+  /**
+   * @brief Checks if clap event reporting is currently enabled.
+   *
+   * @return true if enabled, false otherwise.
+   */
+  bool areClapEventsEnabled();
+
+  /**
+   * @brief Sets the minimum delay between clap events.
+   *
+   * Verified method: sends the new delay and confirms by reading back
+   * the settings. Retries automatically on mismatch or error.
+   *
+   * @param delay Delay in milliseconds between allowed clap reports.
+   */
+  void writeClapDelay(uint16_t delay);
+
+  /**
+   * @brief Reads the current clap delay setting.
+   *
+   * @return The delay in milliseconds between clap events.
+   *         Returns 0 on error.
+   */
+  uint16_t readClapDelay();
+
+  /**
+   * @brief Returns the number of unread clap events in the queue.
+   *
+   * Processes any pending serial data first to update the queue.
+   *
+   * @return Number of available clap events.
+   */
+  uint8_t availableClapEvents();
+
+  /**
+   * @brief Reads the next available clap event from the queue.
+   *
+   * Processes pending serial data first. If no event is available,
+   * sets last error to MIP_ERROR_NO_EVENT.
+   *
+   * @return The clap event code, or 0 if none available.
+   */
+  uint8_t readClapEvent();
+
+  // ==========================================================================
+  // EEPROM - Implemented in MPU_EEPROM.cpp.
+  // ==========================================================================
+  /**
+   * @brief Writes a byte to the MiP's user EEPROM area and verifies it.
+   *
+   * This function performs a verified write: it sends the data, reads it back,
+   * and retries (up to MIP_MAX_RETRIES) if the value doesn't match or an error
+   * occurs.
+   *
+   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
+   * @param userData      Byte value to store (0-255).
+   */
+  void setUserData(uint8_t addressOffset, uint8_t userData);
+
+  /**
+   * @brief Reads a byte from the MiP's user EEPROM area.
+   *
+   * Performs a verified read with retries on communication errors.
+   *
+   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
+   * @return The stored byte value, or 0 on error.
+   */
+  uint8_t getUserData(uint8_t addressOffset);
+
+  // ==========================================================================
+  // Gesture - Implemented in MPU_Gesture.cpp, except for
+  // areGestureAndRadarModesDisabled(), because of its use in gesture and
+  // radar, and is therefore placed in MPU_Core.cpp.
+  // ==========================================================================
+  /**
+   * @brief Enables gesture detection mode on the MiP.
+   *
+   * Uses verified mode switching (command + read-back confirmation with retry).
+   */
+  void enableGestureMode();
+
+  /**
+   * @brief Disables gesture detection mode.
+   *
+   * Uses verified mode switching (command + read-back confirmation with retry).
+   */
+  void disableGestureMode();
+
+  /**
+   * @brief Checks whether gesture detection mode is currently active.
+   *
+   * @return true if gesture mode is enabled.
+   */
+  bool isGestureModeEnabled();
+
+  /**
+   * @brief Checks whether both gesture and radar modes are disabled.
+   *
+   * @return true if both modes are off (i.e., in MIP_GESTURE_RADAR_DISABLED
+   * state).
+   */
+  bool areGestureAndRadarModesDisabled();
+
+  /**
+   * @brief Returns the number of unread gesture events in the queue.
+   *
+   * Processes any pending serial data first to update the internal queue.
+   *
+   * @return Number of available gesture events.
+   */
+  uint8_t availableGestureEvents();
+
+  /**
+   * @brief Reads the next available gesture event from the queue.
+   *
+   * Processes pending serial data first. Returns MIP_GESTURE_INVALID and sets
+   * last error to MIP_ERROR_NO_EVENT if the queue is empty.
+   *
+   * @return The gesture event code.
+   */
+  MiPGesture readGestureEvent();
+
+  // ==========================================================================
+  // Head LEDs - Implemented in MPU_HeadLEDs.cpp.
+  // ==========================================================================
   /**
    * @brief Sets all four head LEDs and verifies the change.
    *
@@ -424,6 +491,186 @@ class MiP {
    */
   void unverifiedWriteHeadLEDs(const MiPHeadLEDs& headLEDs);
 
+  // ==========================================================================
+  // Infrared - Implemented in MPU_Infrared.cpp.
+  // ==========================================================================
+  /**
+   * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
+   *
+   * @param id       Unique ID for this MiP (used in detection events).
+   * @param txPower  Transmit power level (1-120).
+   */
+  void enableMiPDetectionMode(uint8_t id, uint8_t txPower);
+
+  /**
+   * @brief Disables MiP detection mode.
+   */
+  void disableMiPDetectionMode();
+
+  /**
+   * @brief Checks if MiP detection mode is currently enabled.
+   *
+   * @return true if detection mode is active.
+   */
+  bool isMiPDetectionModeEnabled();
+
+  /**
+   * @brief Reads the next detected MiP event.
+   *
+   * Processes pending serial data first.
+   *
+   * @return ID of the detected MiP, or 0 if none available.
+   */
+  uint8_t readDetectedMiP();
+
+  /**
+   * @brief Returns the number of unread detected MiP events.
+   *
+   * Processes pending serial data first.
+   *
+   * @return Number of available detection events.
+   */
+  uint8_t availableDetectedMiPEvents();
+
+  /**
+   * @brief Enables IR remote control mode.
+   *
+   * Verified operation (command + read-back with retry).
+   */
+  void enableIRRemoteControl();
+
+  /**
+   * @brief Disables IR remote control mode.
+   *
+   * Verified operation (command + read-back with retry).
+   */
+  void disableIRRemoteControl();
+
+  /**
+   * @brief Checks if IR remote control mode is enabled.
+   *
+   * @return true if IR remote control is active.
+   */
+  bool isIRRemoteControlEnabled();
+
+  /**
+   * @brief Sends an IR dongle code (fire-and-forget).
+   *
+   * No verification is performed as there is no reliable feedback mechanism.
+   *
+   * @param sendCode      16-bit IR code to transmit.
+   * @param transmitPower Transmit power level.
+   */
+  void sendIRDongleCode(uint16_t sendCode, uint8_t transmitPower);
+
+  /**
+   * @brief Reads the next received IR dongle code event.
+   *
+   * Processes pending serial data first.
+   *
+   * @return The 32-bit IR code, or 0xFFFFFFFF if none available.
+   */
+  uint32_t readIRDongleCode();
+
+  /**
+   * @brief Returns the number of unread IR dongle code events.
+   *
+   * Processes pending serial data first.
+   *
+   * @return Number of available IR code events.
+   */
+  uint8_t availableIRCodeEvents();
+
+  // ==========================================================================
+  // Mode - Implemented in MPU_Mode.cpp.
+  // ==========================================================================
+  /**
+   * @brief Switches MiP into App Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
+  void enableAppMode();
+
+  /**
+   * @brief Switches MiP into Cage Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
+  void enableCageMode();
+
+  /**
+   * @brief Switches MiP into Dance Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
+  void enableDanceMode();
+
+  /**
+   * @brief Switches MiP into Stack Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
+  void enableStackMode();
+
+  /**
+   * @brief Switches MiP into Trick Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
+  void enableTrickMode();
+
+  /**
+   * @brief Switches MiP into Roam Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
+  void enableRoamMode();
+
+  /**
+   * @brief Checks if App Mode is currently active.
+   *
+   * @return true if in App Mode.
+   */
+  bool isAppModeEnabled();
+
+  /**
+   * @brief Checks if Cage Mode is currently active.
+   *
+   * @return true if in Cage Mode.
+   */
+  bool isCageModeEnabled();
+
+  /**
+   * @brief Checks if Dance Mode is currently active.
+   *
+   * @return true if in Dance Mode.
+   */
+  bool isDanceModeEnabled();
+
+  /**
+   * @brief Checks if Stack Mode is currently active.
+   *
+   * @return true if in Stack Mode.
+   */
+  bool isStackModeEnabled();
+
+  /**
+   * @brief Checks if Trick Mode is currently active.
+   *
+   * @return true if in Trick Mode.
+   */
+  bool isTrickModeEnabled();
+
+  /**
+   * @brief Checks if Roam Mode is currently active.
+   *
+   * @return true if in Roam Mode.
+   */
+  bool isRoamModeEnabled();
+
+  // ===================================================================
+  // Motion - Implemented in MPU_Motion.cpp.
+  // ===================================================================
   /**
    * @brief Sends continuous drive command (velocity + turn rate).
    *
@@ -514,61 +761,9 @@ class MiP {
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
-  /**
-   * @brief Plays a single sound at the specified volume.
-   *
-   * Convenience method that builds and plays a one-entry sound list.
-   *
-   * @param sound  Sound index to play.
-   * @param volume Volume level (default = MIP_VOLUME_DEFAULT).
-   */
-  void playSound(MiPSoundIndex sound, MiPVolume volume = MIP_VOLUME_DEFAULT);
-
-  /**
-   * @brief Starts a new sound list sequence.
-   *
-   * Must be called before adding entries with addEntryToSoundList().
-   */
-  void beginSoundList();
-
-  /**
-   * @brief Adds a sound (with optional delay and volume change) to the current
-   *        sound list.
-   *
-   * @param sound     Sound index.
-   * @param delayTime Delay in milliseconds before next sound (0-7650 ms).
-   * @param volume    Volume for this sound (or MIP_VOLUME_DEFAULT to keep
-   *                  previous).
-   */
-  void addEntryToSoundList(MiPSoundIndex sound,
-                           uint16_t delay = 0,
-                           MiPVolume volume = MIP_VOLUME_DEFAULT);
-
-  /**
-   * @brief Plays the current sound list.
-   *
-   * @param repeatCount Number of times to repeat the entire list (0 = once).
-   */
-  void playSoundList(uint8_t repeatCount = 0);
-
-  /**
-   * @brief Sets the MiP speaker volume and verifies the change.
-   *
-   * Retries automatically on failure.
-   *
-   * @param volume Volume level (0-7).
-   */
-  void writeVolume(uint8_t volume);
-
-  /**
-   * @brief Reads the current speaker volume.
-   *
-   * Performs a verified read with retries.
-   *
-   * @return Current volume (0-7), or 0 on error.
-   */
-  uint8_t readVolume();
-
+  // ==========================================================================
+  // Odometer - Implemented in MPU_Odomter.cpp.
+  // ==========================================================================
   /**
    * @brief Reads the total distance travelled by the MiP.
    *
@@ -585,16 +780,9 @@ class MiP {
    */
   void resetDistanceTravelled();
 
-  /**
-   * @brief Reads the current battery voltage of the MiP robot (cached value).
-   *
-   * This function processes any pending Out-Of-Band status events to keep the
-   * cache up to date. It does not transmit a new request.
-   *
-   * @return Battery voltage, typically 4.0V (low) to 6.4V (fully charged).
-   */
-  float readBatteryVoltage();
-
+  // ==========================================================================
+  // Position - Implemented in MPU_Position.cpp.
+  // ==========================================================================
   /**
    * @brief Reads the current physical position/orientation of the MiP.
    *
@@ -654,76 +842,43 @@ class MiP {
    */
   bool isOnBackWithKickstand();
 
+  // ==========================================================================
+  // Radar - Implemented in MPU_Radar.cpp.
+  // ==========================================================================
   /**
-   * @brief Reads the current weight on the MiP's weight sensor.
+   * @brief Enables radar tracking mode on the MiP.
    *
-   * Uses cached data from recent OOB events if available; otherwise performs
-   * a verified read with automatic retries.
-   *
-   * @return Current weight in grams (signed), or 0 on error.
+   * Uses verified mode switching (command + read-back confirmation with retry).
    */
-  int8_t readWeight();
+  void enableRadarMode();
 
   /**
-   * @brief Enables clap event reporting from the MiP robot.
+   * @brief Disables radar tracking mode.
    *
-   * This verified method sends the enable command and reads back settings
-   * to confirm success. It retries on failure.
+   * Uses verified mode switching (command + read-back confirmation with retry).
    */
-  void enableClapEvents();
+  void disableRadarMode();
 
   /**
-   * @brief Disables clap event reporting from the MiP robot.
+   * @brief Checks whether radar tracking mode is currently active.
    *
-   * This verified method sends the disable command and reads back settings
-   * to confirm success. It retries on failure.
+   * @return true if radar mode is enabled.
    */
-  void disableClapEvents();
+  bool isRadarModeEnabled();
 
   /**
-   * @brief Checks if clap event reporting is currently enabled.
+   * @brief Reads the most recent radar tracking data.
    *
-   * @return true if enabled, false otherwise.
+   * Uses cached value from the latest OOB status event. Processes pending
+   * serial data first.
+   *
+   * @return Current radar value or MIP_RADAR_INVALID if no data received yet.
    */
-  bool areClapEventsEnabled();
+  MiPRadar readRadar();
 
-  /**
-   * @brief Sets the minimum delay between clap events.
-   *
-   * Verified method: sends the new delay and confirms by reading back
-   * the settings. Retries automatically on mismatch or error.
-   *
-   * @param delay Delay in milliseconds between allowed clap reports.
-   */
-  void writeClapDelay(uint16_t delay);
-
-  /**
-   * @brief Reads the current clap delay setting.
-   *
-   * @return The delay in milliseconds between clap events.
-   *         Returns 0 on error.
-   */
-  uint16_t readClapDelay();
-
-  /**
-   * @brief Returns the number of unread clap events in the queue.
-   *
-   * Processes any pending serial data first to update the queue.
-   *
-   * @return Number of available clap events.
-   */
-  uint8_t availableClapEvents();
-
-  /**
-   * @brief Reads the next available clap event from the queue.
-   *
-   * Processes pending serial data first. If no event is available,
-   * sets last error to MIP_ERROR_NO_EVENT.
-   *
-   * @return The clap event code, or 0 if none available.
-   */
-  uint8_t readClapEvent();
-
+  // ==========================================================================
+  // Shake - Implemented in MPU_Shake.cpp.
+  // ==========================================================================
   /**
    * @brief Checks whether the MiP has been shaken since the last call.
    *
@@ -734,6 +889,67 @@ class MiP {
    */
   bool hasBeenShaken();
 
+  // ==========================================================================
+  // Sound - Implemented in MPU_Sound.cpp.
+  // ==========================================================================
+  /**
+   * @brief Plays a single sound at the specified volume.
+   *
+   * Convenience method that builds and plays a one-entry sound list.
+   *
+   * @param sound  Sound index to play.
+   * @param volume Volume level (default = MIP_VOLUME_DEFAULT).
+   */
+  void playSound(MiPSoundIndex sound, MiPVolume volume = MIP_VOLUME_DEFAULT);
+
+  /**
+   * @brief Starts a new sound list sequence.
+   *
+   * Must be called before adding entries with addEntryToSoundList().
+   */
+  void beginSoundList();
+
+  /**
+   * @brief Adds a sound (with optional delay and volume change) to the current
+   *        sound list.
+   *
+   * @param sound     Sound index.
+   * @param delayTime Delay in milliseconds before next sound (0-7650 ms).
+   * @param volume    Volume for this sound (or MIP_VOLUME_DEFAULT to keep
+   *                  previous).
+   */
+  void addEntryToSoundList(MiPSoundIndex sound,
+                           uint16_t delay = 0,
+                           MiPVolume volume = MIP_VOLUME_DEFAULT);
+
+  /**
+   * @brief Plays the current sound list.
+   *
+   * @param repeatCount Number of times to repeat the entire list (0 = once).
+   */
+  void playSoundList(uint8_t repeatCount = 0);
+
+  /**
+   * @brief Sets the MiP speaker volume and verifies the change.
+   *
+   * Retries automatically on failure.
+   *
+   * @param volume Volume level (0-7).
+   */
+  void writeVolume(uint8_t volume);
+
+  /**
+   * @brief Reads the current speaker volume.
+   *
+   * Performs a verified read with retries.
+   *
+   * @return Current volume (0-7), or 0 on error.
+   */
+  uint8_t readVolume();
+
+  // ==========================================================================
+  // Version - Implemented in MPU_Version.cpp.
+  // ==========================================================================
   /**
    * @brief Reads the MiP's software version information.
    *
@@ -752,199 +968,58 @@ class MiP {
    */
   void readHardwareInfo(MiPHardwareInfo& hardware);
 
+  // ==========================================================================
+  // Weight - Implemented in MPU_Weight.cpp.
+  // ==========================================================================
   /**
-   * @brief Switches MiP into App Mode.
+   * @brief Reads the current weight on the MiP's weight sensor.
    *
-   * Verified operation (command sent + state read back with retry).
+   * Uses cached data from recent OOB events if available; otherwise performs
+   * a verified read with automatic retries.
+   *
+   * @return Current weight in grams (signed), or 0 on error.
    */
-  void enableAppMode();
+  int8_t readWeight();
+
+  // ==========================================================================
+  // Error Handling - Implemented in MPU_Core.cpp.
+  // ==========================================================================
+  /**
+   * @brief Retrieves the error code from the most recently executed MiP API
+   * function.
+   * * The library automatically attempts to handle communication errors by
+   * retrying read/write operations behind the scenes. If an operation
+   * ultimately fails to recover, this function provides the specific reason for
+   * the failure.
+   * * @return int8_t The error code generated by the last operation (e.g.,
+   * MIP_ERROR_NONE, MIP_ERROR_TIMEOUT, MIP_ERROR_BAD_RESPONSE).
+   */
+  int8_t lastCallResult() {
+    return m_lastError;
+  }
 
   /**
-   * @brief Switches MiP into Cage Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
+   * @brief Checks if the most recently executed MiP API function encountered a
+   * critical error.
+   * * A quick convenience method to determine if a command was successful
+   * without needing to evaluate the specific error code.
+   * * @return true If the last operation failed (m_lastError is not
+   * MIP_ERROR_NONE).
+   * @return false If the last operation succeeded.
    */
-  void enableCageMode();
+  bool didLastCallFail() {
+    return m_lastError != MIP_ERROR_NONE;
+  }
 
   /**
-   * @brief Switches MiP into Dance Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
+   * @brief Prints a human-readable description of the last error to the debug
+   *        channel (Serial1).
    */
-  void enableDanceMode();
+  void printLastCallResult();
 
-  /**
-   * @brief Switches MiP into Stack Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableStackMode();
-
-  /**
-   * @brief Switches MiP into Trick Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableTrickMode();
-
-  /**
-   * @brief Switches MiP into Roam Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableRoamMode();
-
-  /**
-   * @brief Checks if App Mode is currently active.
-   *
-   * @return true if in App Mode.
-   */
-  bool isAppModeEnabled();
-
-  /**
-   * @brief Checks if Cage Mode is currently active.
-   *
-   * @return true if in Cage Mode.
-   */
-  bool isCageModeEnabled();
-
-  /**
-   * @brief Checks if Dance Mode is currently active.
-   *
-   * @return true if in Dance Mode.
-   */
-  bool isDanceModeEnabled();
-
-  /**
-   * @brief Checks if Stack Mode is currently active.
-   *
-   * @return true if in Stack Mode.
-   */
-  bool isStackModeEnabled();
-
-  /**
-   * @brief Checks if Trick Mode is currently active.
-   *
-   * @return true if in Trick Mode.
-   */
-  bool isTrickModeEnabled();
-
-  /**
-   * @brief Checks if Roam Mode is currently active.
-   *
-   * @return true if in Roam Mode.
-   */
-  bool isRoamModeEnabled();
-
-  /**
-   * @brief Writes a byte to the MiP's user EEPROM area and verifies it.
-   *
-   * This function performs a verified write: it sends the data, reads it back,
-   * and retries (up to MIP_MAX_RETRIES) if the value doesn't match or an error
-   * occurs.
-   *
-   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
-   * @param userData      Byte value to store (0-255).
-   */
-  void setUserData(uint8_t addressOffset, uint8_t userData);
-
-  /**
-   * @brief Reads a byte from the MiP's user EEPROM area.
-   *
-   * Performs a verified read with retries on communication errors.
-   *
-   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
-   * @return The stored byte value, or 0 on error.
-   */
-  uint8_t getUserData(uint8_t addressOffset);
-
-  /**
-   * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
-   *
-   * @param id       Unique ID for this MiP (used in detection events).
-   * @param txPower  Transmit power level (1-120).
-   */
-  void enableMiPDetectionMode(uint8_t id, uint8_t txPower);
-
-  /**
-   * @brief Disables MiP detection mode.
-   */
-  void disableMiPDetectionMode();
-
-  /**
-   * @brief Checks if MiP detection mode is currently enabled.
-   *
-   * @return true if detection mode is active.
-   */
-  bool isMiPDetectionModeEnabled();
-
-  /**
-   * @brief Reads the next detected MiP event.
-   *
-   * Processes pending serial data first.
-   *
-   * @return ID of the detected MiP, or 0 if none available.
-   */
-  uint8_t readDetectedMiP();
-
-  /**
-   * @brief Returns the number of unread detected MiP events.
-   *
-   * Processes pending serial data first.
-   *
-   * @return Number of available detection events.
-   */
-  uint8_t availableDetectedMiPEvents();
-
-  /**
-   * @brief Enables IR remote control mode.
-   *
-   * Verified operation (command + read-back with retry).
-   */
-  void enableIRRemoteControl();
-
-  /**
-   * @brief Disables IR remote control mode.
-   *
-   * Verified operation (command + read-back with retry).
-   */
-  void disableIRRemoteControl();
-
-  /**
-   * @brief Checks if IR remote control mode is enabled.
-   *
-   * @return true if IR remote control is active.
-   */
-  bool isIRRemoteControlEnabled();
-
-  /**
-   * @brief Sends an IR dongle code (fire-and-forget).
-   *
-   * No verification is performed as there is no reliable feedback mechanism.
-   *
-   * @param sendCode      16-bit IR code to transmit.
-   * @param transmitPower Transmit power level.
-   */
-  void sendIRDongleCode(uint16_t sendCode, uint8_t transmitPower);
-
-  /**
-   * @brief Reads the next received IR dongle code event.
-   *
-   * Processes pending serial data first.
-   *
-   * @return The 32-bit IR code, or 0xFFFFFFFF if none available.
-   */
-  uint32_t readIRDongleCode();
-
-  /**
-   * @brief Returns the number of unread IR dongle code events.
-   *
-   * Processes pending serial data first.
-   *
-   * @return Number of available IR code events.
-   */
-  uint8_t availableIRCodeEvents();
-
+  // ==========================================================================
+  // Lower-level raw API - Implemented in MPU_Transport.cpp.
+  // ==========================================================================
   /**
    * @brief Sends a raw command to the MiP (fire-and-forget).
    *
