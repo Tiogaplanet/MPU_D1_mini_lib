@@ -1,0 +1,122 @@
+name: Arduino CI - compile examples (Wemos D1 mini)
+
+on:
+  push:
+    branches: [ "bug-hunt" ]
+  pull_request:
+    branches: [ "bug-hunt" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FQBN: "esp8266:esp8266:d1_mini"   # FQBN for Wemos D1 mini; change if needed
+      ARDUINO_CLI_VERSION: "1.8.5"      # pinned arduino-cli version (adjust if desired)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up cache for Arduino CLI state
+        uses: actions/cache@v4
+        id: arduino-cache
+        with:
+          path: |
+            ~/.arduino15
+          key: ${{ runner.os }}-arduino15-${{ hashFiles('**/library.properties', '**/platformio.ini', '**/libraries/**') }}
+          restore-keys: |
+            ${{ runner.os }}-arduino15-
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl unzip
+
+      - name: Install arduino-cli
+        run: |
+          set -e
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            CLI_ARCH="arduino-cli_${ARDUINO_CLI_VERSION}_Linux_64bit.tar.gz"
+          else
+            CLI_ARCH="arduino-cli_${ARDUINO_CLI_VERSION}_Linux_32bit.tar.gz"
+          fi
+          curl -fsSL "https://downloads.arduino.cc/arduino-cli/${CLI_ARCH}" -o /tmp/arduino-cli.tar.gz
+          tar -xzf /tmp/arduino-cli.tar.gz -C /tmp
+          sudo mv /tmp/arduino-cli /usr/local/bin/arduino-cli
+          arduino-cli version
+
+      - name: Configure arduino-cli
+        run: |
+          arduino-cli config init --overwrite
+          arduino-cli config set daemon.logging false
+          arduino-cli core update-index
+
+      - name: Install ESP8266 core (Wemos D1 mini)
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install esp8266:esp8266
+
+      - name: Update library index
+        run: |
+          arduino-cli lib update-index
+
+      - name: Install libraries declared in repo (best-effort)
+        run: |
+          # If your repo contains library.properties or a libraries/ folder,
+          # arduino-cli lib install --all will attempt to install dependencies.
+          # Add explicit library installs here if needed.
+          arduino-cli lib install --all
+
+      - name: Discover sketches
+        id: discover
+        run: |
+          # Find all .ino files and convert to sketch directories (arduino-cli expects the sketch folder)
+          # We will compile each sketch directory that contains at least one .ino file.
+          SKETCH_DIRS=$(find . -type f -name '*.ino' -exec dirname {} \; | sort -u)
+          echo "sketches<<EOF" >> $GITHUB_OUTPUT
+          for d in $SKETCH_DIRS; do
+            # Normalize path (remove leading ./)
+            p="${d#./}"
+            echo "$p"
+          done >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Compile all discovered sketches
+        run: |
+          set -e
+          # Read sketches from output
+          SKETCHES=$(cat $GITHUB_OUTPUT | sed -n '/^sketches<<EOF$/,/^EOF$/p' | sed '1d;$d')
+          if [ -z "$SKETCHES" ]; then
+            echo "No sketches (.ino) found to compile."
+            exit 0
+          fi
+          echo "Found sketches:"
+          echo "$SKETCHES"
+          # Compile each sketch folder
+          FAIL=0
+          while IFS= read -r sketch; do
+            if [ -z "$sketch" ]; then
+              continue
+            fi
+            echo "------------------------------------------------------------"
+            echo "Compiling sketch: $sketch"
+            # arduino-cli expects either a .ino file path or a folder containing a .ino
+            arduino-cli compile --fqbn "$FQBN" "$sketch" --warnings all || FAIL=1
+          done <<< "$SKETCHES"
+          if [ "$FAIL" -ne 0 ]; then
+            echo "One or more sketches failed to compile."
+            exit 1
+          fi
+          echo "All sketches compiled successfully."
+
+      - name: Upload build artifacts (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arduino-compile-logs
+          path: |
+            # include any logs or build output you want to keep; left empty by default
+            .
