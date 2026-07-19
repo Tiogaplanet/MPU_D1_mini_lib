@@ -12,7 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Holds the drive, turn, stop, and positional capabilities.
+/** 
+ * @file MPU_Motion.cpp
+ * @brief Implements driving, turning, stopping, falling, and getting up
+ *        movements for the WowWee MiP robot.
+ *
+ * Most motion commands are fire-and-forget (no read-back possible). 
+ * Continuous drive includes rate limiting to avoid overwhelming the robot.
  */
 #include "MPU_D1_mini.h"
 

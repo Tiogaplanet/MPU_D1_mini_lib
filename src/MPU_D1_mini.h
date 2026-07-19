@@ -341,19 +341,94 @@ class MiP {
    */
   void unverifiedWriteHeadLEDs(const MiPHeadLEDs& headLEDs);
 
-  // Motion
+  /**
+   * @brief Sends continuous drive command (velocity + turn rate).
+   *
+   * Rate-limited internally to avoid overwhelming the MiP (~20 Hz max).
+   * Fire-and-forget (no verification possible).
+   *
+   * @param velocity  -32 to +32 (negative = backward).
+   * @param turnRate  -32 to +32 (negative = left).
+   */
   void continuousDrive(int8_t velocity, int8_t turnRate);
+
+  /**
+   * @brief Drives a specific distance then optionally turns.
+   *
+   * Fire-and-forget command.
+   *
+   * @param driveDirection Forward or backward.
+   * @param cm             Distance in centimeters.
+   * @param turnDirection  Turn direction after driving.
+   * @param degrees        Turn angle in degrees (0-360).
+   */
   void distanceDrive(MiPDriveDirection driveDirection,
                      uint8_t cm,
                      MiPTurnDirection turnDirection,
                      uint16_t degrees);
+
+  /**
+   * @brief Turns left by the specified angle at given speed.
+   *
+   * Fire-and-forget. Angle is internally converted to 5° units.
+   *
+   * @param degrees Turn angle (max 1275°).
+   * @param speed   Turn speed (0-24).
+   */
   void turnLeft(uint16_t degrees, uint8_t speed);
+
+  /**
+   * @brief Turns right by the specified angle at given speed.
+   *
+   * Fire-and-forget. Angle is internally converted to 5° units.
+   *
+   * @param degrees Turn angle (max 1275°).
+   * @param speed   Turn speed (0-24).
+   */
   void turnRight(uint16_t degrees, uint8_t speed);
+
+  /**
+   * @brief Drives forward for a limited time at given speed.
+   *
+   * Fire-and-forget. Time is internally converted to 7ms units.
+   *
+   * @param speed Drive speed (0-30).
+   * @param time  Duration in milliseconds (max ~1.78 seconds).
+   */
   void driveForward(uint8_t speed, uint16_t time);
+
+  /**
+   * @brief Drives backward for a limited time at given speed.
+   *
+   * Fire-and-forget. Time is internally converted to 7ms units.
+   *
+   * @param speed Drive speed (0-30).
+   * @param time  Duration in milliseconds (max ~1.78 seconds).
+   */
   void driveBackward(uint8_t speed, uint16_t time);
+
+  /**
+   * @brief Stops all motion.
+   *
+   * Fire-and-forget.
+   */
   void stop();
+
+  /**
+   * @brief Commands MiP to fall forward (face down).
+   */
   void fallForward();
+
+  /**
+   * @brief Commands MiP to fall backward (on its back).
+   */
   void fallBackward();
+
+  /**
+   * @brief Commands MiP to get up from a fallen position.
+   *
+   * @param getup Which way to attempt getting up (default = either side).
+   */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
   // Audio & Volume
