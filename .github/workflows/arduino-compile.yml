@@ -36,4 +36,4 @@ jobs:
       # Replace "ExampleName" with the actual folder name inside your /examples directory
       - name: Compile Library Example
         run: |
-          arduino-cli compile --fqbn esp8266:esp8266:d1_mini $HOME/Arduino/libraries/MPU_D1_mini_lib/examples/ExampleName/
+          arduino-cli compile --fqbn esp8266:esp8266:d1_mini $HOME/Arduino/libraries/MPU_D1_mini_lib/examples/BareMinimumWifi/
