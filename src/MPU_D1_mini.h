@@ -309,14 +309,66 @@ class MiP {
 
   int8_t readWeight();
 
-  // Claps & Shaking
+  /**
+   * @brief Enables clap event reporting from the MiP robot.
+   *
+   * This verified method sends the enable command and reads back settings
+   * to confirm success. It retries on failure.
+   */
   void enableClapEvents();
+
+  /**
+   * @brief Disables clap event reporting from the MiP robot.
+   *
+   * This verified method sends the disable command and reads back settings
+   * to confirm success. It retries on failure.
+   */
   void disableClapEvents();
+
+  /**
+   * @brief Checks if clap event reporting is currently enabled.
+   *
+   * @return true if enabled, false otherwise.
+   */
   bool areClapEventsEnabled();
+
+  /**
+   * @brief Sets the minimum delay between clap events.
+   *
+   * Verified method: sends the new delay and confirms by reading back
+   * the settings. Retries automatically on mismatch or error.
+   *
+   * @param delay Delay in milliseconds between allowed clap reports.
+   */
   void writeClapDelay(uint16_t delay);
+
+  /**
+   * @brief Reads the current clap delay setting.
+   *
+   * @return The delay in milliseconds between clap events.
+   *         Returns 0 on error.
+   */
   uint16_t readClapDelay();
+
+  /**
+   * @brief Returns the number of unread clap events in the queue.
+   *
+   * Processes any pending serial data first to update the queue.
+   *
+   * @return Number of available clap events.
+   */
   uint8_t availableClapEvents();
+
+  /**
+   * @brief Reads the next available clap event from the queue.
+   *
+   * Processes pending serial data first. If no event is available,
+   * sets last error to MIP_ERROR_NO_EVENT.
+   *
+   * @return The clap event code, or 0 if none available.
+   */
   uint8_t readClapEvent();
+
   bool hasBeenShaken();
 
   // Device Info
