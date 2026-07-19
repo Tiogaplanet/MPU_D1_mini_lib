@@ -641,6 +641,14 @@ class MiP {
    */
   bool isOnBackWithKickstand();
 
+/**
+   * @brief Reads the current weight on the MiP's weight sensor.
+   *
+   * Uses cached data from recent OOB events if available; otherwise performs
+   * a verified read with automatic retries.
+   *
+   * @return Current weight in grams (signed), or 0 on error.
+   */
   int8_t readWeight();
 
   /**

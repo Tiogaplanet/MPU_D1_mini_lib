@@ -12,7 +12,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for the physical weight sensor.
+/** 
+ * @file MPU_Weight.cpp
+ * @brief Implements reading the physical weight sensor on the WowWee MiP robot.
+ *
+ * Weight data is cached from OOB events when available; otherwise a direct
+ * verified request is made with retries.
  */
 #include "MPU_D1_mini.h"
 
