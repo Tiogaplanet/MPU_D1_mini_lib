@@ -12,10 +12,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Encapsulates the network bindings for the D1 mini, handling mDNS and
-   ArduinoOTA (Over The Air) updates.  No direct interaction with MiP happens in
-   this module.
-*/
+/**
+ * @file MPU_Network.cpp
+ * @brief Implements WiFi connection, ArduinoOTA (Over-The-Air updates),
+ *        and mDNS support for the WeMos D1 mini (ESP8266).
+ *
+ * This module handles network initialization on top of the core UART
+ * connection to the MiP robot. No direct MiP communication occurs here.
+ */
 #include "MPU_D1_mini.h"
 
 bool MiP::begin(const char* ssid, const char* password, const char* hostname) {

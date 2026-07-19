@@ -133,9 +133,42 @@ class MiP {
   MiP();
   ~MiP();
 
+  /**
+   * @brief Initializes the core UART connection to the MiP robot.
+   *
+   * Attempts connection at both 115200 and 9600 baud rates with retries.
+   * Sets up debug output on Serial1 and prepares internal state.
+   *
+   * @return true if successfully connected to MiP, false otherwise.
+   */
   bool begin();
+
+  /**
+   * @brief Initializes connection to MiP + WiFi, mDNS, and ArduinoOTA.
+   *
+   * This overloaded version sets up the ESP8266 WiFi connection, starts
+   * Over-The-Air update server, and configures mDNS responder.
+   *
+   * @param ssid      WiFi network name.
+   * @param password  WiFi password.
+   * @param hostname  Hostname for mDNS and OTA (e.g. "MyMiP").
+   * @return true if the core UART connection to MiP succeeded.
+   */
   bool begin(const char* ssid, const char* password, const char* hostname);
+
+  /**
+   * @brief Cleans up the connection to MiP and shuts down network services.
+   *
+   * Restores default volume, sends disconnect command, and ends
+   * Serial/WiFi/OTA.
+   */
   void end();
+
+  /**
+   * @brief Puts the MiP robot to sleep.
+   *
+   * The robot will need to be physically reset before another `begin()` call.
+   */
   void sleep();
 
   // Will return false if begin() wasn't successful in connecting to MiP.
@@ -154,6 +187,11 @@ class MiP {
   bool didLastCallFail() {
     return m_lastError != MIP_ERROR_NONE;
   }
+
+  /**
+   * @brief Prints a human-readable description of the last error to the debug
+   *        channel (Serial1).
+   */
   void printLastCallResult();
 
   void enableRadarMode();
@@ -448,13 +486,12 @@ class MiP {
   void resetDistanceTravelled();
 
   /**
-   * @brief Reads the current battery voltage of the MiP robot.
-   * * This function processes the incoming serial buffer for any pending
-   * Out-Of-Band (OOB) status events to ensure the cache is up to date, then
-   * returns the latest known voltage. It does not actively transmit a request
-   * to the robot.
-   * * @return float The battery voltage, typically ranging from 4.0V (dead)
-   * to 6.4V (fully charged).
+   * @brief Reads the current battery voltage of the MiP robot (cached value).
+   *
+   * This function processes any pending Out-Of-Band status events to keep the
+   * cache up to date. It does not transmit a new request.
+   *
+   * @return Battery voltage, typically 4.0V (low) to 6.4V (fully charged).
    */
   float readBatteryVoltage();
   MiPPosition readPosition();
