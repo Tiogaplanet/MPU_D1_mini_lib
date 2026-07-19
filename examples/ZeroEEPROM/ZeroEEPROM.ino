@@ -31,7 +31,6 @@
  */
 
 #include <MPU_D1_mini.h>
-#include <MPU_debug.h>
 
 /**
  * @brief Global MiP instance used to communicate with the robot.
