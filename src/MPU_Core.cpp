@@ -47,14 +47,11 @@
 #define MIP_CMD_SET_GESTURE_RADAR_MODE 0x0C
 #define MIP_CMD_GET_GESTURE_RADAR_MODE 0x0D
 
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Core.cpp: %d\n", lineNumber);
+void MiP::mipAssert(uint32_t lineNumber) {
+  // We can use __FILE__ here to dynamically print whichever of the 24 files
+  // triggered the assert!
+  MIP_DEBUG_ERROR_PRINTF(
+      "MiP: Assert failed in file %s at line: %d\n", __FILE__, lineNumber);
   while (1) {
     delay(100);
   }

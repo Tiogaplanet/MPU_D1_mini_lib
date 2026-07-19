@@ -86,6 +86,12 @@
 #define MIP_DEBUG_INFO_PRINTF(...)
 #endif
 
+// Define an assert mechanism that can be used to log and halt when the user is
+// found to be calling the API incorrectly.
+#define MIP_ASSERT(EXPRESSION) \
+  if (!(EXPRESSION))           \
+    mipAssert(__LINE__);
+
 // Integer error codes that can be encountered by MiP API functions.
 #define MIP_ERROR_NONE 0          // Success
 #define MIP_ERROR_TIMEOUT 1       // Timed out waiting for response.
@@ -285,6 +291,9 @@ class MiP {
 
   void connect();
 
+  // Centralized assert handler
+  void mipAssert(uint32_t lineNumber);
+  
   // Helper utilities for sub-functions
   void verifiedSetGestureRadarMode(MiPGestureRadarMode desiredMode);
   bool checkGestureRadarMode(MiPGestureRadarMode expectedMode);
