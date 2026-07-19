@@ -1,26 +1,48 @@
-/* Copyright (C) 2018  Adam Green (https://github.com/adamgreen)
+/**
+ * @file ChestLED.ino
+ * @brief Example sketch demonstrating MiP chest LED read/write operations.
+ *
+ * @details This sketch shows how to use the MiP library to set and read the chest LED
+ * color and blink timing. It demonstrates the verified write APIs
+ * (readChestLED, writeChestLED) and the unverified write APIs
+ * (unverifiedWriteChestLED) which may not always be accepted by the robot.
+ *
+ * The example exercises these API calls:
+ *   - readChestLED()
+ *   - writeChestLED()
+ *   - unverifiedChestLED()
+ *
+ * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/* Example used in following API documentation:
-    readChestLED()
-    writeChestLED()
-    unverifiedChestLED()
-*/
 #include <MPU_D1_mini.h>
 
-MiP     mip;
+/**
+ * @brief Global MiP instance used to communicate with the robot.
+ *
+ * This object is used throughout the sketch to call MiP API functions such as
+ * begin(), readChestLED(), writeChestLED(), and unverifiedWriteChestLED().
+ */
+MiP mip;
 
+/**
+ * @brief Arduino setup function.
+ *
+ * Initializes communication with the MiP robot and demonstrates several
+ * chest LED operations:
+ *  - Set a static color (magenta) with no timing specified.
+ *  - Set a blinking color with explicit on/off times.
+ *  - Set a static color using a MiPChestLED struct.
+ *  - Repeat the above sequence using the unverified write APIs.
+ *
+ * The function prints status messages to Serial1 and uses
+ * printCurrentChestLEDSetting() to display the current chest LED state after
+ * each verified write.
+ */
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
@@ -59,7 +81,7 @@ void setup() {
   printCurrentChestLEDSetting();
   delay(1000);
 
-  // Attempt to run through the same sequence of chest LED changes using the 
+  // Attempt to run through the same sequence of chest LED changes using the
   // unverifiedWriteChestLED() functions which don't always get accepted by MiP.
   Serial1.println(F(" Trying to set chest LED to magenta, no time specified."));
   red = 0xff;
@@ -83,30 +105,45 @@ void setup() {
   chestLED.offTime = 0;
   mip.unverifiedWriteChestLED(chestLED);
   delay(1000);
-  
+
   Serial1.println();
   Serial1.println(F("ChestLED.ino: Done."));
 }
 
+/**
+ * @brief Arduino loop function.
+ *
+ * This example performs all actions in setup() and does not require repeated
+ * work in loop(). The function is intentionally left empty.
+ */
 void loop() {
 }
 
+/**
+ * @brief Print the current chest LED setting to Serial1.
+ *
+ * Reads the current chest LED state from the MiP robot using readChestLED()
+ * and prints the red, green, blue, onTime, and offTime values in a human
+ * readable format.
+ *
+ * @note This function is declared static to limit its linkage to this file.
+ */
 static void printCurrentChestLEDSetting() {
   MiPChestLED chestLED;
   mip.readChestLED(chestLED);
 
   Serial1.println(F(" Current Chest LED Setting"));
   Serial1.print(F("    red: "));
-    Serial1.println(chestLED.red);
+  Serial1.println(chestLED.red);
   Serial1.print(F("    green: "));
-    Serial1.println(chestLED.green);
+  Serial1.println(chestLED.green);
   Serial1.print(F("    blue: "));
-    Serial1.println(chestLED.blue);
+  Serial1.println(chestLED.blue);
   Serial1.print(F("    on time: "));
-    Serial1.print(chestLED.onTime);
-    Serial1.println(F(" milliseconds"));
+  Serial1.print(chestLED.onTime);
+  Serial1.println(F(" milliseconds"));
   Serial1.print(F("    off time: "));
-    Serial1.print(chestLED.offTime);
-    Serial1.println(F(" milliseconds"));
+  Serial1.print(chestLED.offTime);
+  Serial1.println(F(" milliseconds"));
   Serial1.println();
 }

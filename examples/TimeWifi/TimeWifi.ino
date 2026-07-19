@@ -1,30 +1,45 @@
-/* Copyright (C) 2018  Samuel Trassare (https://github.com/Tiogaplanet)
+/**
+ * @file TimeWifi.ino
+ * @brief Turns the WowWee MiP robot into a network-synchronized clock.
+ *
+ * @details This example connects the Wemos D1 mini to a WiFi network, retrieves the 
+ * current time using the Network Time Protocol (NTP), and parses it. It then 
+ * displays the time (hours and minutes) digit by digit using the MiP's head LEDs 
+ * to represent numbers and the chest LED to signal states (e.g., blue for zero, 
+ * green for transitions, magenta for cycle completion).
+ *
+ * @copyright Copyright (C) 2018 Samuel Trassare (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-// Turn MiP into a clock! This example reads network time protocol (NTP) and
-// writes the time to MiP's eyes, one digit at a time.
 #include <MPU_D1_mini.h>
-#include <time.h> // We'll read the time and parse it.
+#include <time.h>  // We'll read the time and parse it.
 
-const char *ssid = ".............."; // Enter the SSID for your wifi network.
-const char *password = ".............."; // Enter your wifi password.
+/** @brief The SSID (name) of your local WiFi network. */
+const char* ssid = "..............";
 
-const char *hostname = "MiP-0x01"; // Set any hostname you desire.
+/** @brief The password for your local WiFi network. */
+const char* password = "..............";
 
-MiP mip;            // We need a single MiP object
-bool connectResult; // Test whether a connection to MiP was established.
+/** @brief The mDNS hostname assigned to the ESP8266 on the network. */
+const char* hostname = "Timekeeper";
 
+/** @brief The global MiP library instance used to control the robot. */
+MiP mip;
+
+/** @brief Stores the result of the MiP and WiFi initialization attempt. */
+bool connectResult;
+
+/**
+ * @brief Arduino setup routine.
+ *
+ * @details Initializes the MiP object, establishes a WiFi connection using the 
+ * provided credentials, configures the NTP servers to retrieve the current time 
+ * (adjusted for timezone), and blocks until a valid time signal is successfully received.
+ */
 void setup() {
   connectResult = mip.begin(ssid, password, hostname);
 
@@ -33,10 +48,11 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("TimeWifi.ino: Make MiP a clock!  Display time using the eyes."));
+  Serial1.println(F("TimeWifi.ino: Make MiP a clock!  Display time using the eyes."));
 
+  // Configure NTP servers. The first parameter is the timezone offset in seconds (-4 hours).
   configTime(-4 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+
   Serial1.println(F("\n Waiting for time"));
   while (!time(nullptr)) {
     Serial1.print(F("."));
@@ -44,17 +60,26 @@ void setup() {
   }
 }
 
+/**
+ * @brief Main Arduino loop routine.
+ *
+ * @details Handles Over-The-Air (OTA) updates, retrieves the current local time, 
+ * parses it into individual digits (tens and ones for both hours and minutes), 
+ * and sequentially updates the MiP's head and chest LEDs to visually broadcast the time.
+ */
 void loop() {
-  ArduinoOTA.handle(); // Without this we can't do OTA programming.
+  // Without this we can't do OTA programming.
+  ArduinoOTA.handle();
 
-  time_t now = time(nullptr); // Read the time from NTP.
-  struct tm *timeinfo;
+  time_t now = time(nullptr);  // Read the time from NTP.
+  struct tm* timeinfo;
+
   Serial1.print(F(" "));
   Serial1.println(ctime(&now));
   timeinfo = localtime(&now);
 
-  uint8_t hour_tens =
-      timeinfo->tm_hour / 10; // Parse the time into individual numbers.
+  // Parse the time into individual numbers.
+  uint8_t hour_tens = timeinfo->tm_hour / 10;
   uint8_t hour_ones = timeinfo->tm_hour % 10;
   uint8_t minute_tens = timeinfo->tm_min / 10;
   uint8_t minute_ones = timeinfo->tm_min % 10;
@@ -68,156 +93,152 @@ void loop() {
   Serial1.print(F(" Minute ones: "));
   Serial1.println(minute_ones);
 
-  switch (
-      hour_tens) { // In the next four switches, write the time to MiP's eyes.
-  case 0:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 1:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 2:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
+  // ---------------------------------------------------------
+  // Hour: Tens Digit
+  // ---------------------------------------------------------
+  switch (hour_tens) {
+    case 0:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      // Signal a zero by writing blue to the chest LED.
+      mip.writeChestLED(0x00, 0x00, 0xff);
+      break;
+    case 1:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 2:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
   }
 
   delay(2000);
-  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                    MIP_HEAD_LED_OFF);
+
+  // Between digits, reset eyes and chest.
+  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+  mip.writeChestLED(0x00, 0xff, 0x00);  // Back to green.
   delay(500);
 
+  // ---------------------------------------------------------
+  // Hour: Ones Digit
+  // ---------------------------------------------------------
   switch (hour_ones) {
-  case 0:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 1:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 2:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 3:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 4:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 5:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 6:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 7:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 8:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_ON);
-    break;
-  case 9:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_ON);
-    break;
+    case 0:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      // Signal a zero by writing blue to the chest LED.
+      mip.writeChestLED(0x00, 0x00, 0xff);
+      break;
+    case 1:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 2:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 3:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 4:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 5:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 6:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 7:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 8:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
+      break;
+    case 9:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
+      break;
   }
 
   delay(2000);
-  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                    MIP_HEAD_LED_OFF);
+
+  // Between digits, reset eyes and chest.
+  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+  mip.writeChestLED(0x00, 0xff, 0x00);  // Back to green.
   delay(500);
 
+  // ---------------------------------------------------------
+  // Minute: Tens Digit
+  // ---------------------------------------------------------
   switch (minute_tens) {
-  case 0:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 1:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 2:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 3:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 4:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 5:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
+    case 0:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      // Signal a zero by writing blue to the chest LED.
+      mip.writeChestLED(0x00, 0x00, 0xff);
+      break;
+    case 1:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 2:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 3:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 4:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 5:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
   }
 
   delay(2000);
-  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                    MIP_HEAD_LED_OFF);
+
+  // Between digits, reset eyes and chest.
+  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+  mip.writeChestLED(0x00, 0xff, 0x00);  // Back to green.
   delay(500);
 
+  // ---------------------------------------------------------
+  // Minute: Ones Digit
+  // ---------------------------------------------------------
   switch (minute_ones) {
-  case 0:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 1:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 2:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 3:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 4:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 5:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 6:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 7:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                      MIP_HEAD_LED_OFF);
-    break;
-  case 8:
-    mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_ON);
-    break;
-  case 9:
-    mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                      MIP_HEAD_LED_ON);
-    break;
+    case 0:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      // Signal a zero by writing blue to the chest LED.
+      mip.writeChestLED(0x00, 0x00, 0xff);
+      break;
+    case 1:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 2:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 3:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      break;
+    case 4:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 5:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 6:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 7:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
+      break;
+    case 8:
+      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
+      break;
+    case 9:
+      mip.writeHeadLEDs(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
+      break;
   }
 
   delay(2000);
-  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                    MIP_HEAD_LED_OFF);
 
-  mip.writeChestLED(0x00, 0x00, 0xff); // Signal to user that sequence is over
-                                       // by changing the chest to blue.
+  // Reset the head, but change the chest to magenta to show that this cycle is complete.
+  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+  mip.writeChestLED(0xff, 0x01, 0xfe);  // Magenta.
+
   delay(3000);
-  mip.writeChestLED(0x00, 0xff, 0x00); // Back to green.
+  mip.writeChestLED(0x00, 0xff, 0x00);  // Back to green.
 }

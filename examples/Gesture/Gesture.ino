@@ -1,25 +1,42 @@
-/* Copyright (C) 2018  Adam Green (https://github.com/adamgreen)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/* Example used in following API documentation:
-    availableGestureEvents()
-    readGestureEvent()
-*/
+/**
+ * @file Gesture.ino
+ * @brief Example sketch demonstrating MiP gesture detection and reporting.
+ *
+ * @details This sketch shows how to use the MiP library's gesture detection
+ * APIs to enable gesture mode, poll for gesture events, and report the
+ * detected gestures to Serial1. The sketch waits for the robot to be upright
+ * before enabling gesture mode and then continuously reads available gesture
+ * events using availableGestureEvents() and readGestureEvent().
+ *
+ * The example exercises these API calls:
+ *   - availableGestureEvents()
+ *   - readGestureEvent()
+ *
+ * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 #include <MPU_D1_mini.h>
 
-MiP     mip;
+/**
+ * @brief Global MiP instance used to communicate with the robot.
+ *
+ * @details Use this object to call MiP API functions such as begin(),
+ * isUpright(), enableGestureMode(), availableGestureEvents(), and
+ * readGestureEvent().
+ */
+MiP mip;
 
+/**
+ * @brief Arduino setup function.
+ *
+ * @details Initializes communication with the MiP robot by calling mip.begin().
+ * If the connection fails, an error message is printed to Serial1 and setup
+ * returns early. The function waits until the robot reports it is upright,
+ * then enables gesture mode so the robot will begin reporting gesture events.
+ */
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
@@ -31,11 +48,20 @@ void setup() {
 
   Serial1.println(F(" Waiting for robot to be standing upright."));
   while (!mip.isUpright()) {
-    // Waiting
+    // Waiting for the robot to be upright before enabling gesture mode.
   }
   mip.enableGestureMode();
 }
 
+/**
+ * @brief Arduino loop function.
+ *
+ * @details Continuously polls for pending gesture events using
+ * availableGestureEvents(). For each available event, readGestureEvent()
+ * returns a MiPGesture value which is mapped to a human-readable message
+ * printed to Serial1. The switch statement covers all defined gesture
+ * values including a defensive case for MIP_GESTURE_INVALID.
+ */
 void loop() {
   while (mip.availableGestureEvents() > 0) {
     MiPGesture gesture = mip.readGestureEvent();
@@ -63,10 +89,12 @@ void loop() {
         Serial1.println(F("Backward gesture!"));
         break;
       case MIP_GESTURE_INVALID:
-        // This shouldn't really happen since mip.availableGestureEvents() returned > 0.
+        /**
+         * @note MIP_GESTURE_INVALID should not normally be returned when
+         * availableGestureEvents() reported > 0, but handle it defensively.
+         */
         Serial1.println(F("INVALID gesture!"));
         break;
     }
   }
 }
-

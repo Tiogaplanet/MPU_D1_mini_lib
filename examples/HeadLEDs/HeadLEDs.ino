@@ -1,26 +1,52 @@
-/* Copyright (C) 2018  Adam Green (https://github.com/adamgreen)
+/**
+ * @file HeadLEDs.ino
+ * @brief Example sketch demonstrating MiP head LED control and queries.
+ *
+ * @details This sketch shows how to use the MiP library to set and read the
+ * robot's head (eye) LEDs using both verified and unverified APIs. It:
+ *   - Sets each head LED to a different state using writeHeadLEDs().
+ *   - Reads back the current head LED states with readHeadLEDs() and prints
+ *     a human-readable description for each LED.
+ *   - Restores all head LEDs to the ON state.
+ *   - Repeats the sequence using unverifiedWriteHeadLEDs() to demonstrate
+ *     the unverified API which may not always be accepted by the robot.
+ *
+ * The example exercises these API calls:
+ *   - writeHeadLEDs()
+ *   - readHeadLEDs()
+ *   - unverifiedWriteHeadLEDs()
+ *
+ * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/* Example used in following API documentation:
-    writeHeadLEDs()
-    readHeadLEDs()
-    unverifiedWriteHeadLEDs()
-*/
 #include <MPU_D1_mini.h>
 
-MiP     mip;
+/**
+ * @brief Global MiP instance used to communicate with the robot.
+ *
+ * @details Use this object to call MiP API functions such as begin(),
+ * writeHeadLEDs(), readHeadLEDs(), and unverifiedWriteHeadLEDs().
+ */
+MiP mip;
 
+/**
+ * @brief Arduino setup function.
+ *
+ * @details Initializes communication with the MiP robot by calling mip.begin().
+ * If the connection fails, an error message is printed to Serial1 and setup
+ * returns early. On success, the sketch:
+ *   - Sets the four head LEDs to different states (OFF, ON, BLINK_SLOW, BLINK_FAST).
+ *   - Reads the current head LED states into a MiPHeadLEDs struct and prints
+ *     each LED's state using printLEDString().
+ *   - Restores all head LEDs to ON and demonstrates the unverified write API
+ *     by attempting the same sequence with unverifiedWriteHeadLEDs().
+ *
+ * The function prints progress and results to Serial1 for observation.
+ */
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
@@ -35,13 +61,13 @@ void setup() {
   mip.readHeadLEDs(headLEDs);
   Serial1.println(F("Head LEDs"));
   Serial1.print(F("    led1: "));
-    printLEDString(headLEDs.led1);
+  printLEDString(headLEDs.led1);
   Serial1.print(F("    led2: "));
-    printLEDString(headLEDs.led2);
+  printLEDString(headLEDs.led2);
   Serial1.print(F("    led3: "));
-    printLEDString(headLEDs.led3);
+  printLEDString(headLEDs.led3);
   Serial1.print(F("    led4: "));
-    printLEDString(headLEDs.led4);
+  printLEDString(headLEDs.led4);
 
   delay(4000);
 
@@ -51,7 +77,7 @@ void setup() {
   mip.writeHeadLEDs(headLEDs);
   delay(1000);
 
-  // Attempt to run through the same sequence of head LED changes using the 
+  // Attempt to run through the same sequence of head LED changes using the
   // unverifiedWriteHeadLEDs() functions which don't always get accepted by MiP.
   Serial1.println(F(" Trying to set each head LED to a different state."));
   mip.unverifiedWriteHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW, MIP_HEAD_LED_BLINK_FAST);
@@ -65,6 +91,20 @@ void setup() {
   Serial1.println(F("HeadLEDs.ino: Done."));
 }
 
+/**
+ * @brief Print a human-readable description of a head LED state.
+ *
+ * @details Helper function that maps a MiPHeadLED enum value to a readable
+ * string and prints it to Serial1. Handles the defined LED states:
+ *   - MIP_HEAD_LED_OFF
+ *   - MIP_HEAD_LED_ON
+ *   - MIP_HEAD_LED_BLINK_SLOW
+ *   - MIP_HEAD_LED_BLINK_FAST
+ *
+ * The function is declared static to limit its linkage to this file.
+ *
+ * @param led The MiPHeadLED enum value to describe and print.
+ */
 static void printLEDString(MiPHeadLED led) {
   switch (led) {
     case MIP_HEAD_LED_OFF:
@@ -85,5 +125,12 @@ static void printLEDString(MiPHeadLED led) {
   }
 }
 
+/**
+ * @brief Arduino loop function.
+ *
+ * @details This example performs all actions in setup() and does not require
+ * repeated work in loop(). The function is intentionally left empty so the
+ * demonstration runs only once during initialization.
+ */
 void loop() {
 }
