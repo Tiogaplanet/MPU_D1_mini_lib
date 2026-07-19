@@ -130,7 +130,20 @@ class MiP {
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
   // Constructor/Destructors.
+  /**
+   * @brief Constructs a new MiP object.
+   *
+   * Initializes internal state but does not connect to the robot yet.
+   * Call `begin()` to establish communication.
+   */
   MiP();
+
+  /**
+   * @brief Destroys the MiP object and cleans up resources.
+   *
+   * Automatically calls `end()` to disconnect from the robot and shut down
+   * network services (WiFi, OTA, mDNS).
+   */
   ~MiP();
 
   /**
@@ -641,7 +654,7 @@ class MiP {
    */
   bool isOnBackWithKickstand();
 
-/**
+  /**
    * @brief Reads the current weight on the MiP's weight sensor.
    *
    * Uses cached data from recent OOB events if available; otherwise performs
