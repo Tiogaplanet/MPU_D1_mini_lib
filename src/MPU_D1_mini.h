@@ -194,7 +194,18 @@ class MiP {
    */
   void printLastCallResult();
 
+  /**
+   * @brief Enables radar tracking mode on the MiP.
+   *
+   * Uses verified mode switching (command + read-back confirmation with retry).
+   */
   void enableRadarMode();
+
+  /**
+   * @brief Disables radar tracking mode.
+   *
+   * Uses verified mode switching (command + read-back confirmation with retry).
+   */
   void disableRadarMode();
 
   /**
@@ -211,6 +222,11 @@ class MiP {
    */
   void disableGestureMode();
 
+  /**
+   * @brief Checks whether radar tracking mode is currently active.
+   *
+   * @return true if radar mode is enabled.
+   */
   bool isRadarModeEnabled();
 
   /**
@@ -219,7 +235,23 @@ class MiP {
    * @return true if gesture mode is enabled.
    */
   bool isGestureModeEnabled();
+
+  /**
+   * @brief Checks whether both gesture and radar modes are disabled.
+   *
+   * @return true if both modes are off (i.e., in MIP_GESTURE_RADAR_DISABLED
+   * state).
+   */
   bool areGestureAndRadarModesDisabled();
+
+  /**
+   * @brief Reads the most recent radar tracking data.
+   *
+   * Uses cached value from the latest OOB status event. Processes pending
+   * serial data first.
+   *
+   * @return Current radar value or MIP_RADAR_INVALID if no data received yet.
+   */
   MiPRadar readRadar();
 
   /**

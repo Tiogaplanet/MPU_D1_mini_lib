@@ -332,3 +332,7 @@ int8_t MiP::parseStatus(MiPStatus& status,
   status.position = (MiPPosition)response[2];
   return MIP_ERROR_NONE;
 }
+
+bool MiP::areGestureAndRadarModesDisabled() {
+  return checkGestureRadarMode(MIP_GESTURE_RADAR_DISABLED);
+}

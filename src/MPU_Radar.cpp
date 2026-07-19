@@ -12,7 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for all radar tracking steps.
+/**
+ * @file MPU_Radar.cpp
+ * @brief Implements enabling, disabling, and reading radar tracking data from
+ *        the WowWee MiP robot.
+ *
+ * Radar mode shares infrastructure with gesture mode. Radar events are cached
+ * and updated via OOB (Out-Of-Band) status packets.
  */
 #include "MPU_D1_mini.h"
 
