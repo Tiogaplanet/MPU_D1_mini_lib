@@ -713,8 +713,22 @@ class MiP {
    */
   bool hasBeenShaken();
 
-  // Device Info
+  /**
+   * @brief Reads the MiP's software version information.
+   *
+   * Performs a verified read with automatic retries on error.
+   *
+   * @param software Reference to a MiPSoftwareVersion struct to fill.
+   */
   void readSoftwareVersion(MiPSoftwareVersion& software);
+
+  /**
+   * @brief Reads the MiP's hardware information.
+   *
+   * Performs a verified read with automatic retries on error.
+   *
+   * @param hardware Reference to a MiPHardwareInfo struct to fill.
+   */
   void readHardwareInfo(MiPHardwareInfo& hardware);
 
   /**
@@ -910,13 +924,13 @@ class MiP {
    */
   uint8_t availableIRCodeEvents();
 
-/**
+  /**
    * @brief Sends a raw command to the MiP (fire-and-forget).
    *
    * Used internally by higher-level verified methods.
    */
   void rawSend(const uint8_t request[], size_t requestLength);
-  
+
   /**
    * @brief Sends a raw command and waits for the expected response.
    *

@@ -12,9 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for software and hardware version
-   information.
-*/
+/**
+ * @file MPU_Version.cpp
+ * @brief Implements reading software version and hardware information from the
+ *        WowWee MiP robot.
+ *
+ * Both operations are verified reads with automatic retry logic.
+ */
 #include "MPU_D1_mini.h"
 
 // MiP Protocol Commands to request hardware and software info.
