@@ -156,16 +156,51 @@ class MiP {
   }
   void printLastCallResult();
 
-  // Sensors, Gestures, Radar
   void enableRadarMode();
   void disableRadarMode();
+
+  /**
+   * @brief Enables gesture detection mode on the MiP.
+   *
+   * Uses verified mode switching (command + read-back confirmation with retry).
+   */
   void enableGestureMode();
+
+  /**
+   * @brief Disables gesture detection mode.
+   *
+   * Uses verified mode switching (command + read-back confirmation with retry).
+   */
   void disableGestureMode();
+
   bool isRadarModeEnabled();
+
+  /**
+   * @brief Checks whether gesture detection mode is currently active.
+   *
+   * @return true if gesture mode is enabled.
+   */
   bool isGestureModeEnabled();
   bool areGestureAndRadarModesDisabled();
   MiPRadar readRadar();
+
+  /**
+   * @brief Returns the number of unread gesture events in the queue.
+   *
+   * Processes any pending serial data first to update the internal queue.
+   *
+   * @return Number of available gesture events.
+   */
   uint8_t availableGestureEvents();
+
+  /**
+   * @brief Reads the next available gesture event from the queue.
+   *
+   * Processes pending serial data first. Returns MIP_GESTURE_INVALID and sets
+   * last error to MIP_ERROR_NO_EVENT if the queue is empty.
+   *
+   * @return The gesture event code.
+   */
   MiPGesture readGestureEvent();
 
   /**

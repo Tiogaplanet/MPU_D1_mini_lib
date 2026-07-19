@@ -12,12 +12,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file implements decoding and fetching for gesture inputs.
-*/
+/** 
+ * @file MPU_Gesture.cpp
+ * @brief Implements enabling, disabling, and reading gesture events from the
+ *        WowWee MiP robot.
+ *
+ * Gesture mode shares infrastructure with radar mode. Events are queued and
+ * retrieved via the common response processing system.
+ */
 #include "MPU_D1_mini.h"
-
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
 
 // MiP Protocol Commands related to sensors.
 // These command codes are placed in the first byte of requests sent to the MiP
@@ -26,19 +29,6 @@
 // for the complete list.
 #define MIP_CMD_GET_GESTURE_RADAR_MODE 0x0D
 #define MIP_CMD_SET_GESTURE_RADAR_MODE 0x0C
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Gesture.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 void MiP::enableGestureMode() {
   verifiedSetGestureRadarMode(MIP_GESTURE);
