@@ -51,6 +51,14 @@ MiP mip;
 int delayPeriod = 10000;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
  * @details Initializes communication with the MiP robot by calling mip.begin().
@@ -60,7 +68,7 @@ int delayPeriod = 10000;
  */
 void setup() {
   // First need to initialize the Serial1 connection with the MiP.
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("EnableGameMode.ino: Failed connecting to MiP!"));
     return;
@@ -89,6 +97,8 @@ void setup() {
  *   - enableAppMode()   -> isAppModeEnabled()
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+	
   mip.enableCageMode();
   if (mip.isCageModeEnabled()) {
     Serial1.println(F(" Cage mode enabled."));

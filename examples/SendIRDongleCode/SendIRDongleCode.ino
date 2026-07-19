@@ -50,8 +50,8 @@ MiP mip;
 /**
  * @brief Tracks whether the initial connection to the MiP succeeded.
  *
- * @details Stored so the sketch can avoid attempting operations if the
- * connection failed during setup.
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
  */
 bool connectResult;
 
@@ -86,6 +86,8 @@ void setup() {
  * Modify the dongleCode assignment to test different transmitted values.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  
   uint16_t dongleCode;
   char formattedOutput[14];
 

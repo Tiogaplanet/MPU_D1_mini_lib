@@ -60,6 +60,14 @@ static float lastBatteryLevel = 0.0f;
 static MiPPosition lastPosition = (MiPPosition)-1;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
  * @details
@@ -69,7 +77,7 @@ static MiPPosition lastPosition = (MiPPosition)-1;
  *   status changes.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("Status.ino: Failed connecting to MiP!"));
     return;
@@ -94,6 +102,8 @@ void setup() {
  * spamming the serial output.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+ 
   float currentBatteryLevel = mip.readBatteryVoltage();
   MiPPosition currentPosition = mip.readPosition();
 

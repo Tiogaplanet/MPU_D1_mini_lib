@@ -43,7 +43,7 @@ MiP mip;
  * @brief Tracks whether the initial connection to the MiP succeeded.
  *
  * @details Stored so other parts of the sketch could check connection state
- * if extended. In this simple example it is only used during setup().
+ * if extended.
  */
 bool connectResult;
 
@@ -85,6 +85,8 @@ void setup() {
  * visually compare transmitted codes.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+	  
   uint32_t receiveCode;
 
   if (mip.availableIRCodeEvents()) {

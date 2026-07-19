@@ -18,19 +18,42 @@
 #include <MPU_D1_mini.h>
 #include <time.h>  // We'll read the time and parse it.
 
-/** @brief The SSID (name) of your local WiFi network. */
+/**
+ * @brief Wi‑Fi SSID to join.
+ *
+ * @note Replace the placeholder with your network SSID before uploading.
+ */
 const char* ssid = "..............";
 
-/** @brief The password for your local WiFi network. */
+/**
+ * @brief Wi‑Fi password for the SSID.
+ *
+ * @note Replace the placeholder with your network password before uploading.
+ */
 const char* password = "..............";
 
-/** @brief The mDNS hostname assigned to the ESP8266 on the network. */
-const char* hostname = "Timekeeper";
+/**
+ * @brief Hostname used for MiP connection.
+ *
+ * @details This name appears in the network. Choose a unique hostname for each 
+ * device.
+ */
+const char* hostname = "MiP-Timekeeper";
 
-/** @brief The global MiP library instance used to control the robot. */
+/**
+ * @brief Global MiP instance used to initialize and control the robot.
+ *
+ * @details The mip object is used to establish the network connection and
+ * to integrate MiP-specific functionality with the telnet debug service.
+ */
 MiP mip;
 
-/** @brief Stores the result of the MiP and WiFi initialization attempt. */
+/**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
 bool connectResult;
 
 /**
@@ -68,6 +91,8 @@ void setup() {
  * and sequentially updates the MiP's head and chest LEDs to visually broadcast the time.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+ 
   // Without this we can't do OTA programming.
   ArduinoOTA.handle();
 

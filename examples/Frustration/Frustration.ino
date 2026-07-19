@@ -81,6 +81,14 @@ uint8_t frustrationLevel = 0;
 unsigned long previousMillis = 0;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Initialize MiP and prepare sensors and audio.
  *
  * @details Connects to the MiP, mutes initial volume, seeds the random
@@ -89,7 +97,7 @@ unsigned long previousMillis = 0;
  */
 void setup() {
   // Initialize the serial connection with the MiP.
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult)
   {
     Serial.println(F("Frustration.ino: Failed connecting to MiP.  Is it turned on?"));
@@ -116,6 +124,8 @@ void setup() {
  * return control to factory behavior.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  
   // While upright, wander and react to radar.
   while (mip.isUpright()) {
     // Drive forward continuously at moderate speed.

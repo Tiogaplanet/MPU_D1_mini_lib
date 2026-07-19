@@ -19,6 +19,7 @@
  * You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
+ 
 #include <MPU_D1_mini.h>
 
 /**
@@ -30,6 +31,14 @@
 MiP mip;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
  * @details Initializes communication with the MiP robot by calling mip.begin().
@@ -39,7 +48,7 @@ MiP mip;
  * categories via readRadar().
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("Radar.ino: Failed connecting to MiP!"));
     return;
@@ -71,6 +80,8 @@ void setup() {
  * spamming the serial output.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  
   static MiPRadar lastRadar = MIP_RADAR_INVALID;  // Remember last reported radar state.
   MiPRadar currentRadar = mip.readRadar();        // Read current radar category.
 

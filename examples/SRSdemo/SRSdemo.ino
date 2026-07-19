@@ -55,6 +55,14 @@ static MiP g_mip;
 static MiPHeadLEDs g_headLEDs;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Initialize connection to MiP and print demo banner.
  *
  * @details Attempts to initialize the MiP connection via g_mip.begin().
@@ -63,7 +71,7 @@ static MiPHeadLEDs g_headLEDs;
  */
 void setup() {
   // First need to initialize the Serial1 connection with the MiP.
-  bool connectResult = g_mip.begin();
+  connectResult = g_mip.begin();
   if (!connectResult) {
     Serial1.println(F("Failed connecting to MiP!"));
     return;
@@ -85,6 +93,8 @@ void setup() {
  * The animation advances every 250 ms while PLAYING_EYE_ANIMATION is active.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+ 
   enum States {
     RESTART,
     WAITING_TO_STANDUP,

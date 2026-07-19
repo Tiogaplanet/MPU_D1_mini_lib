@@ -38,6 +38,14 @@
 MiP mip;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
  * @details Initializes the MiP connection by calling mip.begin(). If the
@@ -46,7 +54,7 @@ MiP mip;
  * indicate the sketch is ready to detect shakes.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("Shake.ino: Failed connecting to MiP!"));
     return;
@@ -64,6 +72,8 @@ void setup() {
  * shake-detection API.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  
   if (mip.hasBeenShaken()) {
     Serial1.println(F(" Shake detected!"));
   }

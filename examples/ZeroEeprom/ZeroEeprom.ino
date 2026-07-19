@@ -51,15 +51,6 @@ MiP mip;
 uint8_t eepromContents;
 
 /**
- * @brief Buffer used to format output strings for Serial1.
- *
- * @details The original sketch declares a char for output; here we document
- * its intended use. If larger formatted strings are required, replace with
- * a suitably sized char array or use String.
- */
-char outputString;
-
-/**
  * @brief Arduino setup function.
  *
  * @details

@@ -69,6 +69,8 @@ void setup() {
  * and behaviors for the MiP robot.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+	  
   // Without this we can't do OTA programming.
   ArduinoOTA.handle();
 

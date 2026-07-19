@@ -53,6 +53,14 @@ MiP mip;
 static int8_t lastWeight = -128;
 
 /**
+ * @brief Tracks whether the initial connection to the MiP succeeded.
+ *
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
  * @details
@@ -62,7 +70,7 @@ static int8_t lastWeight = -128;
  *   weight updates.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("Weight.ino: Failed connecting to MiP!"));
     return;
@@ -83,6 +91,8 @@ void setup() {
  * flooding the serial output with repeated identical values.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+ 
   int8_t currentWeight = mip.readWeight();
 
   if (currentWeight != lastWeight) {

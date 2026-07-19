@@ -38,7 +38,7 @@
  */
 
 #include <MPU_D1_mini.h>
-#include <MPU_debug.h>
+#include <MPU_Debug.h>
 
 /**
  * @brief Wi‑Fi SSID to join.
@@ -60,7 +60,7 @@ const char* password = "..............";
  * @details This name appears in the network and is used by the telnet debug
  * server to identify the device. Choose a unique hostname for each device.
  */
-const char* hostname = "MiP-0x01";
+const char* hostname = "MiP-Debugger";
 
 /**
  * @brief Global MiP instance used to initialize and control the robot.
@@ -71,10 +71,10 @@ const char* hostname = "MiP-0x01";
 MiP mip;
 
 /**
- * @brief Tracks whether the initial connection to MiP succeeded.
+ * @brief Tracks whether the initial connection to the MiP succeeded.
  *
- * @details Stored so the sketch can avoid further operations if the connection
- * failed during setup. In this example it is printed to Serial1 on failure.
+ * @details Stored so other parts of the sketch could check connection state
+ * if extended.
  */
 bool connectResult;
 
@@ -157,6 +157,8 @@ void setup() {
  * responsive to telnet and OTA events.
  */
 void loop() {
+  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+ 
   // Required for OTA programming to function while the sketch runs.
   ArduinoOTA.handle();
 
