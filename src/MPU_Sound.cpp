@@ -12,8 +12,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This implementation file provides access MiP's sound functions.
-*/
+/**
+ * @file MPU_Sound.cpp
+ * @brief Implements sound playback, sound lists, and volume control for the
+ *        WowWee MiP robot.
+ *
+ * Supports single sounds and sequenced sound lists with optional delays and
+ * volume changes. Volume operations are verified with read-back and retries.
+ */
 #include "MPU_D1_mini.h"
 
 // MiP Protocol Commands related to audio playback.

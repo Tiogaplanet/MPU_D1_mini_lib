@@ -501,16 +501,59 @@ class MiP {
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
-  // Audio & Volume
+  /**
+   * @brief Plays a single sound at the specified volume.
+   *
+   * Convenience method that builds and plays a one-entry sound list.
+   *
+   * @param sound  Sound index to play.
+   * @param volume Volume level (default = MIP_VOLUME_DEFAULT).
+   */
   void playSound(MiPSoundIndex sound, MiPVolume volume = MIP_VOLUME_DEFAULT);
 
+  /**
+   * @brief Starts a new sound list sequence.
+   *
+   * Must be called before adding entries with addEntryToSoundList().
+   */
   void beginSoundList();
+
+  /**
+   * @brief Adds a sound (with optional delay and volume change) to the current
+   *        sound list.
+   *
+   * @param sound     Sound index.
+   * @param delayTime Delay in milliseconds before next sound (0-7650 ms).
+   * @param volume    Volume for this sound (or MIP_VOLUME_DEFAULT to keep
+   *                  previous).
+   */
   void addEntryToSoundList(MiPSoundIndex sound,
                            uint16_t delay = 0,
                            MiPVolume volume = MIP_VOLUME_DEFAULT);
+
+  /**
+   * @brief Plays the current sound list.
+   *
+   * @param repeatCount Number of times to repeat the entire list (0 = once).
+   */
   void playSoundList(uint8_t repeatCount = 0);
 
+  /**
+   * @brief Sets the MiP speaker volume and verifies the change.
+   *
+   * Retries automatically on failure.
+   *
+   * @param volume Volume level (0-7).
+   */
   void writeVolume(uint8_t volume);
+
+  /**
+   * @brief Reads the current speaker volume.
+   *
+   * Performs a verified read with retries.
+   *
+   * @return Current volume (0-7), or 0 on error.
+   */
   uint8_t readVolume();
 
   /**
