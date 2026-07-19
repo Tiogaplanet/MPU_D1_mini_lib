@@ -33,19 +33,6 @@
 #define MIP_CMD_SET_POSITION 0x08
 #define MIP_CMD_GET_UP 0x23
 
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Motion.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
-
 void MiP::continuousDrive(int8_t velocity, int8_t turnRate) {
   uint8_t command[1 + 2];
 

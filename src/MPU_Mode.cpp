@@ -12,12 +12,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* This file manages MiP's application moods, I mean, modes.
+/** 
+ * @file MPU_Mode.cpp
+ * @brief Implements switching between and querying the various game/app modes
+ *        of the WowWee MiP robot.
+ *
+ * Modes include App, Cage, Dance, Stack, Trick, and Roam. All changes are
+ * verified with read-back confirmation and automatic retries where possible.
  */
 #include "MPU_D1_mini.h"
-
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
 
 // MiP Protocol Commands related to modes.
 // These command codes are placed in the first byte of requests sent to the MiP
@@ -26,19 +29,6 @@
 // for the complete list.
 #define MIP_CMD_SET_GAME_MODE 0x76
 #define MIP_CMD_GET_GAME_MODE 0x82
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_Mode.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 void MiP::enableAppMode() {
   MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableAppMode()");

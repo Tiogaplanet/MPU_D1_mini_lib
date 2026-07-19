@@ -459,18 +459,88 @@ class MiP {
   void readSoftwareVersion(MiPSoftwareVersion& software);
   void readHardwareInfo(MiPHardwareInfo& hardware);
 
-  // Game Modes
+  /**
+   * @brief Switches MiP into App Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
   void enableAppMode();
+
+  /**
+   * @brief Switches MiP into Cage Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
   void enableCageMode();
+
+  /**
+   * @brief Switches MiP into Dance Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
   void enableDanceMode();
+
+  /**
+   * @brief Switches MiP into Stack Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
   void enableStackMode();
+
+  /**
+   * @brief Switches MiP into Trick Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
   void enableTrickMode();
+
+  /**
+   * @brief Switches MiP into Roam Mode.
+   *
+   * Verified operation (command sent + state read back with retry).
+   */
   void enableRoamMode();
+
+  /**
+   * @brief Checks if App Mode is currently active.
+   *
+   * @return true if in App Mode.
+   */
   bool isAppModeEnabled();
+
+  /**
+   * @brief Checks if Cage Mode is currently active.
+   *
+   * @return true if in Cage Mode.
+   */
   bool isCageModeEnabled();
+
+  /**
+   * @brief Checks if Dance Mode is currently active.
+   *
+   * @return true if in Dance Mode.
+   */
   bool isDanceModeEnabled();
+
+  /**
+   * @brief Checks if Stack Mode is currently active.
+   *
+   * @return true if in Stack Mode.
+   */
   bool isStackModeEnabled();
+
+  /**
+   * @brief Checks if Trick Mode is currently active.
+   *
+   * @return true if in Trick Mode.
+   */
   bool isTrickModeEnabled();
+
+  /**
+   * @brief Checks if Roam Mode is currently active.
+   *
+   * @return true if in Roam Mode.
+   */
   bool isRoamModeEnabled();
 
   /**
