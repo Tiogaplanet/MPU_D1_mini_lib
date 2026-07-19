@@ -286,16 +286,59 @@ class MiP {
    */
   void unverifiedWriteChestLED(const MiPChestLED& chestLED);
 
+  /**
+   * @brief Sets all four head LEDs and verifies the change.
+   *
+   * Sends the command and reads back the state to confirm success.
+   * Retries automatically on mismatch or error.
+   *
+   * @param led1 Head LED 1 pattern.
+   * @param led2 Head LED 2 pattern.
+   * @param led3 Head LED 3 pattern.
+   * @param led4 Head LED 4 pattern.
+   */
   void writeHeadLEDs(MiPHeadLED led1,
                      MiPHeadLED led2,
                      MiPHeadLED led3,
                      MiPHeadLED led4);
+
+  /**
+   * @brief Sets all four head LEDs using a struct and verifies the change.
+   *
+   * @param headLEDs Struct containing the four LED patterns.
+   */
   void writeHeadLEDs(const MiPHeadLEDs& headLEDs);
+
+  /**
+   * @brief Reads the current state of all four head LEDs.
+   *
+   * Performs a verified read with retries on communication failure.
+   *
+   * @param headLEDs Reference to a MiPHeadLEDs struct to fill.
+   */
   void readHeadLEDs(MiPHeadLEDs& headLEDs);
+
+  /**
+   * @brief Sets all four head LEDs without verification (fire-and-forget).
+   *
+   * Faster than the verified version but provides no confirmation that the
+   * command succeeded.
+   *
+   * @param led1 Head LED 1 pattern.
+   * @param led2 Head LED 2 pattern.
+   * @param led3 Head LED 3 pattern.
+   * @param led4 Head LED 4 pattern.
+   */
   void unverifiedWriteHeadLEDs(MiPHeadLED led1,
                                MiPHeadLED led2,
                                MiPHeadLED led3,
                                MiPHeadLED led4);
+
+  /**
+   * @brief Sets all four head LEDs using a struct without verification.
+   *
+   * @param headLEDs Struct containing the four LED patterns.
+   */
   void unverifiedWriteHeadLEDs(const MiPHeadLEDs& headLEDs);
 
   // Motion

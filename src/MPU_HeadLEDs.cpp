@@ -12,13 +12,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/* Implements RGB flashing commands, solid color updates for the chest plate
-   LED, and status configurations of the head LEDs.
-*/
+/** 
+ * @file MPU_HeadLEDs.cpp
+ * @brief Implements control and reading of the MiP robot's head LEDs and
+ *        provides verified/unverified write methods for the chest LED (via
+ *        shared infrastructure).
+ *
+ * Head LEDs support 4 independent positions with multiple patterns (off, on,
+ * blink slow/fast). Verified methods include read-back confirmation with
+ * automatic retries.
+ */
 #include "MPU_D1_mini.h"
-
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
 
 // MiP Protocol Commands related to the head LEDs.
 // These command codes are placed in the first byte of requests sent to the MiP
@@ -27,19 +31,6 @@
 // for the complete list.
 #define MIP_CMD_SET_HEAD_LEDS 0x8A
 #define MIP_CMD_GET_HEAD_LEDS 0x8B
-
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_HeadLEDs.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
 
 void MiP::writeHeadLEDs(MiPHeadLED led1,
                         MiPHeadLED led2,
