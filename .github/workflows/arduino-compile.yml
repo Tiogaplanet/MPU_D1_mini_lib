@@ -2,9 +2,9 @@ name: Arduino Library CI
 
 on:
   push:
-    branches: [ "bug-hunt" ]
+    branches: [ "master", "bug-hunt" ]
   pull_request:
-    branches: [ "bug-hunt" ]
+    branches: [ "master", "bug-hunt" ]
 
 jobs:
   build:
@@ -38,6 +38,6 @@ jobs:
         run: |
           for example in $HOME/Arduino/libraries/MPU_D1_mini_lib/examples/*; do
             if [ -d "$example" ]; then
-              arduino-cli compile --fqbn esp8266:esp8266:d1_mini "$example"
+              arduino-cli compile --warnings all --fqbn esp8266:esp8266:d1_mini "$example"
             fi
           done                             
