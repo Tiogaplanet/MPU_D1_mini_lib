@@ -99,7 +99,7 @@ void MiPDebug::handle() {
       // Verify if the connecting IP is same as the previous connection.
 
       WiFiClient newClient;
-      newClient = telnetServer.available();
+      newClient = telnetServer.accept();
       String ip = newClient.remoteIP().toString();
 
       if (ip == telnetClient.remoteIP().toString()) {
@@ -114,7 +114,7 @@ void MiPDebug::handle() {
       }
     } else {
       // New TCP client.
-      telnetClient = telnetServer.available();
+      telnetClient = telnetServer.accept();
     }
     if (!telnetClient) {
       // There's no client connected yet so just return.

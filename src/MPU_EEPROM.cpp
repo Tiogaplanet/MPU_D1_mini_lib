@@ -29,19 +29,6 @@
 #define MIP_CMD_SET_USER_DATA 0x12
 #define MIP_CMD_GET_USER_DATA 0x13
 
-// Define an assert mechanism that can be used to log and halt when the user is
-// found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
-
-static void mipAssert(uint32_t lineNumber) {
-  MIP_DEBUG_ERROR_PRINTF("MiP: Assert: MPU_EEPROM.cpp: %d\n", lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
-
 void MiP::setUserData(uint8_t addressOffset, uint8_t userData) {
   MIP_DEBUG_INFO_PRINTLN("MiP->EEPROM->setUserData()");
   uint8_t address = BASE_EEPROM_ADDRESS + addressOffset;
