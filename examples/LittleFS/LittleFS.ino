@@ -9,12 +9,10 @@
  * failure using the MiP chest LED:
  *   - Violet when the read matches the written password.
  *   - Red when the read does not match or an error occurs.
- * After verification the temporary file is removed and the chest LED is
+ * After verification, the temporary file is removed and the chest LED is
  * restored to green.
  *
  * Safety and robustness improvements:
- *   - Uses a file-scope `connectResult` flag to prevent loop execution when
- *     the MiP connection fails.
  *   - Verifies return values from LittleFS.begin(), LittleFS.open(), and
  *     LittleFS.remove().
  *   - Checks File objects before reading/writing.
@@ -27,8 +25,6 @@
  *
  * Notes:
  *   - LittleFS is provided by the ESP8266 core for Wemos D1 mini boards.
- *   - Ensure your build environment installs the esp8266 core before
- *     compiling so LittleFS.h is available.
  *
  * @copyright Copyright (C) 2018 Samuel Trassare (https://github.com/Tiogaplanet)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -155,8 +151,7 @@ void setup() {
  *
  * @details
  * This example performs its demonstration in setup() and does not require
- * repeated work in loop(). The global `connectResult` flag prevents running
- * the sketch if initialization failed (setup() halts in that case).
+ * repeated work in loop().
  */
 void loop() {
 }
