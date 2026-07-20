@@ -68,6 +68,7 @@ bool MiP::begin(const char* ssid, const char* password, const char* hostname) {
   // Correct formatted percentage string to address bug:
   // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/27
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    (void)progress;  // Silences the unused parameter warning.
     if (total == 0)
       return;
     MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
