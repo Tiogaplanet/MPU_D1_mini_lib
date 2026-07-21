@@ -211,9 +211,7 @@ class MiP {
    *
    * @see MiP::begin()
    */
-  bool isInitialized() {
-    return (m_flags & MRI_FLAG_INITIALIZED);
-  }
+  bool isInitialized();
 
   // ==========================================================================
   // Error Handling - Implemented in MPU_Core.cpp.
