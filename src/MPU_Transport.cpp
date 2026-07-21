@@ -43,50 +43,24 @@
 #define MIP_CMD_GET_STATUS 0x79
 #define MIP_CMD_GET_WEIGHT 0x81
 
-void MiP::rawSend(const uint8_t request[], size_t requestLength) {
-  transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
-}
-
 // TODO: Confirm return type. transportGetResponse() returns int8_t
 uint8_t MiP::rawReceive(const uint8_t request[],
-                       size_t requestLength,
-                       uint8_t responseBuffer[],
-                       size_t responseBufferSize,
-                       size_t& responseLength) {
+                        size_t requestLength,
+                        uint8_t responseBuffer[],
+                        size_t responseBufferSize,
+                        size_t& responseLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_RESPONSE);
   return transportGetResponse(
       responseBuffer, responseBufferSize, &responseLength);
 }
 
-void MiP::transportSendRequest(const uint8_t* pRequest,
-                               size_t requestLength,
-                               int expectResponse) {
-  // Must call begin() and have it return 'true' before calling sending commands
-  // to the MiP.
-  MIP_ASSERT(isInitialized());
-
-  // Let the MiP process the last request before letting another request be
-  // issued.
-  while (millis() - m_lastRequestTime < MIP_REQUEST_DELAY) {
-    delay(1);
-  }
-
-  // Remember the command byte (first byte) if expecting a response to this
-  // request since the response should start with the same byte.
-  if (expectResponse)
-    m_expectedResponseCommand = pRequest[0];
-  else
-    m_expectedResponseCommand = 0;
-
-  m_expectedResponseSize = 0;
-  m_responseBuffer[0] = 0;
-
-  // Send the specified bytes to the MiP via the UART.
-  while (requestLength-- > 0) {
-    Serial.write(*pRequest++);
-  }
-  m_lastRequestTime = millis();
+void MiP::rawSend(const uint8_t request[], size_t requestLength) {
+  transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
 }
+
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
 int8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
                                  size_t responseBufferSize,
@@ -128,6 +102,36 @@ int8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
   m_responseBuffer[0] = 0;
 
   return MIP_ERROR_NONE;
+}
+
+void MiP::transportSendRequest(const uint8_t* pRequest,
+                               size_t requestLength,
+                               int expectResponse) {
+  // Must call begin() and have it return 'true' before calling sending commands
+  // to the MiP.
+  MIP_ASSERT(isInitialized());
+
+  // Let the MiP process the last request before letting another request be
+  // issued.
+  while (millis() - m_lastRequestTime < MIP_REQUEST_DELAY) {
+    delay(1);
+  }
+
+  // Remember the command byte (first byte) if expecting a response to this
+  // request since the response should start with the same byte.
+  if (expectResponse)
+    m_expectedResponseCommand = pRequest[0];
+  else
+    m_expectedResponseCommand = 0;
+
+  m_expectedResponseSize = 0;
+  m_responseBuffer[0] = 0;
+
+  // Send the specified bytes to the MiP via the UART.
+  while (requestLength-- > 0) {
+    Serial.write(*pRequest++);
+  }
+  m_lastRequestTime = millis();
 }
 
 bool MiP::processAllResponseData() {
@@ -174,24 +178,6 @@ bool MiP::processAllResponseData() {
     }
   }
   return responseFound;
-}
-
-void MiP::copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length) {
-  while (length-- > 0) {
-    *pDest = (parseHexDigit(pSrc[0]) << 4) | parseHexDigit(pSrc[1]);
-    pDest++;
-    pSrc += 2;
-  }
-}
-
-uint8_t MiP::parseHexDigit(uint8_t digit) {
-  if (digit >= '0' && digit <= '9')
-    return digit - '0';
-  if (digit >= 'a' && digit <= 'f')
-    return digit - 'a' + 10;
-  if (digit >= 'A' && digit <= 'F')
-    return digit - 'A' + 10;
-  return 0;
 }
 
 void MiP::processOobResponseData(uint8_t commandByte) {
@@ -319,4 +305,22 @@ uint8_t MiP::discardUnexpectedSerialData() {
     delayMicroseconds(100);
   }
   return discardedBytes;
+}
+
+void MiP::copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length) {
+  while (length-- > 0) {
+    *pDest = (parseHexDigit(pSrc[0]) << 4) | parseHexDigit(pSrc[1]);
+    pDest++;
+    pSrc += 2;
+  }
+}
+
+uint8_t MiP::parseHexDigit(uint8_t digit) {
+  if (digit >= '0' && digit <= '9')
+    return digit - '0';
+  if (digit >= 'a' && digit <= 'f')
+    return digit - 'a' + 10;
+  if (digit >= 'A' && digit <= 'F')
+    return digit - 'A' + 10;
+  return 0;
 }

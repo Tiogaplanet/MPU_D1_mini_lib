@@ -1163,26 +1163,28 @@ class MiP {
   int8_t rawGetVolume(uint8_t& volume);
   void rawSetVolume(uint8_t volume);
 
+  // ==========================================================================
+  // MPU_Transport.cpp.
+  // ==========================================================================
+  int8_t transportGetResponse(uint8_t* pResponseBuffer,
+                              size_t responseBufferSize,
+                              size_t* pResponseLength);
+  void transportSendRequest(const uint8_t* pRequest,
+                            size_t requestLength,
+                            int expectResponse);
+
   int8_t rawGetWeight(int8_t& weight);
   int8_t parseWeight(int8_t& weight,
                      const uint8_t response[],
                      size_t responseLength);
+  bool processAllResponseData();
+  void processOobResponseData(uint8_t commandByte);
+  uint8_t discardUnexpectedSerialData();
+  void copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length);
+  uint8_t parseHexDigit(uint8_t digit);
 
   int8_t rawGetSoftwareVersion(MiPSoftwareVersion& software);
   int8_t rawGetHardwareInfo(MiPHardwareInfo& hardware);
-
-  // Transport level logic
-  void transportSendRequest(const uint8_t* pRequest,
-                            size_t requestLength,
-                            int expectResponse);
-  int8_t transportGetResponse(uint8_t* pResponseBuffer,
-                              size_t responseBufferSize,
-                              size_t* pResponseLength);
-  bool processAllResponseData();
-  void copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length);
-  uint8_t parseHexDigit(uint8_t digit);
-  void processOobResponseData(uint8_t commandByte);
-  uint8_t discardUnexpectedSerialData();
 
   // Bits that can be set in m_flags bitfield.
   enum FlagBits : uint8_t {
