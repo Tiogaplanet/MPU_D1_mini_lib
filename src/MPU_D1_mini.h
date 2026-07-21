@@ -1182,8 +1182,13 @@ class MiP {
   // ==========================================================================
   // MPU_Version.cpp.
   // ==========================================================================
+
   int8_t rawGetHardwareInfo(MiPHardwareInfo& hardware);
   int8_t rawGetSoftwareVersion(MiPSoftwareVersion& software);
+
+  // ==========================================================================
+  // MPU_Version.cpp.
+  // ==========================================================================
 
   int8_t rawGetWeight(int8_t& weight);
   int8_t parseWeight(int8_t& weight,

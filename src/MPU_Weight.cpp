@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_Weight.cpp
  * @brief Implements reading the physical weight sensor on the WowWee MiP robot.
  *
@@ -61,6 +61,10 @@ int8_t MiP::readWeight() {
   m_lastError = result;
   return 0;
 }
+
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
 // This internal protected method sends the get weight command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
