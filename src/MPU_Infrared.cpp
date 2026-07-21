@@ -205,15 +205,13 @@ int8_t MiP::rawGetIRRemoteControl(uint8_t& remoteControl) {
                              response,
                              sizeof(response),
                              responseLength);
-  if (result)
+  if (result != MIP_ERROR_NONE)
     return result;
   if (responseLength != sizeof(response) ||
       response[0] != MIP_CMD_GET_IR_REMOTE_CONTROL) {
     return MIP_ERROR_BAD_RESPONSE;
   }
-  remoteControl =
-      response[1];  // TODO:  Test rawGetIRRemoteControl().  Execution shouldn't
-                    // reach this point due to the if (result) on line 214.
+  remoteControl = response[1];
   return result;
 }
 

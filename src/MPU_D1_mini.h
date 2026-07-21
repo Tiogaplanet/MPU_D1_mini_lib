@@ -1167,9 +1167,9 @@ class MiP {
   // MPU_Transport.cpp.
   // ==========================================================================
 
-  int8_t transportGetResponse(uint8_t* pResponseBuffer,
-                              size_t responseBufferSize,
-                              size_t* pResponseLength);
+  uint8_t transportGetResponse(uint8_t* pResponseBuffer,
+                               size_t responseBufferSize,
+                               size_t* pResponseLength);
   void transportSendRequest(const uint8_t* pRequest,
                             size_t requestLength,
                             int expectResponse);

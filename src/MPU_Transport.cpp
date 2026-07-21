@@ -43,7 +43,6 @@
 #define MIP_CMD_GET_STATUS 0x79
 #define MIP_CMD_GET_WEIGHT 0x81
 
-// TODO: Confirm return type. transportGetResponse() returns int8_t
 uint8_t MiP::rawReceive(const uint8_t request[],
                         size_t requestLength,
                         uint8_t responseBuffer[],
@@ -62,9 +61,9 @@ void MiP::rawSend(const uint8_t request[], size_t requestLength) {
 // Protected functions.
 // ==========================================================================
 
-int8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
-                                 size_t responseBufferSize,
-                                 size_t* pResponseLength) {
+uint8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
+                                  size_t responseBufferSize,
+                                  size_t* pResponseLength) {
   // Must call begin() and have it return 'true' before calling sending commands
   // to the MiP.
   MIP_ASSERT(isInitialized());

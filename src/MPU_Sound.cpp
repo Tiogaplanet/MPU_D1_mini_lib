@@ -171,8 +171,8 @@ int8_t MiP::rawGetVolume(uint8_t& volume) {
   volume = 0;
   int8_t result = rawReceive(
       getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
-  if (result)
-    return result;  // TODO: Again, returning result twice.  Test this function.
+  if (result != MIP_ERROR_NONE)
+    return result;
   if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_VOLUME ||
       response[1] > 7) {
     return MIP_ERROR_BAD_RESPONSE;
