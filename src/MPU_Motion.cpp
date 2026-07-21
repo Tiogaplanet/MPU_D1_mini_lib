@@ -12,12 +12,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_Motion.cpp
  * @brief Implements driving, turning, stopping, falling, and getting up
  *        movements for the WowWee MiP robot.
  *
- * Most motion commands are fire-and-forget (no read-back possible). 
+ * Most motion commands are fire-and-forget (no read-back possible).
  * Continuous drive includes rate limiting to avoid overwhelming the robot.
  */
 #include "MPU_D1_mini.h"
@@ -87,6 +87,40 @@ void MiP::distanceDrive(MiPDriveDirection driveDirection,
   m_lastError = MIP_ERROR_NONE;
 }
 
+void MiP::driveForward(uint8_t speed, uint16_t time) {
+  // The time parameter is in units of 7 milliseconds.
+  uint8_t command[1 + 2];
+
+  MIP_ASSERT(speed <= 30);
+  MIP_ASSERT(time <= 255 * 7);
+
+  command[0] = MIP_CMD_DRIVE_FORWARD;
+  command[1] = speed;
+  command[2] = time / 7;
+
+  // Send this command blindly with no error checking since there is no way to
+  // determine if it has failed.
+  rawSend(command, sizeof(command));
+  m_lastError = MIP_ERROR_NONE;
+}
+
+void MiP::driveBackward(uint8_t speed, uint16_t time) {
+  // The time parameters is in units of 7 milliseconds.
+  uint8_t command[1 + 2];
+
+  MIP_ASSERT(speed <= 30);
+  MIP_ASSERT(time <= 255 * 7);
+
+  command[0] = MIP_CMD_DRIVE_BACKWARD;
+  command[1] = speed;
+  command[2] = time / 7;
+
+  // Send this command blindly with no error checking since there is no way to
+  // determine if it has failed.
+  rawSend(command, sizeof(command));
+  m_lastError = MIP_ERROR_NONE;
+}
+
 void MiP::turnLeft(uint16_t degrees, uint8_t speed) {
   // The turn command is in units of 5 degrees.
   uint8_t angle = degrees / 5;
@@ -123,40 +157,6 @@ void MiP::turnRight(uint16_t degrees, uint8_t speed) {
   m_lastError = MIP_ERROR_NONE;
 }
 
-void MiP::driveForward(uint8_t speed, uint16_t time) {
-  // The time parameter is in units of 7 milliseconds.
-  uint8_t command[1 + 2];
-
-  MIP_ASSERT(speed <= 30);
-  MIP_ASSERT(time <= 255 * 7);
-
-  command[0] = MIP_CMD_DRIVE_FORWARD;
-  command[1] = speed;
-  command[2] = time / 7;
-
-  // Send this command blindly with no error checking since there is no way to
-  // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
-}
-
-void MiP::driveBackward(uint8_t speed, uint16_t time) {
-  // The time parameters is in units of 7 milliseconds.
-  uint8_t command[1 + 2];
-
-  MIP_ASSERT(speed <= 30);
-  MIP_ASSERT(time <= 255 * 7);
-
-  command[0] = MIP_CMD_DRIVE_BACKWARD;
-  command[1] = speed;
-  command[2] = time / 7;
-
-  // Send this command blindly with no error checking since there is no way to
-  // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
-}
-
 void MiP::stop() {
   uint8_t command[1] = {MIP_CMD_STOP};
 
@@ -176,6 +176,21 @@ void MiP::fallBackward() {
   m_lastError = MIP_ERROR_NONE;
 }
 
+void MiP::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
+  uint8_t command[1 + 1];
+  command[0] = MIP_CMD_GET_UP;
+  command[1] = getup;
+
+  // Send this command blindly with no error checking since there is no easy way
+  // to determine if it has failed.
+  rawSend(command, sizeof(command));
+  m_lastError = MIP_ERROR_NONE;
+}
+
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
 // This internal protected method sends the desired set position command to fall
 // forward or backward.
 void MiP::fallDown(MiPFallDirection direction) {
@@ -186,15 +201,4 @@ void MiP::fallDown(MiPFallDirection direction) {
   // Send this command blindly with no error checking since there is no easy way
   // to determine if it has failed.
   rawSend(command, sizeof(command));
-}
-
-void MiP::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
-  uint8_t command[1 + 1];
-  command[0] = MIP_CMD_GET_UP;
-  command[1] = getup;
-
-  // Send this command blindly with no error checking since there is no easy way
-  // to determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
 }

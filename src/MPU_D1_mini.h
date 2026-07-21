@@ -1144,12 +1144,20 @@ class MiP {
   void rawSetGameMode(MiPGameMode mode);
   int8_t rawGetGameMode(MiPGameMode& mode);
 
+  // ==========================================================================
+  // MPU_Motion.cpp.
+  // ==========================================================================
+
   void fallDown(MiPFallDirection direction);
+
+  // ==========================================================================
+  // MPU_Odometer.cpp.
+  // ==========================================================================
+
+  int8_t rawReadOdometer(float& distanceInCm);
 
   void rawSetVolume(uint8_t volume);
   int8_t rawGetVolume(uint8_t& volume);
-
-  int8_t rawReadOdometer(float& distanceInCm);
 
   int8_t rawGetWeight(int8_t& weight);
   int8_t parseWeight(int8_t& weight,
