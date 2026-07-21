@@ -80,15 +80,6 @@ uint8_t MiP::availableDetectedMiPEvents() {
   return m_detectedMiPEvents.available();
 }
 
-// This internal protected method sends the set detection mode command with
-// minimal error handling. The error recovery happens at a higher level of the
-// driver.
-void MiP::rawSetMiPDetectionMode(uint8_t id, uint8_t txPower) {
-  MIP_ASSERT(0x01 <= txPower && txPower <= 0x78);
-  uint8_t command[1 + 2] = {MIP_CMD_SET_DETECTION_MODE, id, txPower};
-  rawSend(command, sizeof(command));
-}
-
 void MiP::enableIRRemoteControl() {
   MIP_DEBUG_INFO_PRINTLN("MiP->Infrared->enableIRRemoteControl()");
   verifiedIRRemoteControl(MIP_IR_REMOTE_CONTROL_ENABLE);
@@ -159,6 +150,19 @@ uint8_t MiP::availableIRCodeEvents() {
   return m_irCodeEvents.available();
 }
 
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
+// This internal protected method sends the set detection mode command with
+// minimal error handling. The error recovery happens at a higher level of the
+// driver.
+void MiP::rawSetMiPDetectionMode(uint8_t id, uint8_t txPower) {
+  MIP_ASSERT(0x01 <= txPower && txPower <= 0x78);
+  uint8_t command[1 + 2] = {MIP_CMD_SET_DETECTION_MODE, id, txPower};
+  rawSend(command, sizeof(command));
+}
+
 // This internal protected method verifies that IR remote control is enabled.
 void MiP::verifiedIRRemoteControl(uint8_t desiredRemoteControlMode) {
   int8_t result;
@@ -189,16 +193,6 @@ void MiP::verifiedIRRemoteControl(uint8_t desiredRemoteControlMode) {
   }
 }
 
-// This internal protected method sends the set IR remote control command with
-// minimal error handling. The error recovery happens at a higher level of the
-// driver.
-void MiP::rawSetIRRemoteControl(uint8_t remoteControl) {
-  MIP_ASSERT(remoteControl == MIP_IR_REMOTE_CONTROL_ENABLE ||
-             remoteControl == MIP_IR_REMOTE_CONTROL_DISABLE);
-  uint8_t command[1 + 1] = {MIP_CMD_SET_IR_REMOTE_CONTROL, remoteControl};
-  rawSend(command, sizeof(command));
-}
-
 // This internal protected method sends the get IR remote control status command
 // with minimal error handling. The error recovery happens at a higher level of
 // the driver.
@@ -221,4 +215,14 @@ int8_t MiP::rawGetIRRemoteControl(uint8_t& remoteControl) {
       response[1];  // TODO:  Test rawGetIRRemoteControl().  Execution shouldn't
                     // reach this point due to the if (result) on line 214.
   return result;
+}
+
+// This internal protected method sends the set IR remote control command with
+// minimal error handling. The error recovery happens at a higher level of the
+// driver.
+void MiP::rawSetIRRemoteControl(uint8_t remoteControl) {
+  MIP_ASSERT(remoteControl == MIP_IR_REMOTE_CONTROL_ENABLE ||
+             remoteControl == MIP_IR_REMOTE_CONTROL_DISABLE);
+  uint8_t command[1 + 1] = {MIP_CMD_SET_IR_REMOTE_CONTROL, remoteControl};
+  rawSend(command, sizeof(command));
 }

@@ -1126,6 +1126,15 @@ class MiP {
                       MiPHeadLED led4);
   bool isValidHeadLED(uint8_t led);
 
+  // ==========================================================================
+  // MPU_Infrared.cpp.
+  // ==========================================================================
+
+  void rawSetMiPDetectionMode(uint8_t id, uint8_t txPower);
+  void verifiedIRRemoteControl(uint8_t desiredRemoteControlMode);
+  int8_t rawGetIRRemoteControl(uint8_t& remoteControl);
+  void rawSetIRRemoteControl(uint8_t remoteControl);
+
   void fallDown(MiPFallDirection direction);
 
   void rawSetVolume(uint8_t volume);
@@ -1145,11 +1154,6 @@ class MiP {
   bool checkGameMode(MiPGameMode expectedMode);
   void rawSetGameMode(MiPGameMode mode);
   int8_t rawGetGameMode(MiPGameMode& mode);
-
-  void rawSetMiPDetectionMode(uint8_t id, uint8_t txPower);
-  void verifiedIRRemoteControl(uint8_t desiredRemoteControlMode);
-  void rawSetIRRemoteControl(uint8_t remoteControl);
-  int8_t rawGetIRRemoteControl(uint8_t& remoteControl);
 
   // Transport level logic
   void transportSendRequest(const uint8_t* pRequest,
