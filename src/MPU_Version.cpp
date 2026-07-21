@@ -29,6 +29,25 @@
 #define MIP_CMD_GET_SOFTWARE_VERSION 0x14
 #define MIP_CMD_GET_HARDWARE_INFO 0x19
 
+void MiP::readHardwareInfo(MiPHardwareInfo& hardware) {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Version->readHardwareInfo()");
+  int8_t result;
+
+  // Retry the read if it should fail on the first attempt.
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    result = rawGetHardwareInfo(hardware);
+    if (result == MIP_ERROR_NONE) {
+      m_lastError = MIP_ERROR_NONE;
+      return;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+  m_lastError = result;
+}
+
 void MiP::readSoftwareVersion(MiPSoftwareVersion& software) {
   MIP_DEBUG_INFO_PRINTLN("MiP->Version->readSoftwareVersion()");
   int8_t result;
@@ -48,23 +67,31 @@ void MiP::readSoftwareVersion(MiPSoftwareVersion& software) {
   m_lastError = result;
 }
 
-void MiP::readHardwareInfo(MiPHardwareInfo& hardware) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Version->readHardwareInfo()");
-  int8_t result;
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
-  // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    result = rawGetHardwareInfo(hardware);
-    if (result == MIP_ERROR_NONE) {
-      m_lastError = MIP_ERROR_NONE;
-      return;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
+// This internal protected method sends the get hardware info command with
+// minimal error handling. The error recovery happens at a higher level of the
+// driver.
+int8_t MiP::rawGetHardwareInfo(MiPHardwareInfo& hardware) {
+  const uint8_t getHardwareInfo[1] = {MIP_CMD_GET_HARDWARE_INFO};
+  uint8_t response[1 + 2];
+  size_t responseLength;
+  int8_t result = rawReceive(getHardwareInfo,
+                             sizeof(getHardwareInfo),
+                             response,
+                             sizeof(response),
+                             responseLength);
+  if (result)
+    return result;
+  if (responseLength != sizeof(response) ||
+      response[0] != MIP_CMD_GET_HARDWARE_INFO) {
+    return MIP_ERROR_BAD_RESPONSE;
   }
-  m_lastError = result;
+  hardware.voiceChip = response[1];
+  hardware.hardware = response[2];
+  return result;
 }
 
 // This internal protected method sends the get software version command with
@@ -89,28 +116,5 @@ int8_t MiP::rawGetSoftwareVersion(MiPSoftwareVersion& software) {
   software.month = response[2];
   software.day = response[3];
   software.uniqueVersion = response[4];
-  return result;
-}
-
-// This internal protected method sends the get hardware info command with
-// minimal error handling. The error recovery happens at a higher level of the
-// driver.
-int8_t MiP::rawGetHardwareInfo(MiPHardwareInfo& hardware) {
-  const uint8_t getHardwareInfo[1] = {MIP_CMD_GET_HARDWARE_INFO};
-  uint8_t response[1 + 2];
-  size_t responseLength;
-  int8_t result = rawReceive(getHardwareInfo,
-                             sizeof(getHardwareInfo),
-                             response,
-                             sizeof(response),
-                             responseLength);
-  if (result)
-    return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_HARDWARE_INFO) {
-    return MIP_ERROR_BAD_RESPONSE;
-  }
-  hardware.voiceChip = response[1];
-  hardware.hardware = response[2];
   return result;
 }
