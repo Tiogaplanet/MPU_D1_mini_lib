@@ -32,11 +32,11 @@
 #define MIP_CMD_GET_CLAP_SETTINGS 0x1F
 
 void MiP::enableClapEvents() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->enableClapEvents()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->enableClapEvents()");
   checkedEnableClapEvents(MIP_CLAP_ENABLED);
 }
 void MiP::disableClapEvents() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->disableClapEvents()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->disableClapEvents()");
   checkedEnableClapEvents(MIP_CLAP_DISABLED);
 }
 
@@ -49,9 +49,9 @@ void MiP::checkedEnableClapEvents(MiPClapEnabled enabled) {
     rawEnableClap(enabled);
 
     // Read back and make sure that it was set as expected.
-    MiPClapSettings setting;
-    result = rawGetClapSettings(setting);
-    if (result == MIP_ERROR_NONE && setting.enabled == enabled) {
+    MiPClapSettings settings;
+    result = rawGetClapSettings(settings);
+    if (result == MIP_ERROR_NONE && settings.enabled == enabled) {
       // The set was successful so return immediately.
       m_lastError = MIP_ERROR_NONE;
       return;
@@ -72,7 +72,7 @@ void MiP::checkedEnableClapEvents(MiPClapEnabled enabled) {
 }
 
 void MiP::writeClapDelay(uint16_t delayTime) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->writeClapDelay()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->writeClapDelay()");
   int8_t result;
 
   // Send the set command and then issue the corresponding get command. Retry if
@@ -81,9 +81,9 @@ void MiP::writeClapDelay(uint16_t delayTime) {
     rawSetClapDelay(delayTime);
 
     // Read back and make sure that it was set as expected.
-    MiPClapSettings setting;
-    result = rawGetClapSettings(setting);
-    if (result == MIP_ERROR_NONE && setting.delay == delayTime) {
+    MiPClapSettings settings;
+    result = rawGetClapSettings(settings);
+    if (result == MIP_ERROR_NONE && settings.delay == delayTime) {
       // The set was successful so return immediately.
       m_lastError = MIP_ERROR_NONE;
       return;
@@ -121,7 +121,7 @@ void MiP::rawSetClapDelay(uint16_t delay) {
 }
 
 bool MiP::areClapEventsEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->areClapEventsEnabled()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->areClapEventsEnabled()");
   MiPClapSettings settings;
   int8_t result = readClapSettings(settings);
   if (result != MIP_ERROR_NONE) {
@@ -133,7 +133,7 @@ bool MiP::areClapEventsEnabled() {
 }
 
 uint16_t MiP::readClapDelay() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->readClapDelay()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->readClapDelay()");
   MiPClapSettings settings;
   int8_t result = readClapSettings(settings);
   if (result != MIP_ERROR_NONE) {
@@ -164,7 +164,7 @@ int8_t MiP::readClapSettings(MiPClapSettings& settings) {
 }
 
 uint8_t MiP::availableClapEvents() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->availableClapEvents()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->availableClapEvents()");
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   processAllResponseData();
@@ -174,7 +174,7 @@ uint8_t MiP::availableClapEvents() {
 }
 
 uint8_t MiP::readClapEvent() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->readClapEvent()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->readClapEvent()");
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   processAllResponseData();

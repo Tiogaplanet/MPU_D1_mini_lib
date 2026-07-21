@@ -65,11 +65,11 @@ int8_t MiP::rawReadOdometer(float& distanceInCm) {
   const uint8_t readOdometer[1] = {MIP_CMD_READ_ODOMETER};
   uint8_t response[1 + 4];
   size_t responseLength;
-  int result = rawReceive(readOdometer,
-                          sizeof(readOdometer),
-                          response,
-                          sizeof(response),
-                          responseLength);
+  int8_t result = rawReceive(readOdometer,
+                             sizeof(readOdometer),
+                             response,
+                             sizeof(response),
+                             responseLength);
   if (result)
     return result;
   if (responseLength != sizeof(response) ||

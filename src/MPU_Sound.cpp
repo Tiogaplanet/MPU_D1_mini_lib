@@ -80,7 +80,7 @@ void MiP::addEntryToSoundList(MiPSoundIndex sound,
 }
 
 void MiP::playSoundList(uint8_t repeatCount) {
-  // Must call beginSoundList() and addSoundToList() before calling this
+  // Must call beginSoundList() and addEntryToSoundList() before calling this
   // function.
   MIP_ASSERT(m_soundIndex >= 1);
   m_playCommand[0] = MIP_CMD_PLAY_SOUND;
@@ -177,7 +177,7 @@ int8_t MiP::rawGetVolume(uint8_t& volume) {
   int8_t result = rawReceive(
       getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
   if (result)
-    return result;
+    return result;  // TODO: Again, returning result twice.  Test this function.
   if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_VOLUME ||
       response[1] > 7) {
     return MIP_ERROR_BAD_RESPONSE;

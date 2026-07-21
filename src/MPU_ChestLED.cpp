@@ -12,10 +12,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/**
+/** 
  * @file MPU_ChestLED.cpp
- * @brief Implements RGB flashing commands and solid color updates for the MiP
- * chest plate LED.
+ * @brief Implements solid color and flashing control for the MiP chest LED.
+ *
+ * Provides both verified (with read-back confirmation) and unverified
+ * (fire-and-forget) methods.
  */
 #include "MPU_D1_mini.h"
 

@@ -47,7 +47,8 @@ void MiP::rawSend(const uint8_t request[], size_t requestLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
 }
 
-int8_t MiP::rawReceive(const uint8_t request[],
+// TODO: Confirm return type. transportGetResponse() returns int8_t
+uint8_t MiP::rawReceive(const uint8_t request[],
                        size_t requestLength,
                        uint8_t responseBuffer[],
                        size_t responseBufferSize,
@@ -155,7 +156,7 @@ bool MiP::processAllResponseData() {
       if (bytesRead == bytesToRead * 2) {
         copyHexTextToBinary(&m_responseBuffer[1], buffer, bytesToRead);
         responseFound = true;
-        // Continue to process any other bytes in the recieve buffer.
+        // Continue to process any other bytes in the receive buffer.
         // This would allow something like a rawGetStatus() call to receive the
         // actual data returned for this request and not an older OOB perioidic
         // status notification.

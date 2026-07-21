@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_Mode.cpp
  * @brief Implements switching between and querying the various game/app modes
  *        of the WowWee MiP robot.

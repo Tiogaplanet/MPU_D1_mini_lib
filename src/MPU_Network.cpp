@@ -56,15 +56,16 @@ bool MiP::begin(const char* ssid, const char* password, const char* hostname) {
     // Still return the UART result, but user can check WiFi.status()
   }
 
+  // ArduinoOTA setup
   ArduinoOTA.onStart([]() {
     String type =
         (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
-    // NOTE: If updating SPIFFS this would be the place to unmount SPIFFS using
-    // SPIFFS.end().
+    // NOTE: If updating LittleFS this would be the place to unmount LittleFS
+    // using LittleFS.end().
     MIP_DEBUG_INFO_PRINT(F("MiP: Start updating "));
     MIP_DEBUG_INFO_PRINTLN(type);
   });
-  ArduinoOTA.onEnd([]() { MIP_DEBUG_INFO_PRINTLN(F("End")); });
+
   // Correct formatted percentage string to address bug:
   // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/27
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -73,6 +74,9 @@ bool MiP::begin(const char* ssid, const char* password, const char* hostname) {
       return;
     MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
   });
+
+  ArduinoOTA.onEnd([]() { MIP_DEBUG_INFO_PRINTLN(F("End")); });
+
   ArduinoOTA.onError([](ota_error_t error) {
     MIP_DEBUG_ERROR_PRINTF("Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {

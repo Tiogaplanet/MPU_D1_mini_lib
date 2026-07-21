@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_Infrared.cpp
  * @brief Implements MiP detection mode, IR remote control, and IR dongle
  *        code sending/receiving.
@@ -183,8 +183,8 @@ void MiP::verifiedIRRemoteControl(uint8_t desiredRemoteControlMode) {
     // Kept getting an error back from rawGetIRRemoteControl().
     m_lastError = result;
   } else {
-    // rawGetGameMode() was successful but didn't match mode to which we were
-    // attempting to change.
+    // rawGetIRRemoteControl() was successful but didn't match mode to which we
+    // were attempting to change.
     m_lastError = MIP_ERROR_MAX_RETRIES;
   }
 }
@@ -217,6 +217,8 @@ int8_t MiP::rawGetIRRemoteControl(uint8_t& remoteControl) {
       response[0] != MIP_CMD_GET_IR_REMOTE_CONTROL) {
     return MIP_ERROR_BAD_RESPONSE;
   }
-  remoteControl = response[1];
+  remoteControl =
+      response[1];  // TODO:  Test rawGetIRRemoteControl().  Execution shouldn't
+                    // reach this point due to the if (result) on line 214.
   return result;
 }

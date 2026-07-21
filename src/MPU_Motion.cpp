@@ -124,7 +124,7 @@ void MiP::turnRight(uint16_t degrees, uint8_t speed) {
 }
 
 void MiP::driveForward(uint8_t speed, uint16_t time) {
-  // The time parameters is in units of 7 milliseconds.
+  // The time parameter is in units of 7 milliseconds.
   uint8_t command[1 + 2];
 
   MIP_ASSERT(speed <= 30);

@@ -1063,7 +1063,7 @@ class MiP {
    * @param responseLength   Receives the actual number of bytes read.
    * @return MIP_ERROR_NONE on success, or an error code.
    */
-  int8_t rawReceive(const uint8_t request[],
+  uint8_t rawReceive(const uint8_t request[],
                     size_t requestLength,
                     uint8_t responseBuffer[],
                     size_t responseBufferSize,

@@ -42,7 +42,7 @@ void MiP::setUserData(uint8_t addressOffset, uint8_t userData) {
     rawSetUserData(address, userData);
 
     // Read back and make sure that it was set as expected.
-    byte storedData = 0x00;
+    uint8_t storedData = 0x00;
     result = rawGetUserData(address, storedData);
     if (result == MIP_ERROR_NONE && storedData == userData) {
       // The set was successful so return immediately.

@@ -12,11 +12,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_Battery.cpp
-   @brief This file contains one function to read the battery voltage. It relies
-   on cached data and does not cause a serial transmission to MiP.
-*/
+ * @brief Reads the MiP robot's battery voltage from cached status data.
+ *
+ * No direct serial request is sent to the robot — relies on the latest
+ * Out-Of-Band (OOB) status update.
+ */
 #include "MPU_D1_mini.h"
 
 float MiP::readBatteryVoltage() {
