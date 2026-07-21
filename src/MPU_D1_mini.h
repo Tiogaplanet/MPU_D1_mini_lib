@@ -1108,6 +1108,13 @@ class MiP {
   void rawSetClapDelay(uint16_t delay);
   int8_t rawGetClapSettings(MiPClapSettings& settings);
 
+  // ==========================================================================
+  // MPU_EEPROM.cpp.
+  // ==========================================================================
+
+  int8_t rawGetUserData(uint8_t address, uint8_t& userData);
+  void rawSetUserData(uint8_t address, uint8_t userData);
+
   void rawSetHeadLEDs(MiPHeadLED led1,
                       MiPHeadLED led2,
                       MiPHeadLED led3,
@@ -1134,9 +1141,6 @@ class MiP {
   bool checkGameMode(MiPGameMode expectedMode);
   void rawSetGameMode(MiPGameMode mode);
   int8_t rawGetGameMode(MiPGameMode& mode);
-
-  void rawSetUserData(uint8_t address, uint8_t userData);
-  int8_t rawGetUserData(uint8_t address, uint8_t& userData);
 
   void rawSetMiPDetectionMode(uint8_t id, uint8_t txPower);
   void verifiedIRRemoteControl(uint8_t desiredRemoteControlMode);

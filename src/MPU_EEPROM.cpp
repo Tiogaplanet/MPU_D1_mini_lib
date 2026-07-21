@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_EEPROM.cpp
  * @brief Implements reading and writing user data to the MiP robot's EEPROM.
  *
@@ -28,6 +28,32 @@
 // for the complete list.
 #define MIP_CMD_SET_USER_DATA 0x12
 #define MIP_CMD_GET_USER_DATA 0x13
+
+uint8_t MiP::getUserData(uint8_t addressOffset) {
+  MIP_DEBUG_INFO_PRINTLN("MiP->EEPROM->getUserData()");
+  uint8_t address = BASE_EEPROM_ADDRESS + addressOffset;
+
+  // Address must be between 0x20 and 0x2F, inclusive.
+  MIP_ASSERT(BASE_EEPROM_ADDRESS <= address && address <= LAST_EEPROM_ADDRESS);
+
+  int8_t result;
+
+  // Retry the read if it should fail on the first attempt.
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    uint8_t storedData;
+    result = rawGetUserData(address, storedData);
+    if (result == MIP_ERROR_NONE) {
+      m_lastError = MIP_ERROR_NONE;
+      return storedData;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+  m_lastError = result;
+  return 0;
+}
 
 void MiP::setUserData(uint8_t addressOffset, uint8_t userData) {
   MIP_DEBUG_INFO_PRINTLN("MiP->EEPROM->setUserData()");
@@ -65,39 +91,9 @@ void MiP::setUserData(uint8_t addressOffset, uint8_t userData) {
   }
 }
 
-uint8_t MiP::getUserData(uint8_t addressOffset) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->EEPROM->getUserData()");
-  uint8_t address = BASE_EEPROM_ADDRESS + addressOffset;
-
-  // Address must be between 0x20 and 0x2F, inclusive.
-  MIP_ASSERT(BASE_EEPROM_ADDRESS <= address && address <= LAST_EEPROM_ADDRESS);
-
-  int8_t result;
-
-  // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    uint8_t storedData;
-    result = rawGetUserData(address, storedData);
-    if (result == MIP_ERROR_NONE) {
-      m_lastError = MIP_ERROR_NONE;
-      return storedData;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
-  }
-  m_lastError = result;
-  return 0;
-}
-
-// This internal protected method sends the set user data command with no error
-// checking. The error handling and recovery happens at a higher level of the
-// driver.
-void MiP::rawSetUserData(uint8_t address, uint8_t userData) {
-  uint8_t command[1 + 2] = {MIP_CMD_SET_USER_DATA, address, userData};
-  rawSend(command, sizeof(command));
-}
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
 // This internal protected method sends the get user data command with minimal
 // error handling. The error and recovery happens at a higher level of the
@@ -119,4 +115,12 @@ int8_t MiP::rawGetUserData(uint8_t address, uint8_t& userData) {
   }
   userData = (uint8_t)response[2];
   return MIP_ERROR_NONE;
+}
+
+// This internal protected method sends the set user data command with no error
+// checking. The error handling and recovery happens at a higher level of the
+// driver.
+void MiP::rawSetUserData(uint8_t address, uint8_t userData) {
+  uint8_t command[1 + 2] = {MIP_CMD_SET_USER_DATA, address, userData};
+  rawSend(command, sizeof(command));
 }
