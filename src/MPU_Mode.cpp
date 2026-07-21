@@ -80,6 +80,10 @@ bool MiP::isRoamModeEnabled() {
   return checkGameMode(MIP_ROAM_MODE);
 }
 
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
 bool MiP::checkGameMode(MiPGameMode expectedMode) {
   MIP_DEBUG_INFO_PRINTLN("MiP->Mode->checkGameMode()");
   int8_t result;
@@ -95,38 +99,6 @@ bool MiP::checkGameMode(MiPGameMode expectedMode) {
   }
   m_lastError = result;
   return false;
-}
-
-// This internal protected method sends the command to change the game mode and
-// then sends a request to get the new mode. If this request fails or the new
-// mode isn't as expected, it will retry the command.
-void MiP::verifiedSetGameMode(MiPGameMode desiredMode) {
-  int8_t result;
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    rawSetGameMode(desiredMode);
-
-    // Read back and make sure that it was set as expected.
-    MiPGameMode actualMode;
-    result = rawGetGameMode(actualMode);
-    if (result == MIP_ERROR_NONE && actualMode == desiredMode) {
-      // The set was successful so return immediately.
-      m_lastError = MIP_ERROR_NONE;
-      return;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
-  }
-
-  if (result != MIP_ERROR_NONE) {
-    // Kept getting an error back from rawGetGameMode().
-    m_lastError = result;
-  } else {
-    // rawGetGameMode() was successful but didn't match mode to which we were
-    // attempting to change.
-    m_lastError = MIP_ERROR_MAX_RETRIES;
-  }
 }
 
 // This internal protected method sends the set game mode command with no error
@@ -172,4 +144,36 @@ int8_t MiP::rawGetGameMode(MiPGameMode& mode) {
   rawSetGameMode(mode);
 
   return MIP_ERROR_NONE;
+}
+
+// This internal protected method sends the command to change the game mode and
+// then sends a request to get the new mode. If this request fails or the new
+// mode isn't as expected, it will retry the command.
+void MiP::verifiedSetGameMode(MiPGameMode desiredMode) {
+  int8_t result;
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    rawSetGameMode(desiredMode);
+
+    // Read back and make sure that it was set as expected.
+    MiPGameMode actualMode;
+    result = rawGetGameMode(actualMode);
+    if (result == MIP_ERROR_NONE && actualMode == desiredMode) {
+      // The set was successful so return immediately.
+      m_lastError = MIP_ERROR_NONE;
+      return;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+
+  if (result != MIP_ERROR_NONE) {
+    // Kept getting an error back from rawGetGameMode().
+    m_lastError = result;
+  } else {
+    // rawGetGameMode() was successful but didn't match mode to which we were
+    // attempting to change.
+    m_lastError = MIP_ERROR_MAX_RETRIES;
+  }
 }

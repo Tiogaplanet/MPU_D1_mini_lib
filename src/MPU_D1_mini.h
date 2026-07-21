@@ -1135,6 +1135,15 @@ class MiP {
   int8_t rawGetIRRemoteControl(uint8_t& remoteControl);
   void rawSetIRRemoteControl(uint8_t remoteControl);
 
+  // ==========================================================================
+  // MPU_Mode.cpp.
+  // ==========================================================================
+
+  void verifiedSetGameMode(MiPGameMode desiredMode);
+  bool checkGameMode(MiPGameMode expectedMode);
+  void rawSetGameMode(MiPGameMode mode);
+  int8_t rawGetGameMode(MiPGameMode& mode);
+
   void fallDown(MiPFallDirection direction);
 
   void rawSetVolume(uint8_t volume);
@@ -1149,11 +1158,6 @@ class MiP {
 
   int8_t rawGetSoftwareVersion(MiPSoftwareVersion& software);
   int8_t rawGetHardwareInfo(MiPHardwareInfo& hardware);
-
-  void verifiedSetGameMode(MiPGameMode desiredMode);
-  bool checkGameMode(MiPGameMode expectedMode);
-  void rawSetGameMode(MiPGameMode mode);
-  int8_t rawGetGameMode(MiPGameMode& mode);
 
   // Transport level logic
   void transportSendRequest(const uint8_t* pRequest,
