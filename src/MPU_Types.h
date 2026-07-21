@@ -61,16 +61,6 @@ enum MiPGesture : uint8_t {
 };
 
 /**
- * @brief Individual head LED patterns.
- */
-enum MiPHeadLED : uint8_t {
-  MIP_HEAD_LED_OFF = 0,
-  MIP_HEAD_LED_ON = 1,
-  MIP_HEAD_LED_BLINK_SLOW = 2,
-  MIP_HEAD_LED_BLINK_FAST = 3,
-};
-
-/**
  * @brief Drive direction for distanceDrive().
  */
 enum MiPDriveDirection : uint8_t {
@@ -92,6 +82,15 @@ enum MiPFallDirection : uint8_t {
 };
 
 /**
+ * @brief Get-up direction options.
+ */
+enum MiPGetUp : uint8_t {
+  MIP_GETUP_FROM_FRONT = 0x00,
+  MIP_GETUP_FROM_BACK = 0x01,
+  MIP_GETUP_FROM_EITHER = 0x02
+};
+
+/**
  * @brief MiP physical orientation/position states.
  */
 enum MiPPosition : uint8_t {
@@ -105,12 +104,13 @@ enum MiPPosition : uint8_t {
 };
 
 /**
- * @brief Get-up direction options.
+ * @brief Individual head LED patterns.
  */
-enum MiPGetUp : uint8_t {
-  MIP_GETUP_FROM_FRONT = 0x00,
-  MIP_GETUP_FROM_BACK = 0x01,
-  MIP_GETUP_FROM_EITHER = 0x02
+enum MiPHeadLED : uint8_t {
+  MIP_HEAD_LED_OFF = 0,
+  MIP_HEAD_LED_ON = 1,
+  MIP_HEAD_LED_BLINK_SLOW = 2,
+  MIP_HEAD_LED_BLINK_FAST = 3,
 };
 
 /**
