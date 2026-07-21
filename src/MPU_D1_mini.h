@@ -392,6 +392,14 @@ class MiP {
   uint8_t readClapEvent();
 
   /**
+   * @brief Reads the current clap delay setting.
+   *
+   * @return The delay in milliseconds between clap events.
+   *         Returns 0 on error.
+   */
+  uint16_t readClapDelay();
+
+  /**
    * @brief Sets the minimum delay between clap events.
    *
    * Verified method: sends the new delay and confirms by reading back
@@ -400,14 +408,6 @@ class MiP {
    * @param delay Delay in milliseconds between allowed clap reports.
    */
   void writeClapDelay(uint16_t delay);
-
-  /**
-   * @brief Reads the current clap delay setting.
-   *
-   * @return The delay in milliseconds between clap events.
-   *         Returns 0 on error.
-   */
-  uint16_t readClapDelay();
 
   // ==========================================================================
   // EEPROM - Implemented in MPU_EEPROM.cpp.
@@ -1115,11 +1115,15 @@ class MiP {
   int8_t rawGetUserData(uint8_t address, uint8_t& userData);
   void rawSetUserData(uint8_t address, uint8_t userData);
 
+  // ==========================================================================
+  // MPU_HeadLEDs.cpp.
+  // ==========================================================================
+
+  int8_t rawGetHeadLEDs(MiPHeadLEDs& headLEDs);
   void rawSetHeadLEDs(MiPHeadLED led1,
                       MiPHeadLED led2,
                       MiPHeadLED led3,
                       MiPHeadLED led4);
-  int8_t rawGetHeadLEDs(MiPHeadLEDs& headLEDs);
   bool isValidHeadLED(uint8_t led);
 
   void fallDown(MiPFallDirection direction);
@@ -1165,7 +1169,7 @@ class MiP {
     MIP_FLAG_RADAR_VALID = (1 << 0),
     MIP_FLAG_SHAKE_DETECTED = (1 << 1),
     MIP_FLAG_WEIGHT_VALID = (1 << 2),
-    MRI_FLAG_INITIALIZED = (1 << 3)
+    MIP_FLAG_INITIALIZED = (1 << 3)
   };
 
   uint32_t m_lastRequestTime;

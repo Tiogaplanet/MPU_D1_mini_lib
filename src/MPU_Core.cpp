@@ -68,7 +68,7 @@ bool MiP::begin() {
   // Assume that the connection to MiP will be successfully initialized. Will
   // clear the flag if a connection error is detected. If this wasn't done then
   // the calls to rawSend() and rawGetStatus() below would fail.
-  m_flags |= MRI_FLAG_INITIALIZED;
+  m_flags |= MIP_FLAG_INITIALIZED;
 
   // Sometimes the init fails. It seems to happen when the MiP is busy at
   // power-up doing other things like attempting to balance.
@@ -86,7 +86,7 @@ bool MiP::begin() {
   }
 
   // Get here if the connection attempt to MiP never succeeds.
-  m_flags &= ~MRI_FLAG_INITIALIZED;
+  m_flags &= ~MIP_FLAG_INITIALIZED;
   end();
   return false;
 }
@@ -120,7 +120,7 @@ void MiP::sleep() {
 }
 
 bool MiP::isInitialized() {
-  return (m_flags & MRI_FLAG_INITIALIZED);
+  return (m_flags & MIP_FLAG_INITIALIZED);
 }
 
 int8_t MiP:: lastCallResult() {

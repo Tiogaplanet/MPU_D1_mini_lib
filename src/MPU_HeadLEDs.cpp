@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_HeadLEDs.cpp
  * @brief Implements control and reading of the MiP robot's head LEDs and
  *        provides verified/unverified write methods for the chest LED (via
@@ -31,6 +31,25 @@
 // for the complete list.
 #define MIP_CMD_SET_HEAD_LEDS 0x8A
 #define MIP_CMD_GET_HEAD_LEDS 0x8B
+
+void MiP::readHeadLEDs(MiPHeadLEDs& headLEDs) {
+  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->readHeadLEDs()");
+  int8_t result;
+
+  // Retry the read if it should fail on the first attempt.
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    result = rawGetHeadLEDs(headLEDs);
+    if (result == MIP_ERROR_NONE) {
+      m_lastError = MIP_ERROR_NONE;
+      return;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+  m_lastError = result;
+}
 
 void MiP::writeHeadLEDs(MiPHeadLED led1,
                         MiPHeadLED led2,
@@ -75,25 +94,6 @@ void MiP::writeHeadLEDs(const MiPHeadLEDs& headLEDs) {
   writeHeadLEDs(headLEDs.led1, headLEDs.led2, headLEDs.led3, headLEDs.led4);
 }
 
-void MiP::readHeadLEDs(MiPHeadLEDs& headLEDs) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->readHeadLEDs()");
-  int8_t result;
-
-  // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    result = rawGetHeadLEDs(headLEDs);
-    if (result == MIP_ERROR_NONE) {
-      m_lastError = MIP_ERROR_NONE;
-      return;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
-  }
-  m_lastError = result;
-}
-
 void MiP::unverifiedWriteHeadLEDs(MiPHeadLED led1,
                                   MiPHeadLED led2,
                                   MiPHeadLED led3,
@@ -108,16 +108,9 @@ void MiP::unverifiedWriteHeadLEDs(const MiPHeadLEDs& headLEDs) {
       headLEDs.led1, headLEDs.led2, headLEDs.led3, headLEDs.led4);
 }
 
-// This internal protected method sends the set head LEDs command with no error
-// checking. The error handling / recovery happens at a higher level of the
-// driver.
-void MiP::rawSetHeadLEDs(MiPHeadLED led1,
-                         MiPHeadLED led2,
-                         MiPHeadLED led3,
-                         MiPHeadLED led4) {
-  uint8_t command[1 + 4] = {MIP_CMD_SET_HEAD_LEDS, led1, led2, led3, led4};
-  rawSend(command, sizeof(command));
-}
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
 // This internal protected method sends the get head LEDs command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
@@ -143,6 +136,17 @@ int8_t MiP::rawGetHeadLEDs(MiPHeadLEDs& headLEDs) {
   headLEDs.led3 = (MiPHeadLED)response[3];
   headLEDs.led4 = (MiPHeadLED)response[4];
   return MIP_ERROR_NONE;
+}
+
+// This internal protected method sends the set head LEDs command with no error
+// checking. The error handling / recovery happens at a higher level of the
+// driver.
+void MiP::rawSetHeadLEDs(MiPHeadLED led1,
+                         MiPHeadLED led2,
+                         MiPHeadLED led3,
+                         MiPHeadLED led4) {
+  uint8_t command[1 + 4] = {MIP_CMD_SET_HEAD_LEDS, led1, led2, led3, led4};
+  rawSend(command, sizeof(command));
 }
 
 // This internal protected method is called to validate that each head LED value
