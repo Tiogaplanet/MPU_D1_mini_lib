@@ -31,13 +31,6 @@
 #define MIP_CMD_SET_VOLUME 0x15
 #define MIP_CMD_GET_VOLUME 0x16
 
-void MiP::playSound(MiPSoundIndex sound,
-                    MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
-  beginSoundList();
-  addEntryToSoundList(sound, 0, volume);
-  playSoundList();
-}
-
 void MiP::beginSoundList() {
   m_soundIndex = 0;
   m_playVolume = MIP_VOLUME_DEFAULT;
@@ -105,6 +98,34 @@ void MiP::playSoundList(uint8_t repeatCount) {
   m_lastError = MIP_ERROR_NONE;
 }
 
+void MiP::playSound(MiPSoundIndex sound,
+                    MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
+  beginSoundList();
+  addEntryToSoundList(sound, 0, volume);
+  playSoundList();
+}
+
+uint8_t MiP::readVolume() {
+  int8_t result;
+
+  // Retry the read if it should fail on the first attempt.
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    uint8_t volume;
+    result = rawGetVolume(volume);
+    if (result == MIP_ERROR_NONE) {
+      m_lastError = MIP_ERROR_NONE;
+      return volume;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+
+  m_lastError = result;
+  return 0;
+}
+
 void MiP::writeVolume(uint8_t volume) {
   int8_t result;
 
@@ -137,35 +158,9 @@ void MiP::writeVolume(uint8_t volume) {
   }
 }
 
-uint8_t MiP::readVolume() {
-  int8_t result;
-
-  // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    uint8_t volume;
-    result = rawGetVolume(volume);
-    if (result == MIP_ERROR_NONE) {
-      m_lastError = MIP_ERROR_NONE;
-      return volume;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
-  }
-
-  m_lastError = result;
-  return 0;
-}
-
-// This internal protected method sends the set volume command with no error
-// checking. The error handling / recovery happens at a higher level of the
-// driver.
-void MiP::rawSetVolume(uint8_t volume) {
-  MIP_ASSERT(volume <= 7);
-  uint8_t command[1 + 1] = {MIP_CMD_SET_VOLUME, volume};
-  rawSend(command, sizeof(command));
-}
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
 // This internal protected method sends the get volume command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
@@ -184,4 +179,13 @@ int8_t MiP::rawGetVolume(uint8_t& volume) {
   }
   volume = response[1];
   return result;
+}
+
+// This internal protected method sends the set volume command with no error
+// checking. The error handling / recovery happens at a higher level of the
+// driver.
+void MiP::rawSetVolume(uint8_t volume) {
+  MIP_ASSERT(volume <= 7);
+  uint8_t command[1 + 1] = {MIP_CMD_SET_VOLUME, volume};
+  rawSend(command, sizeof(command));
 }

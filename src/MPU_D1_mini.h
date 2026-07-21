@@ -1156,8 +1156,12 @@ class MiP {
 
   int8_t rawReadOdometer(float& distanceInCm);
 
-  void rawSetVolume(uint8_t volume);
+  // ==========================================================================
+  // MPU_Sound.cpp.
+  // ==========================================================================
+
   int8_t rawGetVolume(uint8_t& volume);
+  void rawSetVolume(uint8_t volume);
 
   int8_t rawGetWeight(int8_t& weight);
   int8_t parseWeight(int8_t& weight,
