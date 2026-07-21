@@ -59,6 +59,10 @@ void MiP::resetDistanceTravelled() {
   rawSend(command, sizeof(command));
 }
 
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
 // This internal protected method sends the read odometer command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP::rawReadOdometer(float& distanceInCm) {
