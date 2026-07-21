@@ -44,45 +44,12 @@
 #define MIP_CMD_SET_GESTURE_RADAR_MODE 0x0C
 #define MIP_CMD_GET_GESTURE_RADAR_MODE 0x0D
 
-void MiP::mipAssert(uint32_t lineNumber) {
-  // We can use __FILE__ here to dynamically print whichever of the 24 files
-  // triggered the assert!
-  MIP_DEBUG_ERROR_PRINTF(
-      "MiP: Assert failed in file %s at line: %d\n", __FILE__, lineNumber);
-  while (1) {
-    delay(100);
-  }
-}
-
 MiP::MiP() {
   clear();
 }
+
 MiP::~MiP() {
   end();
-}
-
-void MiP::clear() {
-  m_lastRequestTime = millis();
-  m_lastContinuousDriveTime = millis();
-  m_flags = 0;
-  memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
-  m_expectedResponseCommand = 0;
-  m_expectedResponseSize = 0;
-  m_lastError = MIP_ERROR_NONE;
-  memset(m_playCommand, 0, sizeof(m_playCommand));
-  m_soundIndex = -1;
-  m_playVolume = MIP_VOLUME_OFF;
-  m_lastRadar = MIP_RADAR_INVALID;
-  m_lastStatus.clear();
-  m_lastWeight = 0;
-  m_clapEvents.clear();
-  m_gestureEvents.clear();
-  m_detectedMiPEvents.clear();
-  m_irCodeEvents.clear();
-  m_irId = 0x00;
-  memset(m_ssid, 0, sizeof(m_ssid));
-  memset(m_password, 0, sizeof(m_password));
-  memset(m_hostname, 0, sizeof(m_hostname));
 }
 
 bool MiP::begin() {
@@ -124,6 +91,105 @@ bool MiP::begin() {
   return false;
 }
 
+void MiP::end() {
+  if (isInitialized()) {
+    // Restore MiP's default volume in case it was changed by the user.
+    writeVolume(MIP_VOLUME_7);
+
+    // Send the disconnect command.  If it is successful the app will be
+    // disconnected, indicated by a blue chest LED.
+    const uint8_t command[] = {MIP_CMD_DISCONNECT_APP};
+    rawSend(command, sizeof(command));
+  }
+
+  clear();
+
+  // Swap the UART on the D1 mini back to the default RX/TX pair.
+  Serial.swap();
+  Serial.end();
+
+  // Shutdown the debugging channel.
+  Serial1.end();
+}
+
+void MiP::sleep() {
+  // Put the MiP to sleep.
+  // The MiP will need to be reset before another begin() will succeed.
+  const uint8_t command[] = {MIP_CMD_SLEEP};
+  rawSend(command, sizeof(command));
+}
+
+bool MiP::isInitialized() {
+  return (m_flags & MRI_FLAG_INITIALIZED);
+}
+
+int8_t MiP:: lastCallResult() {
+  return m_lastError;
+}
+
+bool MiP:: didLastCallFail() {
+    return m_lastError != MIP_ERROR_NONE;
+}
+  
+void MiP::printLastCallResult() {
+  if (m_lastError != MIP_ERROR_NONE) {
+    MIP_DEBUG_ERROR_PRINT(F("MiP: API returned "));
+    switch (m_lastError) {
+      case MIP_ERROR_TIMEOUT:
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
+        break;
+      case MIP_ERROR_NO_EVENT:
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
+        break;
+      case MIP_ERROR_BAD_RESPONSE:
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
+        break;
+      case MIP_ERROR_MAX_RETRIES:
+        MIP_DEBUG_ERROR_PRINTLN(
+            F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
+        break;
+      default:
+        MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));
+        break;
+    }
+  }
+}
+
+bool MiP::areGestureAndRadarModesDisabled() {
+  return checkGestureRadarMode(MIP_GESTURE_RADAR_DISABLED);
+}
+
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
+void MiP::clear() {
+  m_lastRequestTime = millis();
+  m_lastContinuousDriveTime = millis();
+  m_flags = 0;
+  memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
+  m_expectedResponseCommand = 0;
+  m_expectedResponseSize = 0;
+  m_lastError = MIP_ERROR_NONE;
+  memset(m_playCommand, 0, sizeof(m_playCommand));
+  m_soundIndex = -1;
+  m_playVolume = MIP_VOLUME_OFF;
+  m_lastRadar = MIP_RADAR_INVALID;
+  m_lastStatus.clear();
+  m_lastWeight = 0;
+  m_clapEvents.clear();
+  m_gestureEvents.clear();
+  m_detectedMiPEvents.clear();
+  m_irCodeEvents.clear();
+  m_irId = 0x00;
+  memset(m_ssid, 0, sizeof(m_ssid));
+  memset(m_password, 0, sizeof(m_password));
+  memset(m_hostname, 0, sizeof(m_hostname));
+}
+
 // This internal protected method provides the common code for connection
 // attempts at baud rates of 115200 or 9600.
 int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
@@ -157,61 +223,6 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
     delay(MIP_BEGIN_RETRY_WAIT);
   }
   return result;
-}
-
-void MiP::end() {
-  if (isInitialized()) {
-    // Restore MiP's default volume in case it was changed by the user.
-    writeVolume(MIP_VOLUME_7);
-
-    // Send the disconnect command.  If it is successful the app will be
-    // disconnected, indicated by a blue chest LED.
-    const uint8_t command[] = {MIP_CMD_DISCONNECT_APP};
-    rawSend(command, sizeof(command));
-  }
-
-  clear();
-
-  // Swap the UART on the D1 mini back to the default RX/TX pair.
-  Serial.swap();
-  Serial.end();
-
-  // Shutdown the debugging channel.
-  Serial1.end();
-}
-
-void MiP::sleep() {
-  // Put the MiP to sleep.
-  // The MiP will need to be reset before another begin() will succeed.
-  const uint8_t command[] = {MIP_CMD_SLEEP};
-  rawSend(command, sizeof(command));
-}
-
-void MiP::printLastCallResult() {
-  if (m_lastError != MIP_ERROR_NONE) {
-    MIP_DEBUG_ERROR_PRINT(F("MiP: API returned "));
-    switch (m_lastError) {
-      case MIP_ERROR_TIMEOUT:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
-        break;
-      case MIP_ERROR_NO_EVENT:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
-        break;
-      case MIP_ERROR_BAD_RESPONSE:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
-        break;
-      case MIP_ERROR_MAX_RETRIES:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
-        break;
-      default:
-        MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));
-        break;
-    }
-  }
 }
 
 // This internal protected method sends the command to change the radar/gesture
@@ -269,14 +280,6 @@ bool MiP::checkGestureRadarMode(MiPGestureRadarMode expectedMode) {
   return false;
 }
 
-// This internal protected method sends the set gesture/radar mode command with
-// no error checking. The error handling / recovery happens at a higher level of
-// the driver.
-void MiP::rawSetGestureRadarMode(MiPGestureRadarMode mode) {
-  uint8_t command[1 + 1] = {MIP_CMD_SET_GESTURE_RADAR_MODE, mode};
-  rawSend(command, sizeof(command));
-}
-
 // This internal protected method sends the get gesture/radar mode command with
 // minimal error handling. The error recovery happens at a higher level of the
 // driver.
@@ -298,6 +301,14 @@ int8_t MiP::rawGetGestureRadarMode(MiPGestureRadarMode& mode) {
   }
   mode = (MiPGestureRadarMode)response[1];
   return MIP_ERROR_NONE;
+}
+
+// This internal protected method sends the set gesture/radar mode command with
+// no error checking. The error handling / recovery happens at a higher level of
+// the driver.
+void MiP::rawSetGestureRadarMode(MiPGestureRadarMode mode) {
+  uint8_t command[1 + 1] = {MIP_CMD_SET_GESTURE_RADAR_MODE, mode};
+  rawSend(command, sizeof(command));
 }
 
 // This internal protected method sends the get status command with minimal
@@ -333,10 +344,12 @@ int8_t MiP::parseStatus(MiPStatus& status,
   return MIP_ERROR_NONE;
 }
 
-bool MiP::areGestureAndRadarModesDisabled() {
-  return checkGestureRadarMode(MIP_GESTURE_RADAR_DISABLED);
-}
-
-bool MiP::isInitialized() {
-  return (m_flags & MRI_FLAG_INITIALIZED);
+void MiP::mipAssert(uint32_t lineNumber) {
+  // We can use __FILE__ here to dynamically print whichever of the 24 files
+  // triggered the assert!
+  MIP_DEBUG_ERROR_PRINTF(
+      "MiP: Assert failed in file %s at line: %d\n", __FILE__, lineNumber);
+  while (1) {
+    delay(100);
+  }
 }
