@@ -12,14 +12,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_Clap.cpp
  * @brief This file implements clap event enabling, delay configuration,
  *        and fetching for the WowWee MiP robot.
  *
  * It provides both verified (with read-back) and raw low-level methods
  * for reliable clap detection control.
-*/
+ */
 #include "MPU_D1_mini.h"
 
 // MiP Protocol Commands related to clap detection.
@@ -40,35 +40,54 @@ void MiP::disableClapEvents() {
   checkedEnableClapEvents(MIP_CLAP_DISABLED);
 }
 
-// This internal protected method attempts to enable/disable clap events and
-// then reads back the clap settings to see if the new value has taken. Retries
-// on errors or mismatches.
-void MiP::checkedEnableClapEvents(MiPClapEnabled enabled) {
-  int8_t result;
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    rawEnableClap(enabled);
-
-    // Read back and make sure that it was set as expected.
-    MiPClapSettings settings;
-    result = rawGetClapSettings(settings);
-    if (result == MIP_ERROR_NONE && settings.enabled == enabled) {
-      // The set was successful so return immediately.
-      m_lastError = MIP_ERROR_NONE;
-      return;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
-  }
-
+bool MiP::areClapEventsEnabled() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->areClapEventsEnabled()");
+  MiPClapSettings settings;
+  int8_t result = readClapSettings(settings);
   if (result != MIP_ERROR_NONE) {
-    // Kept getting an error back from read back routine.
     m_lastError = result;
-  } else {
-    // Read back was successful but write didn't take.
-    m_lastError = MIP_ERROR_MAX_RETRIES;
+    return false;
   }
+  m_lastError = MIP_ERROR_NONE;
+  return settings.enabled == MIP_CLAP_ENABLED;
+}
+
+uint8_t MiP::availableClapEvents() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->availableClapEvents()");
+  // Fetch bytes from the Serial receive buffer and process any event data found
+  // within.
+  processAllResponseData();
+
+  m_lastError = MIP_ERROR_NONE;
+  return m_clapEvents.available();
+}
+
+uint8_t MiP::readClapEvent() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->readClapEvent()");
+  // Fetch bytes from the Serial receive buffer and process any event data found
+  // within.
+  processAllResponseData();
+
+  uint8_t clapEvent = 0;
+  if (!m_clapEvents.pop(clapEvent)) {
+    // No clap event has been received yet.
+    m_lastError = MIP_ERROR_NO_EVENT;
+    return 0;
+  }
+  m_lastError = MIP_ERROR_NONE;
+  return clapEvent;
+}
+
+uint16_t MiP::readClapDelay() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->readClapDelay()");
+  MiPClapSettings settings;
+  int8_t result = readClapSettings(settings);
+  if (result != MIP_ERROR_NONE) {
+    m_lastError = result;
+    return 0;
+  }
+  m_lastError = MIP_ERROR_NONE;
+  return settings.delay;
 }
 
 void MiP::writeClapDelay(uint16_t delayTime) {
@@ -103,45 +122,39 @@ void MiP::writeClapDelay(uint16_t delayTime) {
   }
 }
 
-// This internal protected method sends the enable/disable clap command with no
-// error checking. The error handling / recovery happens at a higher level of
-// the driver.
-void MiP::rawEnableClap(MiPClapEnabled enabled) {
-  uint8_t command[1 + 1] = {MIP_CMD_ENABLE_CLAP, enabled};
-  rawSend(command, sizeof(command));
-}
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
-// This internal protected method sends the set clap delay command with no error
-// checking. The error handling / recovery happens at a higher level of the
-// driver.
-void MiP::rawSetClapDelay(uint16_t delay) {
-  uint8_t command[1 + 2] = {
-      MIP_CMD_SET_CLAP_DELAY, (uint8_t)(delay >> 8), (uint8_t)(delay & 0xFF)};
-  rawSend(command, sizeof(command));
-}
+// This internal protected method attempts to enable/disable clap events and
+// then reads back the clap settings to see if the new value has taken. 
+// Retries on errors or mismatches.
+void MiP::checkedEnableClapEvents(MiPClapEnabled enabled) {
+  int8_t result;
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    rawEnableClap(enabled);
 
-bool MiP::areClapEventsEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->areClapEventsEnabled()");
-  MiPClapSettings settings;
-  int8_t result = readClapSettings(settings);
-  if (result != MIP_ERROR_NONE) {
-    m_lastError = result;
-    return false;
+    // Read back and make sure that it was set as expected.
+    MiPClapSettings settings;
+    result = rawGetClapSettings(settings);
+    if (result == MIP_ERROR_NONE && settings.enabled == enabled) {
+      // The set was successful so return immediately.
+      m_lastError = MIP_ERROR_NONE;
+      return;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
   }
-  m_lastError = MIP_ERROR_NONE;
-  return settings.enabled == MIP_CLAP_ENABLED;
-}
 
-uint16_t MiP::readClapDelay() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->readClapDelay()");
-  MiPClapSettings settings;
-  int8_t result = readClapSettings(settings);
   if (result != MIP_ERROR_NONE) {
+    // Kept getting an error back from read back routine.
     m_lastError = result;
-    return 0;
+  } else {
+    // Read back was successful but write didn't take.
+    m_lastError = MIP_ERROR_MAX_RETRIES;
   }
-  m_lastError = MIP_ERROR_NONE;
-  return settings.delay;
 }
 
 // This internal protected method issues the low level get clap settings command
@@ -163,30 +176,21 @@ int8_t MiP::readClapSettings(MiPClapSettings& settings) {
   return result;
 }
 
-uint8_t MiP::availableClapEvents() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->availableClapEvents()");
-  // Fetch bytes from the Serial receive buffer and process any event data found
-  // within.
-  processAllResponseData();
-
-  m_lastError = MIP_ERROR_NONE;
-  return m_clapEvents.available();
+// This internal protected method sends the enable/disable clap command with no
+// error checking. The error handling / recovery happens at a higher level of
+// the driver.
+void MiP::rawEnableClap(MiPClapEnabled enabled) {
+  uint8_t command[1 + 1] = {MIP_CMD_ENABLE_CLAP, enabled};
+  rawSend(command, sizeof(command));
 }
 
-uint8_t MiP::readClapEvent() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Clap->readClapEvent()");
-  // Fetch bytes from the Serial receive buffer and process any event data found
-  // within.
-  processAllResponseData();
-
-  uint8_t clapEvent = 0;
-  if (!m_clapEvents.pop(clapEvent)) {
-    // No clap event has been received yet.
-    m_lastError = MIP_ERROR_NO_EVENT;
-    return 0;
-  }
-  m_lastError = MIP_ERROR_NONE;
-  return clapEvent;
+// This internal protected method sends the set clap delay command with no error
+// checking. The error handling / recovery happens at a higher level of the
+// driver.
+void MiP::rawSetClapDelay(uint16_t delay) {
+  uint8_t command[1 + 2] = {
+      MIP_CMD_SET_CLAP_DELAY, (uint8_t)(delay >> 8), (uint8_t)(delay & 0xFF)};
+  rawSend(command, sizeof(command));
 }
 
 // This internal protected method sends the get clap settings command with

@@ -21,9 +21,6 @@
  */
 #include "MPU_D1_mini.h"
 
-#define MIP_MAX_RETRIES 2
-#define MIP_RETRY_WAIT 50
-
 // MiP Protocol Commands related to the chest LED.
 // These command codes are placed in the first byte of requests sent to the MiP
 // and responses sent back from the MiP. See

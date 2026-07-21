@@ -1098,6 +1098,16 @@ class MiP {
                         uint8_t onTime,
                         uint8_t offTime);
 
+  // ==========================================================================
+  // MPU_Clap.cpp.
+  // ==========================================================================
+
+  void checkedEnableClapEvents(MiPClapEnabled enabled);
+  int8_t readClapSettings(MiPClapSettings& settings);
+  void rawEnableClap(MiPClapEnabled enabled);
+  void rawSetClapDelay(uint16_t delay);
+  int8_t rawGetClapSettings(MiPClapSettings& settings);
+
   void rawSetHeadLEDs(MiPHeadLED led1,
                       MiPHeadLED led2,
                       MiPHeadLED led3,
@@ -1116,12 +1126,6 @@ class MiP {
   int8_t parseWeight(int8_t& weight,
                      const uint8_t response[],
                      size_t responseLength);
-
-  void checkedEnableClapEvents(MiPClapEnabled enabled);
-  int8_t readClapSettings(MiPClapSettings& settings);
-  void rawEnableClap(MiPClapEnabled enabled);
-  void rawSetClapDelay(uint16_t delay);
-  int8_t rawGetClapSettings(MiPClapSettings& settings);
 
   int8_t rawGetSoftwareVersion(MiPSoftwareVersion& software);
   int8_t rawGetHardwareInfo(MiPHardwareInfo& hardware);
