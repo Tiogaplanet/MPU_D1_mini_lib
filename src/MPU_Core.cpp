@@ -336,3 +336,7 @@ int8_t MiP::parseStatus(MiPStatus& status,
 bool MiP::areGestureAndRadarModesDisabled() {
   return checkGestureRadarMode(MIP_GESTURE_RADAR_DISABLED);
 }
+
+bool MiP::isInitialized() {
+  return (m_flags & MRI_FLAG_INITIALIZED);
+}
