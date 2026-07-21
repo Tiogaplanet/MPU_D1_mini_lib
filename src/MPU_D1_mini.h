@@ -1069,7 +1069,7 @@ class MiP {
   // ==========================================================================
 
   void clear();
-  
+
   int8_t attemptMiPConnection(uint32_t baudRate);
 
   // Centralized assert handler
@@ -1085,18 +1085,18 @@ class MiP {
   int8_t parseStatus(MiPStatus& status,
                      const uint8_t response[],
                      size_t responseLength);
-					 
+
   // ==========================================================================
-  // MPU_Battery.cpp.
-  // ==========================================================================					 
-					 
+  // MPU_ChestLED.cpp.
+  // ==========================================================================
+
+  int8_t rawGetChestLED(MiPChestLED& chestLED);
   void rawSetChestLED(uint8_t red, uint8_t green, uint8_t blue);
   void rawFlashChestLED(uint8_t red,
                         uint8_t green,
                         uint8_t blue,
                         uint8_t onTime,
                         uint8_t offTime);
-  int8_t rawGetChestLED(MiPChestLED& chestLED);
 
   void rawSetHeadLEDs(MiPHeadLED led1,
                       MiPHeadLED led2,
@@ -1111,8 +1111,6 @@ class MiP {
   int8_t rawGetVolume(uint8_t& volume);
 
   int8_t rawReadOdometer(float& distanceInCm);
-
-
 
   int8_t rawGetWeight(int8_t& weight);
   int8_t parseWeight(int8_t& weight,

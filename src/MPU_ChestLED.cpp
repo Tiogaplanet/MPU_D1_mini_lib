@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-/** 
+/**
  * @file MPU_ChestLED.cpp
  * @brief Implements solid color and flashing control for the MiP chest LED.
  *
@@ -33,8 +33,28 @@
 #define MIP_CMD_SET_CHEST_LED 0x84
 #define MIP_CMD_FLASH_CHEST_LED 0x89
 
+void MiP::readChestLED(MiPChestLED& chestLED) {
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->readChestLED()");
+  int8_t result;
+
+  // Retry the read if it should fail on the first attempt.
+  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+    result = rawGetChestLED(chestLED);
+    if (result == MIP_ERROR_NONE) {
+      m_lastError = MIP_ERROR_NONE;
+      return;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MIP_RETRY_WAIT);
+  }
+
+  m_lastError = result;
+}
+
 void MiP::writeChestLED(uint8_t red, uint8_t green, uint8_t blue) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->writeChestLED()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->writeChestLED()");
   int8_t result;
 
   // The blue channel is actually only 6-bit and not a full 8-bit so zero out
@@ -76,7 +96,7 @@ void MiP::writeChestLED(uint8_t red,
                         uint8_t blue,
                         uint16_t onTime,
                         uint16_t offTime) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->writeChestLED()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->writeChestLED()");
   int8_t result;
 
   // on/off time are in units of 20 msecs.
@@ -120,7 +140,7 @@ void MiP::writeChestLED(uint8_t red,
 }
 
 void MiP::writeChestLED(const MiPChestLED& chestLED) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->writeChestLED()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->writeChestLED()");
   writeChestLED(chestLED.red,
                 chestLED.green,
                 chestLED.blue,
@@ -128,28 +148,8 @@ void MiP::writeChestLED(const MiPChestLED& chestLED) {
                 chestLED.offTime);
 }
 
-void MiP::readChestLED(MiPChestLED& chestLED) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->readChestLED()");
-  int8_t result;
-
-  // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
-    result = rawGetChestLED(chestLED);
-    if (result == MIP_ERROR_NONE) {
-      m_lastError = MIP_ERROR_NONE;
-      return;
-    }
-
-    // An error was encountered so we will loop around and try again.
-    // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
-  }
-
-  m_lastError = result;
-}
-
 void MiP::unverifiedWriteChestLED(uint8_t red, uint8_t green, uint8_t blue) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->unverifiedWriteChestLED()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->unverifiedWriteChestLED()");
   rawSetChestLED(red, green, blue);
 }
 
@@ -175,26 +175,9 @@ void MiP::unverifiedWriteChestLED(const MiPChestLED& chestLED) {
                           chestLED.offTime);
 }
 
-// This internal protected method sends the set chest LED command with no error
-// checking. The error handling / recovery happens at a higher level of the
-// driver.
-void MiP::rawSetChestLED(uint8_t red, uint8_t green, uint8_t blue) {
-  uint8_t command[1 + 3] = {MIP_CMD_SET_CHEST_LED, red, green, blue};
-  rawSend(command, sizeof(command));
-}
-
-// This internal protected method sends the flash chest LED command with no
-// error checking. The error handling / recovery happens at a higher level of
-// the driver.
-void MiP::rawFlashChestLED(uint8_t red,
-                           uint8_t green,
-                           uint8_t blue,
-                           uint8_t onTime,
-                           uint8_t offTime) {
-  uint8_t command[1 + 5] = {
-      MIP_CMD_FLASH_CHEST_LED, red, green, blue, onTime, offTime};
-  rawSend(command, sizeof(command));
-}
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
 
 // This internal protected method sends the get chest LED command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
@@ -221,4 +204,25 @@ int8_t MiP::rawGetChestLED(MiPChestLED& chestLED) {
   chestLED.onTime = (uint16_t)response[4] * 20;
   chestLED.offTime = (uint16_t)response[5] * 20;
   return MIP_ERROR_NONE;
+}
+
+// This internal protected method sends the set chest LED command with no error
+// checking. The error handling / recovery happens at a higher level of the
+// driver.
+void MiP::rawSetChestLED(uint8_t red, uint8_t green, uint8_t blue) {
+  uint8_t command[1 + 3] = {MIP_CMD_SET_CHEST_LED, red, green, blue};
+  rawSend(command, sizeof(command));
+}
+
+// This internal protected method sends the flash chest LED command with no
+// error checking. The error handling / recovery happens at a higher level of
+// the driver.
+void MiP::rawFlashChestLED(uint8_t red,
+                           uint8_t green,
+                           uint8_t blue,
+                           uint8_t onTime,
+                           uint8_t offTime) {
+  uint8_t command[1 + 5] = {
+      MIP_CMD_FLASH_CHEST_LED, red, green, blue, onTime, offTime};
+  rawSend(command, sizeof(command));
 }
