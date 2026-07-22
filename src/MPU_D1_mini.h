@@ -20,7 +20,7 @@
  * This file contains the function declarations and global defines
  * available for the end-user to add custom capability to MiP.
  *
- * @author Tiogaplanet, Adam Green
+ * @author Samuel Trassare, Adam Green
  * @date 2026-07-18
  * @version 1.1.0
  * @copyright Apache License, Version 2.0

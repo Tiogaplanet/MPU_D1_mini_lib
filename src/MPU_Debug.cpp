@@ -20,9 +20,8 @@
 #include "MPU_Debug.h"
 #include <Arduino.h>
 
-// Define a version number just for this Telnet server, not the overall MPU
-// library.
-#define VERSION "1.0.1"
+// Show the library version number in the home debug screen.
+#define VERSION "1.1.0"
 
 // The Telnet server instance.
 WiFiServer telnetServer(TELNET_PORT);
