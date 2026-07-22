@@ -76,7 +76,7 @@ void setup() {
    *   response[1..3] contain year, month, day offsets as used by this firmware.
    *   response[4] contains the build number.
    */
-  if (result == MIP_ERROR_NONE && responseLength == 5 && response[0] == 0x14) {
+  if (result == MiP::MIP_ERROR_NONE && responseLength == 5 && response[0] == 0x14) {
     Serial1.print(F(" MiP Software Version: "));
     Serial1.print(response[1] + 2000);  // Year offset stored as (year - 2000)
     Serial1.print('-');
