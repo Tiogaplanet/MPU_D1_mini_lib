@@ -22,7 +22,7 @@
  *
  * @author Tiogaplanet, Adam Green
  * @date 2026-07-18
- * @version 1.0.0
+ * @version 1.1.0
  * @copyright Apache License, Version 2.0
  */
 #ifndef MPU_D1_MINI_H
@@ -38,13 +38,15 @@
 #include "MPU_Queue.h"
 #include "MPU_Types.h"
 
+// --- Preprocessor Directives for Debugging (Must Remain #defines) ---
+
 // Setup some debug levels for reporting library status via Serial1.
 #define MIP_DEBUG_NONE 0
 #define MIP_DEBUG_ERROR 1
 #define MIP_DEBUG_WARN 2
 #define MIP_DEBUG_INFO 3
 
-// Default to NONE if not defined by the user in the sketch.
+// Default to WARN if not defined by the user in the sketch.
 #ifndef MIP_DEBUG_LEVEL
 #define MIP_DEBUG_LEVEL MIP_DEBUG_WARN
 #endif
@@ -102,25 +104,6 @@
   if (!(EXPRESSION))           \
     mipAssert(__LINE__);
 
-// Integer error codes that can be encountered by MiP API functions.
-#define MIP_ERROR_NONE 0          // Success
-#define MIP_ERROR_TIMEOUT 1       // Timed out waiting for response.
-#define MIP_ERROR_NO_EVENT 2      // No event has arrived from MiP yet.
-#define MIP_ERROR_BAD_RESPONSE 3  // Unexpected response from MiP.
-#define MIP_ERROR_MAX_RETRIES \
-  4  // Exceeded maximum number of retries to get this operation to succeed.
-
-// Maximum length of MiP request and response buffer lengths.
-#define MIP_REQUEST_MAX_LEN (17 + 1)  // Longest request is MIP_CMD_PLAY_SOUND.
-#define MIP_RESPONSE_MAX_LEN \
-  (5 + 1)  // Longest response is MIP_CMD_REQUEST_CHEST_LED.
-
-// Maximum number of retries for verified operations (clap, chest LED, etc.).
-#define MIP_MAX_RETRIES 2
-
-// Milliseconds to wait between retries.
-#define MIP_RETRY_WAIT 50
-
 /**
  * @mainpage MiP Power Up: D1 mini library
  *
@@ -129,11 +112,29 @@
  */
 class MiP {
  public:
-  // EEPROM base address.  When reading or writing to EEPROM the user will pass
-  // an offset that is added to this base address.
+  // --- Type-Safe Compile-Time Constants (Replaced #defines) ---
+  
+  // EEPROM base address.
   static constexpr uint8_t BASE_EEPROM_ADDRESS = 0x20;
   // Last addressable address in EEPROM.
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
+
+  // Integer error codes that can be encountered by MiP API functions.
+  static constexpr uint8_t MIP_ERROR_NONE = 0;          // Success
+  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;       // Timed out waiting for response.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;      // No event has arrived from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;  // Unexpected response from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;   // Exceeded maximum number of retries to get this operation to succeed.
+
+  // Maximum length of MiP request and response buffer lengths.
+  static constexpr size_t MIP_REQUEST_MAX_LEN = 17 + 1;  // Longest request is MIP_CMD_PLAY_SOUND.
+  static constexpr size_t MIP_RESPONSE_MAX_LEN = 5 + 1;  // Longest response is MIP_CMD_REQUEST_CHEST_LED.
+
+  // Maximum number of retries for verified operations (clap, chest LED, etc.).
+  static constexpr uint8_t MIP_MAX_RETRIES = 2;
+
+  // Milliseconds to wait between retries.
+  static constexpr uint16_t MIP_RETRY_WAIT = 50;
 
   // ==========================================================================
   // Core Lifecycle - All of these functions are in MPU_Core.cpp, except for
@@ -1187,7 +1188,7 @@ class MiP {
   int8_t rawGetSoftwareVersion(MiPSoftwareVersion& software);
 
   // ==========================================================================
-  // MPU_Version.cpp.
+  // MPU_Weight.cpp rather than MPU_Version.cpp.
   // ==========================================================================
 
   int8_t rawGetWeight(int8_t& weight);
