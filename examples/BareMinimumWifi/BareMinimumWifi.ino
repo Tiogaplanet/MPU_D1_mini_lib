@@ -7,6 +7,13 @@
  * using the provided credentials, prints the assigned IP address, and sets up the loop
  * for Over-The-Air (OTA) updates and custom user code.
  *
+ * While using the MPU:D1 mini library, the entirety of the esp8266 library is available
+ * for use, meaning you could manage your own WiFi connectivity with calls to WiFi.begin(),
+ * WiFi.connect(), etc. Therefore, this library only wraps the aforementioned two WiFi
+ * functions to provide minor additional capbility: MiP manages the ssid, password, and 
+ * hostname variables and animates MiP's eyes while attempting to establish a WiFi 
+ * connection.
+ *
  * Example used in API documentation:
  *   - begin(ssid, password, hostname)
  
@@ -25,8 +32,8 @@ const char* ssid = "..............";
 /** @brief The password for your local WiFi network. */
 const char* password = "..............";
 
-/** @brief The mDNS hostname assigned to the ESP8266 on the network. */
-const char* hostname = "MiP-0x01";
+/** @brief The mDNS hostname assigned to MiP on the network. */
+const char* hostname = "MiPFi";
 
 /** @brief The global MiP library instance used to control the robot. */
 MiP mip;
@@ -43,7 +50,7 @@ bool connectResult;
  * connected IP address to the debug serial monitor.
  */
 void setup() {
-  connectResult = mip.begin(ssid, password, hostname);
+  connectResult = mip.begin();
 
   if (!connectResult) {
     Serial1.println(F("BareMinimumWifi.ino: Failed connecting to MiP."));
@@ -52,11 +59,12 @@ void setup() {
 
   Serial1.println(F("BareMinimumWifi.ino: Connect to a wireless access point."));
 
-  Serial1.print(F(" IP address: "));
-
-  // You could delete this chunk of code.
-  // It's here only to show your IP address.
-  Serial1.println(WiFi.localIP());
+  if (mip.wifiBegin(ssid, password, hostname) == WL_CONNECTED) {
+    // You could delete this chunk of code.
+    // It's here only to show your IP address.
+    Serial1.print(F(" IP address: "));
+    Serial1.println(WiFi.localIP());
+  }
 
   Serial1.println(F("BareMinimumWifi.ino: Done."));
 }
@@ -70,7 +78,7 @@ void setup() {
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-	  
+
   // Without this we can't do OTA programming.
   ArduinoOTA.handle();
 
@@ -78,5 +86,5 @@ void loop() {
 
 
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 }

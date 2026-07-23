@@ -113,22 +113,29 @@
 class MiP {
  public:
   // --- Type-Safe Compile-Time Constants (Replaced #defines) ---
-  
+
   // EEPROM base address.
   static constexpr uint8_t BASE_EEPROM_ADDRESS = 0x20;
   // Last addressable address in EEPROM.
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
   // Integer error codes that can be encountered by MiP API functions.
-  static constexpr uint8_t MIP_ERROR_NONE = 0;          // Success
-  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;       // Timed out waiting for response.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;      // No event has arrived from MiP yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;  // Unexpected response from MiP.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;   // Exceeded maximum number of retries to get this operation to succeed.
+  static constexpr uint8_t MIP_ERROR_NONE = 0;  // Success
+  static constexpr uint8_t MIP_ERROR_TIMEOUT =
+      1;  // Timed out waiting for response.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT =
+      2;  // No event has arrived from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
+      3;  // Unexpected response from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
+      4;  // Exceeded maximum number of retries to get this operation to
+          // succeed.
 
   // Maximum length of MiP request and response buffer lengths.
-  static constexpr size_t MIP_REQUEST_MAX_LEN = 17 + 1;  // Longest request is MIP_CMD_PLAY_SOUND.
-  static constexpr size_t MIP_RESPONSE_MAX_LEN = 5 + 1;  // Longest response is MIP_CMD_REQUEST_CHEST_LED.
+  static constexpr size_t MIP_REQUEST_MAX_LEN =
+      17 + 1;  // Longest request is MIP_CMD_PLAY_SOUND.
+  static constexpr size_t MIP_RESPONSE_MAX_LEN =
+      5 + 1;  // Longest response is MIP_CMD_REQUEST_CHEST_LED.
 
   // Maximum number of retries for verified operations (clap, chest LED, etc.).
   static constexpr uint8_t MIP_MAX_RETRIES = 2;
@@ -137,9 +144,7 @@ class MiP {
   static constexpr uint16_t MIP_RETRY_WAIT = 50;
 
   // ==========================================================================
-  // Core Lifecycle - All of these functions are in MPU_Core.cpp, except for
-  // begin(const char* ssid, const char* password, const char* hostname),
-  // which is in MPU_Network.cpp.
+  // Core Lifecycle - All of these functions are in MPU_Core.cpp.
   // ==========================================================================
   /**
    * @brief Constructs a new MiP object.
@@ -178,7 +183,7 @@ class MiP {
    * @param hostname  Hostname for mDNS and OTA (e.g. "MyMiP").
    * @return true if the core UART connection to MiP succeeded.
    */
-  bool begin(const char* ssid, const char* password, const char* hostname);
+  // bool begin(const char* ssid, const char* password, const char* hostname);
 
   /**
    * @brief Cleans up the connection to MiP and shuts down network services.
@@ -816,6 +821,42 @@ class MiP {
    * @param getup Which way to attempt getting up (default = either side).
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
+
+  // ==========================================================================
+  // Network - All of these functions are in MPU_Network.cpp.
+  // ==========================================================================
+  /**
+   * @brief Wraps WiFi.begin().  Connects to a wireless access point and loads
+   * the MPU:D1 mini with OTA programming support.
+   *
+   * @param ssid The station ID.
+   * @param password The access point's connection password.
+   * @param hostname MiP's hostname on the wireless network.
+   * @return true if the connection attempt was successful, else false.
+   */
+  bool wifiBegin(const char* ssid, const char* password, const char* hostname);
+
+  /**
+   * @brief Wraps WiFi.connect(). While attempting to connect, MiP's eyes light
+   * up in a Knight Rider-style back-and-forth animation.
+   * @return WL_CONNECTED if the connection attempt was successful, else it
+   * returns the error code from WiFi.connect().
+   */
+  uint8_t wifiConnect();
+
+  /**
+   * @brief Turns off WiFi and Bluetooth. If MiP is in app mode, which requires
+   * Bluetooth, MiP is switched to its default gesture mode.
+   */
+  void enableAirplaneMode();
+
+  /**
+   * @brief Turns the WiFi radio on and attempts to connect to the last access
+   * point to which MiP was connected.
+   @return WL_CONNECTED if the connection attempt was successful, else it
+   * returns the error code from WiFi.connect().
+   */
+  uint8_t disableAirplaneMode();
 
   // ==========================================================================
   // Odometer - Implemented in MPU_Odometer.cpp.
