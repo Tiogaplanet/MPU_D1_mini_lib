@@ -1,6 +1,7 @@
 /**
  * @file TelnetDebug.ino
- * @brief Example sketch demonstrating telnet-based debug output for MiP on ESP8266.
+ * @brief Example sketch demonstrating telnet-based debug output for MiP on
+ * ESP8266.
  *
  * @details
  * This sketch shows how to initialize a MiP connection over Wi‑Fi on an ESP8266
@@ -17,10 +18,11 @@
  *   - Call ArduinoOTA.handle() in loop() to allow OTA updates.
  *   - Call debug.handle() in loop() to service telnet connections and commands.
  *
- * The example enables the telnet "reset" command via debug.setResetCmdEnabled(true).
+ * The example enables the telnet "reset" command via
+ * debug.setResetCmdEnabled(true).
  *
  * API usage demonstrated:
- *   - MiP::begin(ssid, password, hostname)
+ *   - MiP::wifiBegin(ssid, password, hostname)
  *   - MiPDebug::begin(hostname)
  *   - MiPDebug::setResetCmdEnabled()
  *   - MiPDebug::handle()
@@ -45,14 +47,14 @@
  *
  * @note Replace the placeholder with your network SSID before uploading.
  */
-const char* ssid = "..............";
+const char *ssid = "..............";
 
 /**
  * @brief Wi‑Fi password for the SSID.
  *
  * @note Replace the placeholder with your network password before uploading.
  */
-const char* password = "..............";
+const char *password = "..............";
 
 /**
  * @brief Hostname used for MiP connection and telnet debug service.
@@ -60,7 +62,7 @@ const char* password = "..............";
  * @details This name appears in the network and is used by the telnet debug
  * server to identify the device. Choose a unique hostname for each device.
  */
-const char* hostname = "MiP-Debugger";
+const char *hostname = "MiP-Debugger";
 
 /**
  * @brief Global MiP instance used to initialize and control the robot.
@@ -89,7 +91,8 @@ MiPDebug debug;
 /**
  * @brief Timestamp of the last periodic debug emission.
  *
- * @details Used to implement a non-blocking periodic message emission in loop().
+ * @details Used to implement a non-blocking periodic message emission in
+ * loop().
  */
 long int lastTimeCheck;
 
@@ -114,7 +117,8 @@ bool runOnce = true;
  * @brief Arduino setup function.
  *
  * @details
- * - Attempts to initialize the MiP connection and Wi‑Fi using mip.begin(ssid, password, hostname).
+ * - Attempts to initialize the MiP connection and Wi‑Fi using mip.begin(ssid,
+ * password, hostname).
  * - If the connection fails, prints an error to Serial1 and returns early.
  * - Starts the telnet debug server via debug.begin(hostname).
  * - Enables the telnet reset command with debug.setResetCmdEnabled(true).
@@ -122,18 +126,20 @@ bool runOnce = true;
  * - Initializes lastTimeCheck for the periodic loop behavior.
  */
 void setup() {
-  connectResult = mip.begin(ssid, password, hostname);
-
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("TelnetDebug.ino: Failed connecting to MiP."));
     return;
   }
 
+  mip.wifiBegin(ssid, password, hostname);
+
   // Start telnet debug server and enable the reset command.
   debug.begin(hostname);
   debug.setResetCmdEnabled(true);
 
-  Serial1.println(F("TelnetDebug.ino: Explore the different telnet debug levels."));
+  Serial1.println(
+    F("TelnetDebug.ino: Explore the different telnet debug levels."));
   Serial1.println();
   Serial1.print(F(" IP address: "));
   Serial1.println(WiFi.localIP());
@@ -157,8 +163,9 @@ void setup() {
  * responsive to telnet and OTA events.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
- 
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
+
   // Required for OTA programming to function while the sketch runs.
   ArduinoOTA.handle();
 
@@ -167,8 +174,10 @@ void loop() {
   // Emit example messages periodically so a telnet client can observe them.
   if (now > lastTimeCheck + period) {
     if (runOnce) {
-      // Demonstrate formatted output and that mDebug messages always print to telnet.
-      mDebug("The telnet debug utility is very helpful.  It can selectively print messages of different levels.\n");
+      // Demonstrate formatted output and that mDebug messages always print to
+      // telnet.
+      mDebug("The telnet debug utility is very helpful.  It can selectively "
+             "print messages of different levels.\n");
       mDebug("Messages at the mDebug level always print to telnet.\n");
       mDebug("All debugging messages can use formatted %s.\n", "output");
 
