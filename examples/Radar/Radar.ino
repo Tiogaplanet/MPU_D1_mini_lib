@@ -5,12 +5,12 @@
  * @details This sketch shows how to use the MiP library to enable radar mode,
  * read radar distance categories, and report changes to the user over Serial1.
  * The sketch waits for the robot to be standing upright before enabling radar
- * mode and then continuously polls readRadar() in loop(), printing a human
+ * mode and then continuously polls radar.read() in loop(), printing a human
  * readable description whenever the radar reading changes.
  *
  * The example exercises these API calls:
  *   - radar.enable()
- *   - isUpright()
+ *   - position.isUpright()
  *   - radar.read()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
@@ -26,7 +26,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * radar.enable(), isUpright(), and radar.read().
+ * radar.enable(), position.isUpright(), and radar.read().
  */
 MiP mip;
 
@@ -45,7 +45,7 @@ bool connectResult;
  * If the connection fails, an error message is printed to Serial1 and setup
  * returns early. The function waits until the robot reports it is upright,
  * then enables radar mode so the robot will begin reporting radar distance
- * categories via readRadar().
+ * categories via radar.read().
  */
 void setup() {
   connectResult = mip.begin();
@@ -57,7 +57,7 @@ void setup() {
   Serial1.println(F("Radar.ino: Display current radar readings to user."));
 
   Serial1.println(F(" Waiting for robot to be standing upright."));
-  while (!mip.isUpright()) {
+  while (!mip.position.isUpright()) {
     // Busy-wait until MiP reports upright; required before enabling radar.
   }
 
@@ -68,7 +68,7 @@ void setup() {
 /**
  * @brief Arduino loop function.
  *
- * @details Continuously polls the MiP radar using readRadar(). When a valid
+ * @details Continuously polls the MiP radar using radar.read(). When a valid
  * radar reading is returned and it differs from the previous reading, the
  * sketch prints a human-readable description of the detected distance range
  * to Serial1. The switch statement maps MiPRadar enum values to strings:
