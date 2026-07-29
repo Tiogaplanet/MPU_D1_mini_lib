@@ -14,18 +14,18 @@
  *
  * The example exercises these API calls:
  *   - begin()
- *   - writeVolume()
- *   - enableRadarMode()
- *   - disableRadarMode()
- *   - enableClapEvents()
- *   - availableClapEvents()
- *   - writeHeadLEDs()
- *   - writeChestLED()
- *   - beginSoundList(), addEntryToSoundList(), playSoundList()
- *   - continuousDrive(), turnLeft(), turnRight()
- *   - isUpright(), end()
+ *   - sound.writeVolume()
+ *   - sound.enableRadarMode()
+ *   - radar.disableMode()
+ *   - clap.enableEvents()
+ *   - clap.availableEvents()
+ *   - headLEDs.write()
+ *   - chestLED.write()
+ *   - sound.beginList(), sound.addEntryToList(), sound.playList()
+ *   - motion.continuousDrive(), motion.turnLeft(), motion.turnRight()
+ *   - position.isUpright(), end()
  *
- * @copyright Copyright (C) 2019 Samuel Trassare (https://github.com/Tiogaplanet)
+ * @copyright Copyright (C) 2026 Samuel Trassare (https://github.com/Tiogaplanet)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -105,13 +105,13 @@ void setup() {
   }
 
   // Start quietly.
-  mip.writeVolume(0);
+  mip.sound.writeVolume(0);
 
   // Seed random with current time for varied evasions and spins.
   randomSeed(millis());
 
   // Enable radar-based obstacle detection.
-  mip.enableRadarMode();
+  mip.radar.enableMode();
 }
 
 /**
@@ -127,38 +127,38 @@ void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
   
   // While upright, wander and react to radar.
-  while (mip.isUpright()) {
+  while (mip.position.isUpright()) {
     // Drive forward continuously at moderate speed.
-    mip.continuousDrive(16, 0);
+    mip.motion.continuousDrive(16, 0);
 
     static MiPRadar lastRadar = MIP_RADAR_INVALID;
-    MiPRadar        currentRadar = mip.readRadar();
+    MiPRadar        currentRadar = mip.radar.read();
 
     unsigned long currentMillis = millis();
 
     // Only react when radar reading changes and is valid.
-    if (currentRadar != MIP_RADAR_INVALID && lastRadar != currentRadar)
+    if (currentRadar != MiP_Radar::MIP_RADAR_INVALID && lastRadar != currentRadar)
     {
       switch (currentRadar)
       {
-        case MIP_RADAR_NONE:
+        case MiP_Radar::MIP_RADAR_NONE:
           // No obstruction detected; continue happily.
           break;
 
-        case MIP_RADAR_10CM_30CM:
+        case MiP_Radar::MIP_RADAR_10CM_30CM:
           // Distant obstruction: perform an evasive maneuver and continue.
           randomEvasion();
-          mip.continuousDrive(16, 0);
+          mip.motion.continuousDrive(16, 0);
           break;
 
-        case MIP_RADAR_0CM_10CM:
+        case MiP_Radar::MIP_RADAR_0CM_10CM:
           // Near obstruction: reset cooldown clock and increase frustration.
           previousMillis = currentMillis;
           frustrationLevel++;
           // If not yet at threshold, perform a quick evasion and continue.
           if (frustrationLevel != frustrationThreshold) {
             randomEvasion();
-            mip.continuousDrive(16, 0);
+            mip.motion.continuousDrive(16, 0);
           }
           break;
 
@@ -182,18 +182,18 @@ void loop() {
   }
 
   // If tipped over, relinquish control back to factory behavior on clap.
-  while (!mip.isUpright()) {
-    mip.disableRadarMode();
-    mip.enableClapEvents();
-    if (mip.availableClapEvents() > 0) {
+  while (!mip.position.isUpright()) {
+    mip.radar.disableMode();
+    mip.clap.enableEvents();
+    if (mip.clap.availableEvents() > 0) {
       // Turn off head LEDs and end this sketch so factory code resumes.
-      mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       mip.end();
     }
   }
 
   // Re-enable radar mode when upright again.
-  mip.enableRadarMode();
+  mip.radar.enableMode();
 }
 
 /**
@@ -212,42 +212,42 @@ void frustration() {
   // Set the chest LED to red to indicate anger.
   red = 0xFF;
   green = 0x00;
-  mip.writeChestLED(red, green, blue);
+  mip.chestLED.write(red, green, blue);
 
   // Make an angry noise sequence.
-  mip.beginSoundList();
-  mip.addEntryToSoundList(MIP_SOUND_VOLUME_4, 0);
-  mip.addEntryToSoundList(MIP_SOUND_MOOD_ANGRY, 1000);
-  mip.addEntryToSoundList(MIP_SOUND_VOLUME_OFF, 0);
-  mip.playSoundList(0);
+  mip.sound.beginList();
+  mip.sound.addEntryToList(MIP_SOUND_VOLUME_4, 0);
+  mip.sound.addEntryToList(MIP_SOUND_MOOD_ANGRY, 1000);
+  mip.sound.addEntryToList(MIP_SOUND_VOLUME_OFF, 0);
+  mip.sound.playList(0);
 
   // Flash the eyes angrily: two fast blinks and two slow blinks.
   MiPHeadLEDs headLEDs;
   headLEDs.led2 = headLEDs.led3 = MIP_HEAD_LED_BLINK_FAST;
   headLEDs.led1 = headLEDs.led4 = MIP_HEAD_LED_BLINK_SLOW;
-  mip.writeHeadLEDs(headLEDs);
+  mip.headLEDs.write(headLEDs);
 
   // Do three spins, each in a random direction for a random number of degrees.
   for (uint8_t i = 0; i < 3; i++) {
-    (random(0, 2)) ? mip.turnLeft(random(0, 1276), 24) : mip.turnRight(random(0, 1276), 24);
+    (random(0, 2)) ? mip.motion.turnLeft(random(0, 1276), 24) : mip.motion.turnRight(random(0, 1276), 24);
     delay(1500); // allow spin to complete
   }
 
   // Restore the eyes to steady-on.
   headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 = MIP_HEAD_LED_ON;
-  mip.writeHeadLEDs(headLEDs);
+  mip.headLEDs.write(headLEDs);
 
   // Play an "out of breath" / exhaustion sound.
-  mip.beginSoundList();
-  mip.addEntryToSoundList(MIP_SOUND_VOLUME_4, 0);
-  mip.addEntryToSoundList(MIP_SOUND_ACTION_OUT_OF_BREATH, 0);
-  mip.addEntryToSoundList(MIP_SOUND_VOLUME_OFF, 0);
-  mip.playSoundList(0);
+  mip.sound.beginList();
+  mip.sound.addEntryToList(MIP_SOUND_VOLUME_4, 0);
+  mip.sound.addEntryToList(MIP_SOUND_ACTION_OUT_OF_BREATH, 0);
+  mip.sound.addEntryToList(MIP_SOUND_VOLUME_OFF, 0);
+  mip.sound.playList(0);
 
   // Set the chest LED back to green to indicate recovery.
   red = 0x00;
   green = 0xFF;
-  mip.writeChestLED(red, green, blue);
+  mip.chestLED.write(red, green, blue);
 }
 
 /**
@@ -258,6 +258,6 @@ void frustration() {
  */
 void randomEvasion() {
   // Randomly turn left or right to avoid obstruction.
-  (random(0, 2) == 0) ? mip.turnLeft(90, 12) : mip.turnRight(90, 12);
+  (random(0, 2) == 0) ? mip.motion.turnLeft(90, 12) : mip.motion.turnRight(90, 12);
   delay(500);
 }
