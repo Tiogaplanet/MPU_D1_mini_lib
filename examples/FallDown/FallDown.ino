@@ -3,15 +3,15 @@
  * @brief Example sketch demonstrating MiP fall forward and backward actions.
  *
  * @details This sketch demonstrates how to use the MiP library to command the
- * robot to intentionally fall forward and backward using the fallForward()
- * and fallBackward() APIs. The sketch first waits for the robot to be
- * standing upright (isUpright()) before issuing each fall command and prints
+ * robot to intentionally fall forward and backward using the motion.fallForward()
+ * and motion.fallBackward() APIs. The sketch first waits for the robot to be
+ * standing upright (position.isUpright()) before issuing each fall command and prints
  * status messages to Serial1 so the sequence can be observed.
  *
  * The example exercises these API calls:
- *   - fallForward()
- *   - fallBackward()
- *   - isUpright()
+ *   - motion.fallForward()
+ *   - motion.fallBackward()
+ *   - position.isUpright()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * isUpright(), fallForward(), and fallBackward().
+ * position.isUpright(), motion.fallForward(), and motion.fallBackward().
  */
 MiP mip;
 
@@ -36,11 +36,11 @@ MiP mip;
  * @details Initializes communication with the MiP robot by calling mip.begin().
  * If the connection fails, an error message is printed to Serial1 and setup
  * returns early. On success, the function:
- *   - Waits until the robot reports it is upright using isUpright().
+ *   - Waits until the robot reports it is upright using position.isUpright().
  *   - Pauses briefly to ensure stability.
- *   - Commands the robot to fall forward with fallForward().
+ *   - Commands the robot to fall forward with motion.fallForward().
  *   - Waits again for the robot to become upright, then commands a fall
- *     backward with fallBackward().
+ *     backward with motion.fallBackward().
  *
  * The function prints progress and status messages to Serial1 to make the
  * demonstration easy to follow.
@@ -54,24 +54,24 @@ void setup() {
 
   Serial1.println(F("FallDown.ino: Fall forward and backward.\n"));
 
-  Serial1.println(F(" Waiting for robot to be standing upright."));
-  while (!mip.isUpright()) {
+  Serial1.println(F(" Waiting for MiP to be standing upright."));
+  while (!mip.position.isUpright()) {
     // Waiting for the robot to report upright state.
   }
   delay(1000);
 
   Serial1.println(F(" Falling forward."));
-  mip.fallForward();
+  mip.motion.fallForward();
 
   delay(1000);
   Serial1.println(F(" Waiting for robot to be standing upright again."));
-  while (!mip.isUpright()) {
+  while (!mip.position.isUpright()) {
     // Waiting for the robot to report upright state after falling.
   }
   delay(1000);
 
   Serial1.println(F(" Falling backward."));
-  mip.fallBackward();
+  mip.position.fallBackward();
 
   Serial1.println();
   Serial1.println(F("FallDown.ino: Done."));
