@@ -15,8 +15,8 @@
  * The example exercises these API calls:
  *   - begin()
  *   - sound.writeVolume()
- *   - sound.enableRadarMode()
- *   - radar.disableMode()
+ *   - radar.enable()
+ *   - radar.disable()
  *   - clap.enableEvents()
  *   - clap.availableEvents()
  *   - headLEDs.write()
@@ -98,8 +98,7 @@ bool connectResult;
 void setup() {
   // Initialize the serial connection with the MiP.
   connectResult = mip.begin();
-  if (!connectResult)
-  {
+  if (!connectResult) {
     Serial.println(F("Frustration.ino: Failed connecting to MiP.  Is it turned on?"));
     return;
   }
@@ -111,7 +110,7 @@ void setup() {
   randomSeed(millis());
 
   // Enable radar-based obstacle detection.
-  mip.radar.enableMode();
+  mip.radar.enable();
 }
 
 /**
@@ -125,33 +124,31 @@ void setup() {
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-  
+
   // While upright, wander and react to radar.
   while (mip.position.isUpright()) {
     // Drive forward continuously at moderate speed.
     mip.motion.continuousDrive(16, 0);
 
     static MiPRadar lastRadar = MIP_RADAR_INVALID;
-    MiPRadar        currentRadar = mip.radar.read();
+    MiPRadar currentRadar = mip.radar.read();
 
     unsigned long currentMillis = millis();
 
     // Only react when radar reading changes and is valid.
-    if (currentRadar != MiP_Radar::MIP_RADAR_INVALID && lastRadar != currentRadar)
-    {
-      switch (currentRadar)
-      {
-        case MiP_Radar::MIP_RADAR_NONE:
+    if (currentRadar != MiPRadar::MIP_RADAR_INVALID && lastRadar != currentRadar) {
+      switch (currentRadar) {
+        case MiPRadar::MIP_RADAR_NONE:
           // No obstruction detected; continue happily.
           break;
 
-        case MiP_Radar::MIP_RADAR_10CM_30CM:
+        case MiPRadar::MIP_RADAR_10CM_30CM:
           // Distant obstruction: perform an evasive maneuver and continue.
           randomEvasion();
           mip.motion.continuousDrive(16, 0);
           break;
 
-        case MiP_Radar::MIP_RADAR_0CM_10CM:
+        case MiPRadar::MIP_RADAR_0CM_10CM:
           // Near obstruction: reset cooldown clock and increase frustration.
           previousMillis = currentMillis;
           frustrationLevel++;
@@ -183,7 +180,7 @@ void loop() {
 
   // If tipped over, relinquish control back to factory behavior on clap.
   while (!mip.position.isUpright()) {
-    mip.radar.disableMode();
+    mip.radar.disable();
     mip.clap.enableEvents();
     if (mip.clap.availableEvents() > 0) {
       // Turn off head LEDs and end this sketch so factory code resumes.
@@ -193,7 +190,7 @@ void loop() {
   }
 
   // Re-enable radar mode when upright again.
-  mip.radar.enableMode();
+  mip.radar.enable();
 }
 
 /**
@@ -230,7 +227,7 @@ void frustration() {
   // Do three spins, each in a random direction for a random number of degrees.
   for (uint8_t i = 0; i < 3; i++) {
     (random(0, 2)) ? mip.motion.turnLeft(random(0, 1276), 24) : mip.motion.turnRight(random(0, 1276), 24);
-    delay(1500); // allow spin to complete
+    delay(1500);  // allow spin to complete
   }
 
   // Restore the eyes to steady-on.
