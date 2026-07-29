@@ -71,7 +71,7 @@ void setup() {
   delay(1000);
 
   Serial1.println(F(" Falling backward."));
-  mip.position.fallBackward();
+  mip.motion.fallBackward();
 
   Serial1.println();
   Serial1.println(F("FallDown.ino: Done."));
