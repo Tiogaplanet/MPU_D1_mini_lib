@@ -4,7 +4,7 @@
  *
  * @details
  * This sketch is a LittleFS-based rewrite of the original SPIFFS example.
- * It mounts the LittleFS filesystem, writes a short password to a temporary
+ * It mounts the LittleFS filesystem onboard the D1 mini, writes a short password to a temporary
  * file, reads it back, compares the contents, and indicates success or
  * failure using the MiP chest LED:
  *   - Violet when the read matches the written password.
@@ -19,8 +19,8 @@
  *   - Prints clear diagnostic messages to Serial1.
  *
  * Demonstrates these APIs:
- *   - MiP::begin()
- *   - MiP::writeChestLED()
+ *   - begin()
+ *   - chestLED.write()
  *   - LittleFS.begin(), LittleFS.open(), LittleFS.remove()
  *
  * Notes:
@@ -82,7 +82,7 @@ void setup() {
   if (!LittleFS.begin()) {
     Serial1.println(F("LittleFS.ino: LittleFS failed to mount."));
     // Indicate error on chest LED (red) and stop.
-    mip.writeChestLED(0xFF, 0x00, 0x00);
+    mip.chestLED.write(0xFF, 0x00, 0x00);
     while (true) {
       delay(1000);
     }
@@ -108,7 +108,7 @@ void setup() {
     if (!f) {
       Serial1.println(F("LittleFS.ino: Failed to open /f.txt for reading."));
       // Indicate error on chest LED (red).
-      mip.writeChestLED(0xFF, 0x00, 0x00);
+      mip.chestLED.write(0xFF, 0x00, 0x00);
     } else {
       // Read the first line (file contains one line in this example).
       line = f.readStringUntil('\n');
@@ -123,11 +123,11 @@ void setup() {
 
       if (line == password) {
         // Violet: R=0xB6, G=0x00, B=0xFF
-        mip.writeChestLED(0xB6, 0x00, 0xFF);
+        mip.chestLED.write(0xB6, 0x00, 0xFF);
         Serial1.println(F(" LittleFS.ino: Read matches write. Chest set to violet."));
       } else {
         // Red: R=0xFF, G=0x00, B=0x00
-        mip.writeChestLED(0xFF, 0x00, 0x00);
+        mip.chestLED.write(0xFF, 0x00, 0x00);
         Serial1.println(F(" LittleFS.ino: Read does NOT match write. Chest set to red."));
       }
     }
@@ -142,7 +142,7 @@ void setup() {
 
   // Allow the user to observe the chest LED color, then restore to green.
   delay(5000);
-  mip.writeChestLED(0x00, 0xFF, 0x00);
+  mip.chestLED.write(0x00, 0xFF, 0x00);
   Serial1.println(F("LittleFS.ino: Done."));
 }
 
