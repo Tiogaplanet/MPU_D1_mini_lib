@@ -94,7 +94,7 @@ void setup() {
   /* Enable detection mode with configured ID and IR transmit power. */
   mip.infrared.enableMiPDetectionMode(MIP_ID_NO, MIP_IR_TX_POWER);
 
-  if (mip.isMiPDetectionModeEnabled()) {
+  if (mip.infrared.isMiPDetectionModeEnabled()) {
     Serial1.println(F(" Now I can be discovered."));
   }
 }
