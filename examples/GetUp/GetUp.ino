@@ -7,11 +7,12 @@
  * The sequence performed in setup() is:
  *   - Initialize communication with the MiP robot.
  *   - Command the robot to fall forward.
- *   - Attempt to get up from the front using getUp(MIP_GETUP_FROM_FRONT).
- * The sketch prints status messages to Serial1 so the user can observe the
- * sequence. The example exercises the following API calls:
- *   - fallForward()
- *   - getUp()
+ *   - Attempt to get up from the front using
+ * motion.getUp(MIP_GETUP_FROM_FRONT). The sketch prints status messages to
+ * Serial1 so the user can observe the sequence. The example exercises the
+ * following API calls:
+ *   - motion.fallForward()
+ *   - motion.getUp()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,15 +52,16 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("GetUp.ino: Use getUp(). Attempt to get up from a front fall."));
+  Serial1.println(
+    F("GetUp.ino: Use getUp(). Attempt to get up from a front fall."));
   Serial1.println(F("GetUp.ino: (This one never works!)"));
 
   /* Command the robot to fall forward. */
-  mip.fallForward();
+  mip.motion.fallForward();
   delay(3000);
 
   /* Attempt to get up from the front. */
-  mip.getUp(MIP_GETUP_FROM_FRONT);
+  mip.motion.getUp(MIP_GETUP_FROM_FRONT);
   delay(3000);
 
   Serial1.println();
@@ -73,5 +75,4 @@ void setup() {
  * repeated work in loop(). The function is intentionally left empty so the
  * demonstration runs only once during initialization.
  */
-void loop() {
-}
+void loop() {}

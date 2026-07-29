@@ -138,6 +138,7 @@ uint8_t MiP_Wifi::connect() {
     });
 
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+		(void)progress;
       if (total == 0)
         return;
       MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
