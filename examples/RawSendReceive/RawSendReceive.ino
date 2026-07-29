@@ -2,16 +2,16 @@
  * @file RawSendReceive.ino
  * @brief Example sketch demonstrating MiP raw send/receive operations.
  *
- * @details This sketch shows how to use the MiP library's rawSend() and
- * rawReceive() APIs to transmit and receive low-level MiP command packets.
- * The example sends a 4-byte command to set the chest LED to purple and then
- * requests the MiP firmware revision using a raw receive command. If a valid
- * firmware response is returned, the sketch prints a human-readable software
- * version string to Serial1.
+ * @details This sketch shows how to use the MiP library's serial.rawSend() and
+ * serial.rawReceive() APIs to transmit and receive low-level MiP command
+ * packets. The example sends a 4-byte command to set the chest LED to purple
+ * and then requests the MiP firmware revision using a raw receive command. If a
+ * valid firmware response is returned, the sketch prints a human-readable
+ * software version string to Serial1.
  *
  * The example exercises these API calls:
- *   - rawSend()
- *   - rawReceive()
+ *   - serial.rawSend()
+ *   - serial.rawReceive()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +19,14 @@
  * You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
- 
+
 #include <MPU_D1_mini.h>
 
 /**
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * rawSend(), and rawReceive().
+ * serial.rawSend(), and serial.rawReceive().
  */
 MiP mip;
 
@@ -50,7 +50,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("RawSendReceive.ino: Use raw*() functions. Should set chest LED to purple and display MiP firmware revision."));
+  Serial1.println(F("RawSendReceive.ino: Use raw*() functions. Should set "
+                    "chest LED to purple and display MiP firmware revision."));
 
   /* Send 4-byte MiP command to set Chest LED to Purple.
    * The command bytes are device-specific; here we send the raw packet
@@ -58,18 +59,19 @@ void setup() {
    * terminating NUL from the string literal.
    */
   uint8_t setChestPurple[] = "\x84\xFF\x01\xFF";
-  mip.rawSend(setChestPurple, sizeof(setChestPurple) - 1);
+  mip.serial.rawSend(setChestPurple, sizeof(setChestPurple) - 1);
 
   /* Request the MiP firmware revision information and display it.
-   * Prepare a small receive buffer and call rawReceive() with the request
-   * packet. On success, validate the response length and expected command
-   * byte before printing a formatted version string.
+   * Prepare a small receive buffer and call serial.rawReceive() with the
+   * request packet. On success, validate the response length and expected
+   * command byte before printing a formatted version string.
    */
   uint8_t getMiPSoftwareVersion[] = "\x14";
   size_t responseLength = 0;
   uint8_t response[5];
-  int result = mip.rawReceive(getMiPSoftwareVersion, sizeof(getMiPSoftwareVersion) - 1,
-                              response, sizeof(response), responseLength);
+  int result = mip.serial.rawReceive(
+    getMiPSoftwareVersion, sizeof(getMiPSoftwareVersion) - 1, response,
+    sizeof(response), responseLength);
 
   /* Check for a successful rawReceive and expected response format:
    *   response[0] == 0x14 indicates a firmware version reply.
@@ -99,5 +101,4 @@ void setup() {
  * repeated work in loop(). The function is intentionally left empty so the
  * demonstration runs once during initialization and then remains idle.
  */
-void loop() {
-}
+void loop() {}

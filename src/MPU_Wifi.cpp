@@ -48,8 +48,9 @@ uint8_t MiP_Wifi::begin(const char* ssid,
 }
 
 void MiP_Wifi::enableAirplaneMode() {
-  WiFi.disconnect();    // Disconnect from current network.
-  WiFi.mode(WIFI_OFF);  // Turn off WiFi radio.
+  WiFi.disconnect();       // Disconnect from current network.
+  WiFi.mode(WIFI_OFF);     // Turn off WiFi radio.
+  WiFi.forceSleepBegin();  // Put the WiFi modem to sleep
 
   // App mode broadcasts BLE.  If MiP is currently in app mode, switch to
   // the default, power-on gesture mode.
@@ -58,7 +59,7 @@ void MiP_Wifi::enableAirplaneMode() {
 }
 
 uint8_t MiP_Wifi::disableAirplaneMode() {
-  WiFi.mode(WIFI_STA);  // or WIFI_AP, WIFI_AP_STA
+  WiFi.mode(WIFI_STA);
   return connect();
 }
 
@@ -138,7 +139,7 @@ uint8_t MiP_Wifi::connect() {
     });
 
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-		(void)progress;
+      (void)progress;
       if (total == 0)
         return;
       MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
