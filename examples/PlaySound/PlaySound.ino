@@ -4,16 +4,16 @@
  *
  * @details This sketch shows how to use the MiP library to play single sounds
  * and to build and play sound lists (sequences). It demonstrates playing a
- * single sound with playSound(), creating a sound list with beginSoundList()
- * and addEntryToSoundList(), and playing the list with playSoundList(). The
+ * single sound with sound.play(), creating a sound list with sound.beginList()
+ * and sound.addEntryToList(), and playing the list with sound.playList(). The
  * example plays a single "drinking" sound, then constructs a two-entry sound
- * list (eating then burping) with different volumes and repeats the list.
+ * list (eating, then burping) with different volumes and repeats the list.
  *
  * The example exercises these API calls:
- *   - playSound()
- *   - beginSoundList()
- *   - addEntryToSoundList()
- *   - playSoundList()
+ *   - sound.play()
+ *   - sound.beginList()
+ *   - sound.addEntryToList()
+ *   - sound.playList()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,8 @@
  * @brief Global MiP instance used to control the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * playSound(), beginSoundList(), addEntryToSoundList(), and playSoundList().
+ * sound.play(), sound.beginList(), sound.addEntryToList(), and
+ * sound.playList().
  */
 MiP mip;
 
@@ -40,7 +41,8 @@ MiP mip;
  * returns early. On success, the sketch demonstrates:
  *   - Playing a single sound with playSound().
  *   - Building a sound list using beginSoundList() and addEntryToSoundList().
- *   - Playing the sound list with playSoundList() and repeating it after a delay.
+ *   - Playing the sound list with playSoundList() and repeating it after a
+ * delay.
  *
  * The example uses delays to allow sounds and sound lists to complete before
  * proceeding to the next action.
@@ -55,23 +57,22 @@ void setup() {
   Serial1.println(F("PlaySound.ino: Play a few sounds."));
 
   // Play a single sound (drinking) at volume level 4.
-  mip.playSound(MIP_SOUND_ACTION_DRINKING, MIP_VOLUME_4);
+  mip.sound.play(MIP_SOUND_ACTION_DRINKING, MIP_VOLUME_4);
   delay(3000);  // Allow the single sound to play.
 
   // Build a sound list: two entries with a 1 second gap between them,
   // then play the list once and repeat it later.
-  mip.beginSoundList();
-  // addEntryToSoundList(sound, delayMs, volume)
+  mip.sound.beginList();
   // First entry: eating, 1000 ms delay before next entry, volume 4.
-  mip.addEntryToSoundList(MIP_SOUND_ACTION_EATING, 1000, MIP_VOLUME_4);
+  mip.sound.addEntryToList(MIP_SOUND_ACTION_EATING, 1000, MIP_VOLUME_4);
   // Second entry: burping, no delay after, louder volume 7.
-  mip.addEntryToSoundList(MIP_SOUND_ACTION_BURPING, 0, MIP_VOLUME_7);
+  mip.sound.addEntryToList(MIP_SOUND_ACTION_BURPING, 0, MIP_VOLUME_7);
   // Play the constructed list once (repeat count = 1).
-  mip.playSoundList(1);
+  mip.sound.playList(1);
 
   // Wait long enough for the list to finish, then play it again.
   delay(10000);
-  mip.playSoundList();
+  mip.sound.playList();
 
   Serial1.println();
   Serial1.println(F("PlaySound.ino: Done."));
@@ -84,5 +85,4 @@ void setup() {
  * repeated work in loop(). The function is intentionally left empty so the
  * demonstration runs only once during initialization.
  */
-void loop() {
-}
+void loop() {}

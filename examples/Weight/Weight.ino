@@ -1,19 +1,21 @@
 /**
  * @file Weight.ino
  * @brief Example sketch that reads and reports the MiP weight sensor.
+
  *
  * @details
  * This sketch demonstrates how to query the MiP weight sensor and print
  * changes to Serial1. It repeatedly reads the device weight using
- * readWeight() and prints the value only when it changes to avoid spamming
- * the serial output. This is useful for monitoring payload changes or
- * detecting when the robot is picked up or placed down.
+ * weight.read() and prints the value only when it changes to avoid spamming
+ * the serial output. This is useful for monitoring payload changes on MiP's
+ * tray or detecting when the robot is picked up or placed down.
  *
  * Demonstrated API:
- *   - readWeight()
+ *   - weight.read()
  *
  * Usage notes:
  *   - Ensure the MiP is powered and connected before running this sketch.
+ *   - MiP must be standing upright, not propped on the kickstand.
  *   - Open Serial1 to observe printed weight updates.
  *
  * @author Adam Green (https://github.com/adamgreen)
@@ -37,7 +39,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin() and
- * readWeight(). Keeping the instance at file scope makes it available in
+ * weight.read(). Keeping the instance at file scope makes it available in
  * both setup() and loop().
  */
 MiP mip;
@@ -76,7 +78,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("Weight.ino: Use weight update functions."));
+  Serial1.println(
+    F("Weight.ino: Read MiP's weight with different objects on the tray."));
 }
 
 /**
@@ -91,9 +94,10 @@ void setup() {
  * flooding the serial output with repeated identical values.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
- 
-  int8_t currentWeight = mip.readWeight();
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
+
+  int8_t currentWeight = mip.weight.read();
 
   if (currentWeight != lastWeight) {
     Serial1.print(F(" Weight = "));

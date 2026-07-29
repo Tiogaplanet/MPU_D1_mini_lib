@@ -17,8 +17,10 @@
  * @brief A library to interface the WeMos D1 mini and clones to the
  * WowWee MiP robot.
  *
- * This file contains the function declarations and global defines
- * available for the end-user to add custom capability to MiP.
+ * This file contains the constructor and destructor for the overall MiP object
+ * and declarations for all of the subcomponents available to the user for
+ * interacting with MiP.  Also provided are some defines for setting debugging
+ * levels for the programmer.
  *
  * @author Samuel Trassare, Adam Green
  * @date 2026-07-18
@@ -36,10 +38,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "MPU_Battery.h"
+#include "MPU_ChestLED.h"
+#include "MPU_Clap.h"
+#include "MPU_EEPROM.h"
+#include "MPU_Gesture.h"
+#include "MPU_HeadLEDs.h"
+#include "MPU_Infrared.h"
+#include "MPU_Mode.h"
+#include "MPU_Motion.h"
+#include "MPU_Odometer.h"
+#include "MPU_Position.h"
 #include "MPU_Queue.h"
-#include "MPU_Types.h"
-
-// --- Preprocessor Directives for Debugging (Must Remain #defines) ---
+#include "MPU_Radar.h"
+#include "MPU_Serial.h"
+#include "MPU_Shake.h"
+#include "MPU_Sound.h"
+#include "MPU_Version.h"
+#include "MPU_Weight.h"
+#include "MPU_Wifi.h"
 
 // Setup some debug levels for reporting library status via Serial1.
 #define MIP_DEBUG_NONE 0
@@ -101,9 +118,23 @@
 
 // Define an assert mechanism that can be used to log and halt when the user is
 // found to be calling the API incorrectly.
-#define MIP_ASSERT(EXPRESSION) \
-  if (!(EXPRESSION))           \
-    mipAssert(__LINE__);
+#define MIP_ASSERT(EXPRESSION) mipAssert((EXPRESSION), __LINE__, __FILE__)
+
+/**
+ * @brief MiP's current position and battery voltage.
+ */
+class MiPStatus {
+ public:
+  MiPStatus() {
+    clear();
+  }
+  void clear() {
+    battery = 0.0f;
+    position = MIP_POSITION_ON_BACK_WITH_KICKSTAND;
+  }
+  float battery;
+  MiPPosition position;
+};
 
 /**
  * @mainpage MiP Power Up: D1 mini library
@@ -113,12 +144,16 @@
  */
 class MiP {
  public:
-  // --- Type-Safe Compile-Time Constants (Replaced #defines) ---
-
-  // EEPROM base address.
-  static constexpr uint8_t BASE_EEPROM_ADDRESS = 0x20;
-  // Last addressable address in EEPROM.
-  static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
+  // MiP Protocol Commands related to core functions.
+  // These command codes are placed in the first byte of requests sent to the
+  // MiP and responses sent back from the MiP. See
+  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
+  // for the complete list.
+  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;
+  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;
+  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
+  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
+  static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
 
   // Integer error codes that can be encountered by MiP API functions.
   static constexpr uint8_t MIP_ERROR_NONE = 0;  // Success
@@ -132,35 +167,9 @@ class MiP {
       4;  // Exceeded maximum number of retries to get this operation to
           // succeed.
 
-  // Maximum length of MiP request and response buffer lengths.
-  static constexpr size_t MIP_REQUEST_MAX_LEN =
-      17 + 1;  // Longest request is MIP_CMD_PLAY_SOUND.
-  static constexpr size_t MIP_RESPONSE_MAX_LEN =
-      5 + 1;  // Longest response is MIP_CMD_REQUEST_CHEST_LED.
-
-  // Maximum number of retries for verified operations (clap, chest LED, etc.).
-  static constexpr uint8_t MIP_MAX_RETRIES = 2;
-
-  // Milliseconds to wait between retries.
-  static constexpr uint16_t MIP_RETRY_WAIT = 50;
-
-  // ==========================================================================
-  // Core Lifecycle - All of these functions are in MPU_Core.cpp.
-  // ==========================================================================
-  /**
-   * @brief Constructs a new MiP object.
-   *
-   * Initializes internal state but does not connect to the robot yet.
-   * Call `begin()` to establish communication.
-   */
+  // Core lifecycle functions.
   MiP();
 
-  /**
-   * @brief Destroys the MiP object and cleans up resources.
-   *
-   * Automatically calls `end()` to disconnect from the robot and shut down
-   * network services (WiFi, OTA, mDNS).
-   */
   ~MiP();
 
   /**
@@ -172,19 +181,6 @@ class MiP {
    * @return true if successfully connected to MiP, false otherwise.
    */
   bool begin();
-
-  /**
-   * @brief Initializes connection to MiP + WiFi, mDNS, and ArduinoOTA.
-   *
-   * This overloaded version sets up the ESP8266 WiFi connection, starts
-   * Over-The-Air update server, and configures mDNS responder.
-   *
-   * @param ssid      WiFi network name.
-   * @param password  WiFi password.
-   * @param hostname  Hostname for mDNS and OTA (e.g. "MyMiP").
-   * @return true if the core UART connection to MiP succeeded.
-   */
-  // bool begin(const char* ssid, const char* password, const char* hostname);
 
   /**
    * @brief Cleans up the connection to MiP and shuts down network services.
@@ -221,7 +217,7 @@ class MiP {
   bool isInitialized();
 
   // ==========================================================================
-  // Error Handling - Implemented in MPU_Core.cpp.
+  // Error Handling
   // ==========================================================================
   /**
    * @brief Retrieves the error code from the most recently executed MiP API
@@ -247,996 +243,114 @@ class MiP {
   bool didLastCallFail();
 
   /**
+   * @brief Central dispatcher for all Out-of-Band events from the transport
+   * layer.
+   *
+   * This method receives raw event data and routes it to the appropriate
+   * subsystem component (Clap, Gesture, Status, etc.).
+   */
+  void dispatchEvent(uint8_t command, const uint8_t* payload, size_t);
+
+  /**
    * @brief Prints a human-readable description of the last error to the debug
    *        channel (Serial1).
    */
   void printLastCallResult();
 
-  // ==========================================================================
-  // Battery - Implemented in MPU_Battery.cpp.
-  // ==========================================================================
-  /**
-   * @brief Reads the current battery voltage of the MiP robot (cached value).
-   *
-   * This function processes any pending Out-Of-Band status events to keep the
-   * cache up to date. It does not transmit a new request.
-   *
-   * @return Battery voltage, typically 4.0V (low) to 6.4V (fully charged).
-   */
-  float readBatteryVoltage();
+  // See MPU_Battery.h for interfacing with the battery.
+  MiP_Battery battery;
 
-  // ==========================================================================
-  // Chest LED - Implemented in MPU_ChestLED.cpp.
-  // ==========================================================================
+  // See MPU_ChestLED.h for interfacing with the chest LED.
+  MiP_ChestLED chestLED;
 
-  /**
-   * @brief Reads the current RGB state and flash timings of the chest LED.
-   * * @param chestLED A reference to a MiPChestLED object where the retrieved
-   * data will be stored.
-   */
-  void readChestLED(MiPChestLED& chestLED);
+  // See MPU_Clap.h for interfacing with the clap detection system.
+  MiP_Clap clap;
 
-  /**
-   * @brief Sets the chest LED to a solid RGB color and verifies the change.
-   * * Sends the set command and immediately reads the state back from the MiP
-   * to ensure the color was successfully updated. Retries upon failure.
-   * * @param red   Intensity for the red channel (0-255).
-   * @param green Intensity for the green channel (0-255).
-   * @param blue  Intensity for the blue channel (0-255). Note: MiP truncates
-   * the lower 2 bits.
-   */
-  void writeChestLED(uint8_t red, uint8_t green, uint8_t blue);
+  // See MPU_EEPROM.h for reading from and writing to MiP's EEPROM.
+  MiP_EEPROM eeprom;
 
-  /**
-   * @brief Sets the chest LED to flash an RGB color at a specific interval and
-   * verifies the change.
-   * * @param red     Intensity for the red channel (0-255).
-   * @param green   Intensity for the green channel (0-255).
-   * @param blue    Intensity for the blue channel (0-255).
-   * @param onTime  Time in milliseconds the LED stays on. (Converted internally
-   * to 20ms ticks).
-   * @param offTime Time in milliseconds the LED stays off. (Converted
-   * internally to 20ms ticks).
-   */
-  void writeChestLED(uint8_t red,
-                     uint8_t green,
-                     uint8_t blue,
-                     uint16_t onTime,
-                     uint16_t offTime);
+  // See MPU_Gesture.h for interfacing with the gesture detection system.
+  MiP_Gesture gesture;
 
-  /**
-   * @brief Sets the chest LED to flash an RGB color at a specific interval and
-   * verifies the change.
-   * * @param chestLED A MiPChestLED instance.
-   */
-  void writeChestLED(const MiPChestLED& chestLED);
+  // See MPU_HeadLEDs.h for interfacing with MiP's head LEDs.
+  MiP_HeadLEDs headLEDs;
 
-  /**
-   * @brief Sets the chest LED to a solid RGB color without verifying the
-   * change.
-   * * This is a "fire-and-forget" method. It sends the command but does not
-   * read back the state to check for success, making it faster but less
-   * reliable than writeChestLED().
-   * * @param red   Intensity for the red channel (0-255).
-   * @param green Intensity for the green channel (0-255).
-   * @param blue  Intensity for the blue channel (0-255).
-   */
-  void unverifiedWriteChestLED(uint8_t red, uint8_t green, uint8_t blue);
+  // See MPU_Infrared.h for interfacing with the infrared system.
+  MiP_Infrared infrared;
 
-  /**
-   * @brief Sets the chest LED to a solid RGB color without verifying the
-   * change.
-   * * This is a "fire-and-forget" method. It sends the command but does not
-   * read back the state to check for success, making it faster but less
-   * reliable than writeChestLED().
-   * * @param red   Intensity for the red channel (0-255).
-   * @param green Intensity for the green channel (0-255).
-   * @param blue  Intensity for the blue channel (0-255).
-   * @param onTime  Time in milliseconds the LED stays on. (Converted internally
-   * to 20ms ticks).
-   * @param offTime Time in milliseconds the LED stays off. (Converted
-   * internally to 20ms ticks).
-   */
-  void unverifiedWriteChestLED(uint8_t red,
-                               uint8_t green,
-                               uint8_t blue,
-                               uint16_t onTime,
-                               uint16_t offTime);
+  // See MPU_Mode.h for selecting MiP's modes.
+  MiP_Mode mode;
 
-  /**
-   * @brief Sets the chest LED to a solid RGB color without verifying the
-   * change.
-   * * This is a "fire-and-forget" method. It sends the command but does not
-   * read back the state to check for success, making it faster but less
-   * reliable than writeChestLED().
-   * * @param chestLED   An instance of MiPChestLED.
-   */
-  void unverifiedWriteChestLED(const MiPChestLED& chestLED);
+  // See MPU_Motion.h for interfacing with the drive system.
+  MiP_Motion motion;
 
-  // ==========================================================================
-  // Clap - Implemented in MPU_Clap.cpp.
-  // ==========================================================================
-  /**
-   * @brief Enables clap event reporting from the MiP robot.
-   *
-   * This verified method sends the enable command and reads back settings
-   * to confirm success. It retries on failure.
-   */
-  void enableClapEvents();
+  // See MPU_Odometer.h for reading and resetting the odometer.
+  MiP_Odometer odometer;
 
-  /**
-   * @brief Disables clap event reporting from the MiP robot.
-   *
-   * This verified method sends the disable command and reads back settings
-   * to confirm success. It retries on failure.
-   */
-  void disableClapEvents();
+  // See MPU_Position.h for reading the position detection system.
+  MiP_Position position;
 
-  /**
-   * @brief Checks if clap event reporting is currently enabled.
-   *
-   * @return true if enabled, false otherwise.
-   */
-  bool areClapEventsEnabled();
+  // See MPU_Radar.h for interfacing with the radar.
+  MiP_Radar radar;
 
-  /**
-   * @brief Returns the number of unread clap events in the queue.
-   *
-   * Processes any pending serial data first to update the queue.
-   *
-   * @return Number of available clap events.
-   */
-  uint8_t availableClapEvents();
+  // See MPU_Serial.h for interfacing with MiP's serial port.  
+  MiP_Serial serial;
 
-  /**
-   * @brief Reads the next available clap event from the queue.
-   *
-   * Processes pending serial data first. If no event is available,
-   * sets last error to MIP_ERROR_NO_EVENT.
-   *
-   * @return The clap event code, or 0 if none available.
-   */
-  uint8_t readClapEvent();
+  // See MPU_Shake.h for reading the shake detection system.
+  MiP_Shake shake;
 
-  /**
-   * @brief Reads the current clap delay setting.
-   *
-   * @return The delay in milliseconds between clap events.
-   *         Returns 0 on error.
-   */
-  uint16_t readClapDelay();
+  // See MPU_Sound.h for interfacing with the sound system.
+  MiP_Sound sound;
 
-  /**
-   * @brief Sets the minimum delay between clap events.
-   *
-   * Verified method: sends the new delay and confirms by reading back
-   * the settings. Retries automatically on mismatch or error.
-   *
-   * @param delay Delay in milliseconds between allowed clap reports.
-   */
-  void writeClapDelay(uint16_t delay);
+  // See MPU_Version.h for reading MiP's hardware and software versions.
+  MiP_Version version;
 
-  // ==========================================================================
-  // EEPROM - Implemented in MPU_EEPROM.cpp.
-  // ==========================================================================
-  /**
-   * @brief Reads a byte from the MiP's user EEPROM area.
-   *
-   * Performs a verified read with retries on communication errors.
-   *
-   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
-   * @return The stored byte value, or 0 on error.
-   */
-  uint8_t getUserData(uint8_t addressOffset);
+  // See MPU_Weight.h for reading MiP's weight.
+  MiP_Weight weight;
 
-  /**
-   * @brief Writes a byte to the MiP's user EEPROM area and verifies it.
-   *
-   * This function performs a verified write: it sends the data, reads it back,
-   * and retries (up to MIP_MAX_RETRIES) if the value doesn't match or an error
-   * occurs.
-   *
-   * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
-   * @param userData      Byte value to store (0-255).
-   */
-  void setUserData(uint8_t addressOffset, uint8_t userData);
-
-  // ==========================================================================
-  // Gesture - Implemented in MPU_Gesture.cpp, except for
-  // areGestureAndRadarModesDisabled(), because of its use in gesture and
-  // radar, and is therefore placed in MPU_Core.cpp.
-  // ==========================================================================
-  /**
-   * @brief Enables gesture detection mode on the MiP.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void enableGestureMode();
-
-  /**
-   * @brief Disables gesture detection mode.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void disableGestureMode();
-
-  /**
-   * @brief Checks whether gesture detection mode is currently active.
-   *
-   * @return true if gesture mode is enabled.
-   */
-  bool isGestureModeEnabled();
-
-  /**
-   * @brief Returns the number of unread gesture events in the queue.
-   *
-   * Processes any pending serial data first to update the internal queue.
-   *
-   * @return Number of available gesture events.
-   */
-  uint8_t availableGestureEvents();
-
-  /**
-   * @brief Reads the next available gesture event from the queue.
-   *
-   * Processes pending serial data first. Returns MIP_GESTURE_INVALID and sets
-   * last error to MIP_ERROR_NO_EVENT if the queue is empty.
-   *
-   * @return The gesture event code.
-   */
-  MiPGesture readGestureEvent();
-
-  /**
-   * @brief Checks whether both gesture and radar modes are disabled.
-   *
-   * @return true if both modes are off (i.e., in MIP_GESTURE_RADAR_DISABLED
-   * state).
-   */
-  bool areGestureAndRadarModesDisabled();
-
-  // ==========================================================================
-  // Head LEDs - Implemented in MPU_HeadLEDs.cpp.
-  // ==========================================================================
-
-  /**
-   * @brief Reads the current state of all four head LEDs.
-   *
-   * Performs a verified read with retries on communication failure.
-   *
-   * @param headLEDs Reference to a MiPHeadLEDs struct to fill.
-   */
-  void readHeadLEDs(MiPHeadLEDs& headLEDs);
-
-  /**
-   * @brief Sets all four head LEDs and verifies the change.
-   *
-   * Sends the command and reads back the state to confirm success.
-   * Retries automatically on mismatch or error.
-   *
-   * @param led1 Head LED 1 pattern.
-   * @param led2 Head LED 2 pattern.
-   * @param led3 Head LED 3 pattern.
-   * @param led4 Head LED 4 pattern.
-   */
-  void writeHeadLEDs(MiPHeadLED led1,
-                     MiPHeadLED led2,
-                     MiPHeadLED led3,
-                     MiPHeadLED led4);
-
-  /**
-   * @brief Sets all four head LEDs using a struct and verifies the change.
-   *
-   * @param headLEDs Struct containing the four LED patterns.
-   */
-  void writeHeadLEDs(const MiPHeadLEDs& headLEDs);
-
-  /**
-   * @brief Sets all four head LEDs without verification (fire-and-forget).
-   *
-   * Faster than the verified version but provides no confirmation that the
-   * command succeeded.
-   *
-   * @param led1 Head LED 1 pattern.
-   * @param led2 Head LED 2 pattern.
-   * @param led3 Head LED 3 pattern.
-   * @param led4 Head LED 4 pattern.
-   */
-  void unverifiedWriteHeadLEDs(MiPHeadLED led1,
-                               MiPHeadLED led2,
-                               MiPHeadLED led3,
-                               MiPHeadLED led4);
-
-  /**
-   * @brief Sets all four head LEDs using a struct without verification.
-   *
-   * @param headLEDs Struct containing the four LED patterns.
-   */
-  void unverifiedWriteHeadLEDs(const MiPHeadLEDs& headLEDs);
-
-  // ==========================================================================
-  // Infrared - Implemented in MPU_Infrared.cpp.
-  // ==========================================================================
-  /**
-   * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
-   *
-   * @param id       Unique ID for this MiP (used in detection events).
-   * @param txPower  Transmit power level (1-120).
-   */
-  void enableMiPDetectionMode(uint8_t id, uint8_t txPower);
-
-  /**
-   * @brief Disables MiP detection mode.
-   */
-  void disableMiPDetectionMode();
-
-  /**
-   * @brief Checks if MiP detection mode is currently enabled.
-   *
-   * @return true if detection mode is active.
-   */
-  bool isMiPDetectionModeEnabled();
-
-  /**
-   * @brief Reads the next detected MiP event.
-   *
-   * Processes pending serial data first.
-   *
-   * @return ID of the detected MiP, or 0 if none available.
-   */
-  uint8_t readDetectedMiP();
-
-  /**
-   * @brief Returns the number of unread detected MiP events.
-   *
-   * Processes pending serial data first.
-   *
-   * @return Number of available detection events.
-   */
-  uint8_t availableDetectedMiPEvents();
-
-  /**
-   * @brief Enables IR remote control mode.
-   *
-   * Verified operation (command + read-back with retry).
-   */
-  void enableIRRemoteControl();
-
-  /**
-   * @brief Disables IR remote control mode.
-   *
-   * Verified operation (command + read-back with retry).
-   */
-  void disableIRRemoteControl();
-
-  /**
-   * @brief Checks if IR remote control mode is enabled.
-   *
-   * @return true if IR remote control is active.
-   */
-  bool isIRRemoteControlEnabled();
-
-  /**
-   * @brief Sends an IR dongle code (fire-and-forget).
-   *
-   * No verification is performed as there is no reliable feedback mechanism.
-   *
-   * @param sendCode      16-bit IR code to transmit.
-   * @param transmitPower Transmit power level.
-   */
-  void sendIRDongleCode(uint16_t sendCode, uint8_t transmitPower);
-
-  /**
-   * @brief Reads the next received IR dongle code event.
-   *
-   * Processes pending serial data first.
-   *
-   * @return The 32-bit IR code, or 0xFFFFFFFF if none available.
-   */
-  uint32_t readIRDongleCode();
-
-  /**
-   * @brief Returns the number of unread IR dongle code events.
-   *
-   * Processes pending serial data first.
-   *
-   * @return Number of available IR code events.
-   */
-  uint8_t availableIRCodeEvents();
-
-  // ==========================================================================
-  // Mode - Implemented in MPU_Mode.cpp.
-  // ==========================================================================
-  /**
-   * @brief Switches MiP into App Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableAppMode();
-
-  /**
-   * @brief Switches MiP into Cage Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableCageMode();
-
-  /**
-   * @brief Switches MiP into Dance Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableDanceMode();
-
-  /**
-   * @brief Switches MiP into Stack Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableStackMode();
-
-  /**
-   * @brief Switches MiP into Trick Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableTrickMode();
-
-  /**
-   * @brief Switches MiP into Roam Mode.
-   *
-   * Verified operation (command sent + state read back with retry).
-   */
-  void enableRoamMode();
-
-  /**
-   * @brief Checks if App Mode is currently active.
-   *
-   * @return true if in App Mode.
-   */
-  bool isAppModeEnabled();
-
-  /**
-   * @brief Checks if Cage Mode is currently active.
-   *
-   * @return true if in Cage Mode.
-   */
-  bool isCageModeEnabled();
-
-  /**
-   * @brief Checks if Dance Mode is currently active.
-   *
-   * @return true if in Dance Mode.
-   */
-  bool isDanceModeEnabled();
-
-  /**
-   * @brief Checks if Stack Mode is currently active.
-   *
-   * @return true if in Stack Mode.
-   */
-  bool isStackModeEnabled();
-
-  /**
-   * @brief Checks if Trick Mode is currently active.
-   *
-   * @return true if in Trick Mode.
-   */
-  bool isTrickModeEnabled();
-
-  /**
-   * @brief Checks if Roam Mode is currently active.
-   *
-   * @return true if in Roam Mode.
-   */
-  bool isRoamModeEnabled();
-
-  // ===================================================================
-  // Motion - Implemented in MPU_Motion.cpp.
-  // ===================================================================
-  /**
-   * @brief Sends continuous drive command (velocity + turn rate).
-   *
-   * Rate-limited internally to avoid overwhelming the MiP (~20 Hz max).
-   * Fire-and-forget (no verification possible).
-   *
-   * @param velocity  -32 to +32 (negative = backward).
-   * @param turnRate  -32 to +32 (negative = left).
-   */
-  void continuousDrive(int8_t velocity, int8_t turnRate);
-
-  /**
-   * @brief Drives a specific distance then optionally turns.
-   *
-   * Fire-and-forget command.
-   *
-   * @param driveDirection Forward or backward.
-   * @param cm             Distance in centimeters.
-   * @param turnDirection  Turn direction after driving.
-   * @param degrees        Turn angle in degrees (0-360).
-   */
-  void distanceDrive(MiPDriveDirection driveDirection,
-                     uint8_t cm,
-                     MiPTurnDirection turnDirection,
-                     uint16_t degrees);
-
-  /**
-   * @brief Drives forward for a limited time at given speed.
-   *
-   * Fire-and-forget. Time is internally converted to 7ms units.
-   *
-   * @param speed Drive speed (0-30).
-   * @param time  Duration in milliseconds (max ~1.78 seconds).
-   */
-  void driveForward(uint8_t speed, uint16_t time);
-
-  /**
-   * @brief Drives backward for a limited time at given speed.
-   *
-   * Fire-and-forget. Time is internally converted to 7ms units.
-   *
-   * @param speed Drive speed (0-30).
-   * @param time  Duration in milliseconds (max ~1.78 seconds).
-   */
-  void driveBackward(uint8_t speed, uint16_t time);
-
-  /**
-   * @brief Turns left by the specified angle at given speed.
-   *
-   * Fire-and-forget. Angle is internally converted to 5° units.
-   *
-   * @param degrees Turn angle (max 1275°).
-   * @param speed   Turn speed (0-24).
-   */
-  void turnLeft(uint16_t degrees, uint8_t speed);
-
-  /**
-   * @brief Turns right by the specified angle at given speed.
-   *
-   * Fire-and-forget. Angle is internally converted to 5° units.
-   *
-   * @param degrees Turn angle (max 1275°).
-   * @param speed   Turn speed (0-24).
-   */
-  void turnRight(uint16_t degrees, uint8_t speed);
-
-  /**
-   * @brief Stops all motion.
-   *
-   * Fire-and-forget.
-   */
-  void stop();
-
-  /**
-   * @brief Commands MiP to fall forward (face down).
-   */
-  void fallForward();
-
-  /**
-   * @brief Commands MiP to fall backward (on its back).
-   */
-  void fallBackward();
-
-  /**
-   * @brief Commands MiP to get up from a fallen position.
-   *
-   * @param getup Which way to attempt getting up (default = either side).
-   */
-  void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
-
-  // ==========================================================================
-  // Network - All of these functions are in MPU_Network.cpp.
-  // ==========================================================================
-  /**
-   * @brief Wraps WiFi.begin().  Connects to a wireless access point and loads
-   * the MPU:D1 mini with OTA programming support.
-   *
-   * @param ssid The station ID.
-   * @param password The access point's connection password.
-   * @param hostname MiP's hostname on the wireless network.
-   * @return true if the connection attempt was successful, else false.
-   */
-  bool wifiBegin(const char* ssid, const char* password, const char* hostname);
-
-  /**
-   * @brief Wraps WiFi.connect(). While attempting to connect, MiP's eyes light
-   * up in a Knight Rider-style back-and-forth animation.
-   * @return WL_CONNECTED if the connection attempt was successful, else it
-   * returns the error code from WiFi.connect().
-   */
-  uint8_t wifiConnect();
-
-  /**
-   * @brief Turns off WiFi and Bluetooth. If MiP is in app mode, which requires
-   * Bluetooth, MiP is switched to its default gesture mode.
-   */
-  void enableAirplaneMode();
-
-  /**
-   * @brief Turns the WiFi radio on and attempts to connect to the last access
-   * point to which MiP was connected.
-   @return WL_CONNECTED if the connection attempt was successful, else it
-   * returns the error code from WiFi.connect().
-   */
-  uint8_t disableAirplaneMode();
-
-  // ==========================================================================
-  // Odometer - Implemented in MPU_Odometer.cpp.
-  // ==========================================================================
-  /**
-   * @brief Reads the total distance travelled by the MiP.
-   *
-   * Performs a verified read with automatic retries on error.
-   *
-   * @return Distance in centimeters. Returns 0.0 on failure.
-   */
-  float readDistanceTravelled();
-
-  /**
-   * @brief Resets the odometer distance to zero.
-   *
-   * Fire-and-forget command (no verification possible).
-   */
-  void resetDistanceTravelled();
-
-  // ==========================================================================
-  // Position - Implemented in MPU_Position.cpp.
-  // ==========================================================================
-  /**
-   * @brief Reads the current physical position/orientation of the MiP.
-   *
-   * Uses cached status data (updated automatically from OOB events).
-   * No new serial request is sent to the robot.
-   *
-   * @return Current position as a MiPPosition enum value.
-   */
-  MiPPosition readPosition();
-
-  /**
-   * @brief Checks if the MiP is lying on its back.
-   *
-   * @return true if on its back.
-   */
-  bool isOnBack();
-
-  /**
-   * @brief Checks if the MiP is face down.
-   *
-   * @return true if face down.
-   */
-  bool isFaceDown();
-
-  /**
-   * @brief Checks if the MiP is upright.
-   *
-   * @return true if upright.
-   */
-  bool isUpright();
-
-  /**
-   * @brief Checks if the MiP has been picked up.
-   *
-   * @return true if picked up.
-   */
-  bool isPickedUp();
-
-  /**
-   * @brief Checks if the MiP is in a hand-standing position.
-   *
-   * @return true if hand-standing.
-   */
-  bool isHandStanding();
-
-  /**
-   * @brief Checks if the MiP is face down on its tray.
-   *
-   * @return true if face down on tray.
-   */
-  bool isFaceDownOnTray();
-
-  /**
-   * @brief Checks if the MiP is on its back with the kickstand deployed.
-   *
-   * @return true if on back with kickstand.
-   */
-  bool isOnBackWithKickstand();
-
-  // ==========================================================================
-  // Radar - Implemented in MPU_Radar.cpp.
-  // ==========================================================================
-  /**
-   * @brief Enables radar tracking mode on the MiP.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void enableRadarMode();
-
-  /**
-   * @brief Disables radar tracking mode.
-   *
-   * Uses verified mode switching (command + read-back confirmation with retry).
-   */
-  void disableRadarMode();
-
-  /**
-   * @brief Checks whether radar tracking mode is currently active.
-   *
-   * @return true if radar mode is enabled.
-   */
-  bool isRadarModeEnabled();
-
-  /**
-   * @brief Reads the most recent radar tracking data.
-   *
-   * Uses cached value from the latest OOB status event. Processes pending
-   * serial data first.
-   *
-   * @return Current radar value or MIP_RADAR_INVALID if no data received yet.
-   */
-  MiPRadar readRadar();
-
-  // ==========================================================================
-  // Shake - Implemented in MPU_Shake.cpp.
-  // ==========================================================================
-  /**
-   * @brief Checks whether the MiP has been shaken since the last call.
-   *
-   * Uses cached data from status events. The shake flag is cleared after
-   * returning true (one-shot detection).
-   *
-   * @return true if a shake was detected since the last call to this function.
-   */
-  bool hasBeenShaken();
-
-  // ==========================================================================
-  // Sound - Implemented in MPU_Sound.cpp.
-  // ==========================================================================
-
-  /**
-   * @brief Starts a new sound list sequence.
-   *
-   * Must be called before adding entries with addEntryToSoundList().
-   */
-  void beginSoundList();
-
-  /**
-   * @brief Adds a sound (with optional delay and volume change) to the current
-   *        sound list.
-   *
-   * @param sound     Sound index.
-   * @param delayTime Delay in milliseconds before next sound (0-7650 ms).
-   * @param volume    Volume for this sound (or MIP_VOLUME_DEFAULT to keep
-   *                  previous).
-   */
-  void addEntryToSoundList(MiPSoundIndex sound,
-                           uint16_t delay = 0,
-                           MiPVolume volume = MIP_VOLUME_DEFAULT);
-
-  /**
-   * @brief Plays the current sound list.
-   *
-   * @param repeatCount Number of times to repeat the entire list (0 = once).
-   */
-  void playSoundList(uint8_t repeatCount = 0);
-
-  /**
-   * @brief Plays a single sound at the specified volume.
-   *
-   * Convenience method that builds and plays a one-entry sound list.
-   *
-   * @param sound  Sound index to play.
-   * @param volume Volume level (default = MIP_VOLUME_DEFAULT).
-   */
-  void playSound(MiPSoundIndex sound, MiPVolume volume = MIP_VOLUME_DEFAULT);
-
-  /**
-   * @brief Sets the MiP speaker volume and verifies the change.
-   *
-   * Retries automatically on failure.
-   *
-   * @param volume Volume level (0-7).
-   */
-  void writeVolume(uint8_t volume);
-
-  /**
-   * @brief Reads the current speaker volume.
-   *
-   * Performs a verified read with retries.
-   *
-   * @return Current volume (0-7), or 0 on error.
-   */
-  uint8_t readVolume();
-
-  // ==========================================================================
-  // Version - Implemented in MPU_Version.cpp.
-  // ==========================================================================
-  /**
-   * @brief Reads the MiP's software version information.
-   *
-   * Performs a verified read with automatic retries on error.
-   *
-   * @param software Reference to a MiPSoftwareVersion struct to fill.
-   */
-  void readSoftwareVersion(MiPSoftwareVersion& software);
-
-  /**
-   * @brief Reads the MiP's hardware information.
-   *
-   * Performs a verified read with automatic retries on error.
-   *
-   * @param hardware Reference to a MiPHardwareInfo struct to fill.
-   */
-  void readHardwareInfo(MiPHardwareInfo& hardware);
-
-  // ==========================================================================
-  // Weight - Implemented in MPU_Weight.cpp.
-  // ==========================================================================
-  /**
-   * @brief Reads the current weight on the MiP's weight sensor.
-   *
-   * Uses cached data from recent OOB events if available; otherwise performs
-   * a verified read with automatic retries.
-   *
-   * @return Current weight in grams (signed), or 0 on error.
-   */
-  int8_t readWeight();
-
-  // ==========================================================================
-  // Lower-level raw API - Implemented in MPU_Transport.cpp.
-  // ==========================================================================
-  /**
-   * @brief Sends a raw command to the MiP (fire-and-forget).
-   *
-   * Used internally by higher-level verified methods.
-   */
-  void rawSend(const uint8_t request[], size_t requestLength);
-
-  /**
-   * @brief Sends a raw command and waits for the expected response.
-   *
-   * @param request          Command buffer to send.
-   * @param requestLength    Length of the command.
-   * @param responseBuffer   Buffer to store the response.
-   * @param responseBufferSize Size of the response buffer.
-   * @param responseLength   Receives the actual number of bytes read.
-   * @return MIP_ERROR_NONE on success, or an error code.
-   */
-  uint8_t rawReceive(const uint8_t request[],
-                     size_t requestLength,
-                     uint8_t responseBuffer[],
-                     size_t responseBufferSize,
-                     size_t& responseLength);
+  // See MPU_Wifi.h for interfacing with the MPU's wifi system.
+  MiP_Wifi wifi;
 
  protected:
-  // ==========================================================================
-  // MPU_Core.cpp.
-  // ==========================================================================
-
   void clear();
 
   int8_t attemptMiPConnection(uint32_t baudRate);
 
-  // Centralized assert handler
-  void mipAssert(uint32_t lineNumber);
-
-  // Helper utilities for sub-functions
-  void verifiedSetGestureRadarMode(MiPGestureRadarMode desiredMode);
-  bool checkGestureRadarMode(MiPGestureRadarMode expectedMode);
-  void rawSetGestureRadarMode(MiPGestureRadarMode mode);
-  int8_t rawGetGestureRadarMode(MiPGestureRadarMode& mode);
+  /**
+   * @brief Assert mechanism that logs the failure location and then halts.
+   *
+   * Call it like this (no macro needed):
+   *   mipAssert(condition, __LINE__, __FILE__);
+   *
+   * The original macro version always printed the file that *defined*
+   * mipAssert (MPU_Core.cpp).  Passing __FILE__ from the call site
+   * fixes that.
+   */
+  void mipAssert(bool condition, uint32_t lineNumber, const char* fileName);
 
   int8_t rawGetStatus(MiPStatus& status);
   int8_t parseStatus(MiPStatus& status,
                      const uint8_t response[],
                      size_t responseLength);
 
-  // ==========================================================================
-  // MPU_ChestLED.cpp.
-  // ==========================================================================
-
-  int8_t rawGetChestLED(MiPChestLED& chestLED);
-  void rawSetChestLED(uint8_t red, uint8_t green, uint8_t blue);
-  void rawFlashChestLED(uint8_t red,
-                        uint8_t green,
-                        uint8_t blue,
-                        uint8_t onTime,
-                        uint8_t offTime);
-
-  // ==========================================================================
-  // MPU_Clap.cpp.
-  // ==========================================================================
-
-  void checkedEnableClapEvents(MiPClapEnabled enabled);
-  int8_t readClapSettings(MiPClapSettings& settings);
-  void rawEnableClap(MiPClapEnabled enabled);
-  void rawSetClapDelay(uint16_t delay);
-  int8_t rawGetClapSettings(MiPClapSettings& settings);
-
-  // ==========================================================================
-  // MPU_EEPROM.cpp.
-  // ==========================================================================
-
-  int8_t rawGetUserData(uint8_t address, uint8_t& userData);
-  void rawSetUserData(uint8_t address, uint8_t userData);
-
-  // ==========================================================================
-  // MPU_HeadLEDs.cpp.
-  // ==========================================================================
-
-  int8_t rawGetHeadLEDs(MiPHeadLEDs& headLEDs);
-  void rawSetHeadLEDs(MiPHeadLED led1,
-                      MiPHeadLED led2,
-                      MiPHeadLED led3,
-                      MiPHeadLED led4);
-  bool isValidHeadLED(uint8_t led);
-
-  // ==========================================================================
-  // MPU_Infrared.cpp.
-  // ==========================================================================
-
-  void rawSetMiPDetectionMode(uint8_t id, uint8_t txPower);
-  void verifiedIRRemoteControl(uint8_t desiredRemoteControlMode);
-  int8_t rawGetIRRemoteControl(uint8_t& remoteControl);
-  void rawSetIRRemoteControl(uint8_t remoteControl);
-
-  // ==========================================================================
-  // MPU_Mode.cpp.
-  // ==========================================================================
-
-  void verifiedSetGameMode(MiPGameMode desiredMode);
-  bool checkGameMode(MiPGameMode expectedMode);
-  void rawSetGameMode(MiPGameMode mode);
-  int8_t rawGetGameMode(MiPGameMode& mode);
-
-  // ==========================================================================
-  // MPU_Motion.cpp.
-  // ==========================================================================
-
-  void fallDown(MiPFallDirection direction);
-
-  // ==========================================================================
-  // MPU_Odometer.cpp.
-  // ==========================================================================
-
-  int8_t rawReadOdometer(float& distanceInCm);
-
-  // ==========================================================================
-  // MPU_Sound.cpp.
-  // ==========================================================================
-
-  int8_t rawGetVolume(uint8_t& volume);
-  void rawSetVolume(uint8_t volume);
-
-  // ==========================================================================
-  // MPU_Transport.cpp.
-  // ==========================================================================
-
-  uint8_t transportGetResponse(uint8_t* pResponseBuffer,
-                               size_t responseBufferSize,
-                               size_t* pResponseLength);
-  void transportSendRequest(const uint8_t* pRequest,
-                            size_t requestLength,
-                            int expectResponse);
-  bool processAllResponseData();
-  void processOobResponseData(uint8_t commandByte);
-  uint8_t discardUnexpectedSerialData();
-  void copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length);
-  uint8_t parseHexDigit(uint8_t digit);
-
-  // ==========================================================================
-  // MPU_Version.cpp.
-  // ==========================================================================
-
-  int8_t rawGetHardwareInfo(MiPHardwareInfo& hardware);
-  int8_t rawGetSoftwareVersion(MiPSoftwareVersion& software);
-
-  // ==========================================================================
-  // MPU_Weight.cpp rather than MPU_Version.cpp.
-  // ==========================================================================
-
-  int8_t rawGetWeight(int8_t& weight);
-  int8_t parseWeight(int8_t& weight,
-                     const uint8_t response[],
-                     size_t responseLength);
+  friend class MiP_Battery;
+  friend class MiP_ChestLED;
+  friend class MiP_Clap;
+  friend class MiP_EEPROM;
+  friend class MiP_Gesture;
+  friend class MiP_HeadLEDs;
+  friend class MiP_Infrared;
+  friend class MiP_Mode;
+  friend class MiP_Motion;
+  friend class MiP_Wifi;
+  friend class MiP_Odometer;
+  friend class MiP_Position;
+  friend class MiP_Radar;
+  friend class MiP_Serial;
+  friend class MiP_Shake;
+  friend class MiP_Sound;
+  friend class MiP_Version;
+  friend class MiP_Weight;
 
   // Bits that can be set in m_flags bitfield.
   enum FlagBits : uint8_t {
@@ -1246,28 +360,9 @@ class MiP {
     MIP_FLAG_INITIALIZED = (1 << 3)
   };
 
-  uint32_t m_lastRequestTime;
-  uint32_t m_lastContinuousDriveTime;
   uint8_t m_flags;
-  uint8_t m_responseBuffer[MIP_RESPONSE_MAX_LEN];
-  uint8_t m_expectedResponseCommand;
-  uint8_t m_expectedResponseSize;
   int8_t m_lastError;
-  uint8_t m_playCommand[1 + 18];  // Gemini Enterprise: Increased by 1 to
-                                  // prevent out-of-bounds write!
-  int8_t m_soundIndex;
-  uint8_t m_playVolume;
-  MiPRadar m_lastRadar;
   MiPStatus m_lastStatus;
-  int8_t m_lastWeight;
-  CircularQueue<uint8_t, 8> m_clapEvents;
-  CircularQueue<MiPGesture, 8> m_gestureEvents;
-  CircularQueue<uint32_t, 8> m_irCodeEvents;
-  CircularQueue<uint8_t, 8> m_detectedMiPEvents;
-  uint8_t m_irId;
-  char m_ssid[32];
-  char m_password[64];
-  char m_hostname[63];
 };
 
 #endif  // MPU_D1_MINI_H

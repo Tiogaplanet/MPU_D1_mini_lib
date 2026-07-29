@@ -1,10 +1,10 @@
 /**
- * @file ReadWriteEeprom.ino
+ * @file ReadWriteEEPROM.ino
  * @brief Example sketch demonstrating reading and writing MiP user EEPROM.
  *
  * @details
  * This sketch demonstrates how to store and retrieve a single byte of user
- * data in the MiP's EEPROM using the setUserData() and getUserData() APIs.
+ * data in the MiP's EEPROM using the eeprom.write() and eeprom.read() APIs.
  * It writes a test value (secretPassword) to an EEPROM offset, then reads it
  * back and prints the original, scrambled, and recovered values to Serial1.
  *
@@ -14,8 +14,8 @@
  * recovered value.
  *
  * The example exercises these API calls:
- *   - setUserData()
- *   - getUserData()
+ *   - eeprom.read()
+ *   - eeprom.write()
  *
  * @author Adam Green
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
@@ -71,19 +71,20 @@ uint8_t recoveredPassword;
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("ReadWriteEeprom.ino: Failed connecting to MiP!"));
+    Serial1.println(F("ReadWriteEEPROM.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("ReadWriteEeprom.ino: Writes data to EEPROM and reads it back."));
+  Serial1.println(
+    F("ReadWriteEEPROM.ino: Writes data to EEPROM and reads it back."));
 
   Serial1.print(F(" Original password: "));
   Serial1.printf("0x%02X\n\r", secretPassword);
 
-  /* Write the secret password to the MiP's user EEPROM at the configured offset.
-   * Comment out this line to test persistence across power cycles.
+  /* Write the secret password to the MiP's user EEPROM at the configured
+   * offset. Comment out this line to test persistence across power cycles.
    */
-  mip.setUserData(eepromAddressOffset, secretPassword);
+  mip.eeprom.write(eepromAddressOffset, secretPassword);
 
   /* "Scramble" the in-memory password to demonstrate that the recovered value
    * comes from EEPROM rather than the local variable.
@@ -93,7 +94,7 @@ void setup() {
   Serial1.printf("0x%02X\n\r", secretPassword);
 
   /* Read the stored value back from EEPROM and print it. */
-  recoveredPassword = mip.getUserData(eepromAddressOffset);
+  recoveredPassword = mip.eeprom.read(eepromAddressOffset);
   Serial1.print(F(" Recovered password: "));
   Serial1.printf("0x%02X\n\r", recoveredPassword);
 
@@ -107,5 +108,4 @@ void setup() {
  * require repeated work in loop(). The loop is intentionally left empty so
  * the sketch completes once and remains idle.
  */
-void loop() {
-}
+void loop() {}

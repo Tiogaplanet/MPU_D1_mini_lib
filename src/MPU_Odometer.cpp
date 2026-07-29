@@ -20,43 +20,42 @@
  * The odometer is read with verification and retry logic. Reset is
  * fire-and-forget as there is no reliable confirmation mechanism.
  */
+#include "MPU_Odometer.h"
 #include "MPU_D1_mini.h"
 
-// MiP Protocol Commands related to the odometer.
-// These command codes are placed in the first byte of requests sent to the MiP
-// and responses sent back from the MiP. See
-// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-// for the complete list.
-#define MIP_CMD_READ_ODOMETER 0x85
-#define MIP_CMD_RESET_ODOMETER 0x86
+// Implement the constructor to store the MiP reference.
+MiP_Odometer::MiP_Odometer(MiP& mip) : m_mip(mip) {}
 
-float MiP::readDistanceTravelled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->readDistanceTravelled()");
+float MiP_Odometer::read() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->read()");
   int8_t result;
 
   // Retry the read if it should fail on the first attempt.
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+  for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     float distance;
-    result = rawReadOdometer(distance);
-    if (result == MIP_ERROR_NONE) {
-      m_lastError = MIP_ERROR_NONE;
+    result = rawRead(distance);
+    if (result == MiP::MIP_ERROR_NONE) {
+      m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       return distance;
     }
 
     // An error was encountered so we will loop around and try again.
     // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
+    delay(MiP_Serial::MIP_RETRY_WAIT);
   }
-  m_lastError = result;
+  m_mip.m_lastError = result;
   return 0.0f;
 }
 
-void MiP::resetDistanceTravelled() {
+void MiP_Odometer::reset() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->reset()");
   uint8_t command[1] = {MIP_CMD_RESET_ODOMETER};
 
   // Send this command blindly with no error checking since there is no robust
   // way to determine if it has failed.
-  rawSend(command, sizeof(command));
+  // TODO: Not true.  Read the odometer.  If the value is greater than 0.0, call
+  // reset, then check for 0.0.
+  m_mip.serial.rawSend(command, sizeof(command));
 }
 
 // ==========================================================================
@@ -65,20 +64,20 @@ void MiP::resetDistanceTravelled() {
 
 // This internal protected method sends the read odometer command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
-int8_t MiP::rawReadOdometer(float& distanceInCm) {
+int8_t MiP_Odometer::rawRead(float& distanceInCm) {
   const uint8_t readOdometer[1] = {MIP_CMD_READ_ODOMETER};
   uint8_t response[1 + 4];
   size_t responseLength;
-  int8_t result = rawReceive(readOdometer,
-                             sizeof(readOdometer),
-                             response,
-                             sizeof(response),
-                             responseLength);
+  int8_t result = m_mip.serial.rawReceive(readOdometer,
+                                          sizeof(readOdometer),
+                                          response,
+                                          sizeof(response),
+                                          responseLength);
   if (result)
     return result;
   if (responseLength != sizeof(response) ||
       response[0] != MIP_CMD_READ_ODOMETER) {
-    return MIP_ERROR_BAD_RESPONSE;
+    return MiP::MIP_ERROR_BAD_RESPONSE;
   }
 
   // Tick count is stored as big-endian in response buffer.

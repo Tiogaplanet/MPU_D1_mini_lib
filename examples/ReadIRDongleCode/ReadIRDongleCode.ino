@@ -10,8 +10,8 @@
  *
  * The example exercises these API calls:
  *   - begin()
- *   - availableIRCodeEvents()
- *   - readIRDongleCode()
+ *   - infrared.availableCodeEvents()
+ *   - infrared.readDongleCode()
  *
  * Usage notes:
  *   - Load this sketch on a MiP that is configured to receive IR dongle codes.
@@ -70,8 +70,8 @@ void setup() {
  * @brief Arduino loop function.
  *
  * @details
- * - Polls for pending IR code events using availableIRCodeEvents().
- * - When an event is available, calls readIRDongleCode() to retrieve a 32-bit
+ * - Polls for pending IR code events using infrared.availableCodeEvents().
+ * - When an event is available, calls infrared.readDongleCode() to retrieve a 32-bit
  *   code value.
  * - Prints the code as four separate bytes in hexadecimal format to Serial1.
  *
@@ -89,8 +89,8 @@ void loop() {
 	  
   uint32_t receiveCode;
 
-  if (mip.availableIRCodeEvents()) {
-    receiveCode = mip.readIRDongleCode();
+  if (mip.infrared.availableCodeEvents()) {
+    receiveCode = mip.infrared.readDongleCode();
 
     Serial1.print(F(" Received "));
     Serial1.print(((receiveCode >> 28) & 0xFF), HEX);

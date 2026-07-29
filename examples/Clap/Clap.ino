@@ -6,27 +6,27 @@
  * functions to enable and disable clap event reporting, configure the clap
  * detection delay, and read detected clap events. The sketch performs the
  * following sequence in setup():
- *   - Initializes communication with the MiP robot.
+ *   - Initializes communication with MiP.
  *   - Disables clap events and verifies the disabled state using
- *     areClapEventsEnabled().
- *   - Writes a clap delay value using writeClapDelay() and reads it back with
- *     readClapDelay().
+ *     clap.areEventsEnabled().
+ *   - Writes a clap delay value using clap.writeDelay() and reads it back with
+ *     clap.readDelay().
  *   - Enables clap events and verifies the enabled state.
  * After initialization, the loop() continuously checks for available clap
- * events using availableClapEvents() and reads each event with readClapEvent(),
- * printing the number of detected claps to Serial1.
+ * events using clap.availableEvents() and reads each event with
+ * clap.readEvent(), printing the number of detected claps to Serial1.
  *
  * The example exercises these API calls:
- *   - enableClapEvents()
- *   - disableClapEvents()
- *   - areClapEventsEnabled()
- *   - writeClapDelay(uint16_t delay)
- *   - readClapDelay()
- *   - availableClapEvents()
- *   - readClapEvent()
+ *   - clap.enableEvents()
+ *   - clap.disableEvents()
+ *   - clap.areEventsEnabled()
+ *   - clap.writeDelay(uint16_t delay)
+ *   - clap.readDelay()
+ *   - clap.availableEvents()
+ *   - clap.readEvent()
  *
  * This sketch prints status and results to Serial1 and is intended for use
- * with the MPU_D1_mini MiP library and a compatible MiP robot.
+ * with the MiP Power Up: D1 mini library and a WowWee MiP robot.
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,26 +76,26 @@ void setup() {
 
   Serial1.println(F("Clap.ino: Use clap related functions."));
 
-  Serial1.println(F(" Calling disableClapEvents()"));
-  mip.disableClapEvents();
-  bool isEnabled = mip.areClapEventsEnabled();
-  Serial1.print(F(" areClapEventsEnabled() returns "));
+  Serial1.println(F(" Calling clap.disableEvents()"));
+  mip.clap.disableEvents();
+  bool isEnabled = mip.clap.areEventsEnabled();
+  Serial1.print(F(" clap.areEventsEnabled() returns "));
   if (isEnabled) {
     Serial1.println(F("true - fail"));
   } else {
     Serial1.println(F("false - pass"));
   }
 
-  Serial1.println(F(" Calling writeClapDelay(501)"));
-  mip.writeClapDelay(501);
-  uint16_t delay = mip.readClapDelay();
-  Serial1.print(F(" readClapDelay() returns "));
+  Serial1.println(F(" Calling clap.writeDelay(501)"));
+  mip.clap.writeDelay(501);
+  uint16_t delay = mip.clap.readDelay();
+  Serial1.print(F(" clap.readDelay() returns "));
   Serial1.println(delay);
 
-  Serial1.println(F(" Calling enableClapEvents()"));
-  mip.enableClapEvents();
-  isEnabled = mip.areClapEventsEnabled();
-  Serial1.print(F(" areClapEventsEnabled() returns "));
+  Serial1.println(F(" Calling clap.enableEvents()"));
+  mip.clap.enableEvents();
+  isEnabled = mip.clap.areEventsEnabled();
+  Serial1.print(F(" clap.areEventsEnabled() returns "));
   if (isEnabled) {
     Serial1.println(F("true - pass"));
   } else {
@@ -118,10 +118,11 @@ void setup() {
  * events; it returns quickly when no events are pending.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-	  
-  while (mip.availableClapEvents() > 0) {
-    uint8_t clapCount = mip.readClapEvent();
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
+
+  while (mip.clap.availableEvents() > 0) {
+    uint8_t clapCount = mip.clap.readEvent();
     Serial1.print(F(" Detected "));
     Serial1.print(clapCount);
     Serial1.println(F(" claps"));

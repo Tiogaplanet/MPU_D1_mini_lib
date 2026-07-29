@@ -10,7 +10,7 @@
  * human-readable hexadecimal format.
  *
  * The example exercises these API calls:
- *   - sendIRDongleCode()
+ *   - infrared.sendDongleCode()
  *
  * Usage notes:
  *   - Load this sketch on a MiP configured to transmit IR dongle codes.
@@ -43,7 +43,7 @@
  * @brief Global MiP instance used to control the robot and send IR codes.
  *
  * @details Use this object to call MiP API functions such as begin() and
- * sendIRDongleCode().
+ * infrared.sendDongleCode().
  */
 MiP mip;
 
@@ -87,7 +87,7 @@ void setup() {
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-  
+
   uint16_t dongleCode;
   char formattedOutput[14];
 
@@ -101,7 +101,7 @@ void loop() {
   Serial1.println(formattedOutput);
 
   // Transmit the 16-bit dongle code using the configured IR transmit power.
-  mip.sendIRDongleCode(dongleCode, MIP_IR_TX_POWER);
+  mip.infrared.sendDongleCode(dongleCode, MIP_IR_TX_POWER);
 
   // Pause between transmissions to avoid flooding the receiver.
   delay(1000);

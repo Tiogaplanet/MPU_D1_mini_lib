@@ -13,18 +13,24 @@
    limitations under the License.
 */
 /**
- * @file MPU_Network.cpp
+ * @file MPU_Wifi.cpp
  * @brief Implements WiFi connection, ArduinoOTA (Over-The-Air updates),
  *        and mDNS support for the WeMos D1 mini (ESP8266).
  *
  * This module handles network initialization on top of the core UART
  * connection to the MiP robot.
  */
+#include "MPU_Wifi.h"
 #include "MPU_D1_mini.h"
 
-bool MiP::wifiBegin(const char* ssid,
-                    const char* password,
-                    const char* hostname) {
+// Implement the constructor to store the MiP reference.
+MiP_Wifi::MiP_Wifi(MiP& mip) : m_mip(mip) {
+  clear();
+}
+
+uint8_t MiP_Wifi::begin(const char* ssid,
+                        const char* password,
+                        const char* hostname) {
   // Memory-safe string copy operations to address bug:
   // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/26
   strncpy(m_ssid, ssid, sizeof(m_ssid) - 1);
@@ -38,28 +44,25 @@ bool MiP::wifiBegin(const char* ssid,
 
   WiFi.hostname(m_hostname);
 
-  if (wifiConnect() == WL_CONNECTED)
-    return true;
-
-  return false;
+  return connect();
 }
 
-void MiP::enableAirplaneMode() {
+void MiP_Wifi::enableAirplaneMode() {
   WiFi.disconnect();    // Disconnect from current network.
   WiFi.mode(WIFI_OFF);  // Turn off WiFi radio.
 
   // App mode broadcasts BLE.  If MiP is currently in app mode, switch to
   // the default, power-on gesture mode.
-  if (isAppModeEnabled())
-    enableGestureMode();
+  if (m_mip.mode.isAppEnabled())
+    m_mip.gesture.enable();
 }
 
-uint8_t MiP::disableAirplaneMode() {
+uint8_t MiP_Wifi::disableAirplaneMode() {
   WiFi.mode(WIFI_STA);  // or WIFI_AP, WIFI_AP_STA
-  return wifiConnect();
+  return connect();
 }
 
-uint8_t MiP::wifiConnect() {
+uint8_t MiP_Wifi::connect() {
   // Safety check: ensure we have a valid SSID
   if (m_ssid[0] == '\0' || strlen(m_ssid) == 0) {
     MIP_DEBUG_ERROR_PRINTLN(
@@ -71,7 +74,7 @@ uint8_t MiP::wifiConnect() {
 
   // Save original head LED state before animation
   MiPHeadLEDs originalLEDs;
-  readHeadLEDs(originalLEDs);
+  m_mip.headLEDs.read(originalLEDs);
 
   // Non-blocking status loop to address bug:
   // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/25
@@ -86,7 +89,7 @@ uint8_t MiP::wifiConnect() {
 
     leds[ledPos] = MIP_HEAD_LED_ON;
 
-    unverifiedWriteHeadLEDs(leds[0], leds[1], leds[2], leds[3]);
+    m_mip.headLEDs.unverifiedWrite(leds[0], leds[1], leds[2], leds[3]);
 
     // Update position for next frame
     if (direction) {
@@ -104,10 +107,10 @@ uint8_t MiP::wifiConnect() {
     attempts++;
   }
 
-  unverifiedWriteHeadLEDs(originalLEDs.led1,
-                          originalLEDs.led2,
-                          originalLEDs.led3,
-                          originalLEDs.led4);
+  m_mip.headLEDs.unverifiedWrite(originalLEDs.led1,
+                                 originalLEDs.led2,
+                                 originalLEDs.led3,
+                                 originalLEDs.led4);
 
   // Turn all LEDs on when connected, or pulse slow red on failure
   uint8_t connectStatus = WiFi.status();
@@ -163,7 +166,13 @@ uint8_t MiP::wifiConnect() {
     MIP_DEBUG_WARN_PRINTLN(
         F("MiP: WiFi connection failed after maximum attempts"));
     // Pulse slow red on chest LED to indicate failure
-    writeChestLED(0xFF, 0x00, 0x00, 800, 800);  // Slow red blink
+    m_mip.chestLED.write(0xFF, 0x00, 0x00, 800, 800);  // Slow red blink
     return connectStatus;
   }
+}
+
+void MiP_Wifi::clear() {
+  memset(m_ssid, 0, sizeof(m_ssid));
+  memset(m_password, 0, sizeof(m_password));
+  memset(m_hostname, 0, sizeof(m_hostname));
 }

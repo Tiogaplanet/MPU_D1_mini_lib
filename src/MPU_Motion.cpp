@@ -20,9 +20,16 @@
  * Most motion commands are fire-and-forget (no read-back possible).
  * Continuous drive includes rate limiting to avoid overwhelming the robot.
  */
+#include "MPU_Motion.h"
 #include "MPU_D1_mini.h"
 
 #define MIP_CONTINUOUS_DRIVE_DELAY 50
+
+// Implement the constructor to store the MiP reference.
+MiP_Motion::MiP_Motion(MiP& mip) : m_mip(mip) {
+  m_lastContinuousDriveTime =
+      millis() - 50;  // MIP_CONTINUOUS_DRIVE_DELAY; // (50)
+}
 
 // MiP Protocol Commands related to motion.
 // These command codes are placed in the first byte of requests sent to the MiP
@@ -39,16 +46,16 @@
 #define MIP_CMD_SET_POSITION 0x08
 #define MIP_CMD_GET_UP 0x23
 
-void MiP::continuousDrive(int8_t velocity, int8_t turnRate) {
+void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
   uint8_t command[1 + 2];
 
-  MIP_ASSERT(velocity >= -32 && velocity <= 32);
-  MIP_ASSERT(turnRate >= -32 && turnRate <= 32);
+  m_mip.MIP_ASSERT(velocity >= -32 && velocity <= 32);
+  m_mip.MIP_ASSERT(turnRate >= -32 && turnRate <= 32);
 
-  // Ignore requests if they come in too fast so that it can be done in a tight
-  // loop but not overload MiP.
+  // Ignore requests if they come in too fast so that it can be done in a
+  // tight loop but not overload MiP.
   if (millis() - m_lastContinuousDriveTime < MIP_CONTINUOUS_DRIVE_DELAY) {
-    m_lastError = MIP_ERROR_NONE;
+    m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
     return;
   }
   m_lastContinuousDriveTime = millis();
@@ -63,16 +70,16 @@ void MiP::continuousDrive(int8_t velocity, int8_t turnRate) {
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::distanceDrive(MiPDriveDirection driveDirection,
-                        uint8_t cm,
-                        MiPTurnDirection turnDirection,
-                        uint16_t degrees) {
+void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection,
+                               uint8_t cm,
+                               MiPTurnDirection turnDirection,
+                               uint16_t degrees) {
   uint8_t command[1 + 5];
-  MIP_ASSERT(degrees <= 360);
+  m_mip.MIP_ASSERT(degrees <= 360);
 
   command[0] = MIP_CMD_DISTANCE_DRIVE;
   command[1] = driveDirection;
@@ -83,16 +90,16 @@ void MiP::distanceDrive(MiPDriveDirection driveDirection,
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::driveForward(uint8_t speed, uint16_t time) {
+void MiP_Motion::driveForward(uint8_t speed, uint16_t time) {
   // The time parameter is in units of 7 milliseconds.
   uint8_t command[1 + 2];
 
-  MIP_ASSERT(speed <= 30);
-  MIP_ASSERT(time <= 255 * 7);
+  m_mip.MIP_ASSERT(speed <= 30);
+  m_mip.MIP_ASSERT(time <= 255 * 7);
 
   command[0] = MIP_CMD_DRIVE_FORWARD;
   command[1] = speed;
@@ -100,16 +107,16 @@ void MiP::driveForward(uint8_t speed, uint16_t time) {
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::driveBackward(uint8_t speed, uint16_t time) {
+void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
   // The time parameters is in units of 7 milliseconds.
   uint8_t command[1 + 2];
 
-  MIP_ASSERT(speed <= 30);
-  MIP_ASSERT(time <= 255 * 7);
+  m_mip.MIP_ASSERT(speed <= 30);
+  m_mip.MIP_ASSERT(time <= 255 * 7);
 
   command[0] = MIP_CMD_DRIVE_BACKWARD;
   command[1] = speed;
@@ -117,17 +124,17 @@ void MiP::driveBackward(uint8_t speed, uint16_t time) {
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::turnLeft(uint16_t degrees, uint8_t speed) {
+void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
   // The turn command is in units of 5 degrees.
   uint8_t angle = degrees / 5;
   uint8_t command[1 + 2];
 
-  MIP_ASSERT(degrees <= 255 * 5);
-  MIP_ASSERT(speed <= 24);
+  m_mip.MIP_ASSERT(degrees <= 255 * 5);
+  m_mip.MIP_ASSERT(speed <= 24);
 
   command[0] = MIP_CMD_TURN_LEFT;
   command[1] = angle;
@@ -135,17 +142,17 @@ void MiP::turnLeft(uint16_t degrees, uint8_t speed) {
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::turnRight(uint16_t degrees, uint8_t speed) {
+void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
   // The turn command is in units of 5 degrees.
   uint8_t angle = degrees / 5;
   uint8_t command[1 + 2];
 
-  MIP_ASSERT(degrees <= 255 * 5);
-  MIP_ASSERT(speed <= 24);
+  m_mip.MIP_ASSERT(degrees <= 255 * 5);
+  m_mip.MIP_ASSERT(speed <= 24);
 
   command[0] = MIP_CMD_TURN_RIGHT;
   command[1] = angle;
@@ -153,52 +160,52 @@ void MiP::turnRight(uint16_t degrees, uint8_t speed) {
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::stop() {
+void MiP_Motion::stop() {
   uint8_t command[1] = {MIP_CMD_STOP};
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::fallForward() {
+void MiP_Motion::fallForward() {
   fallDown(MIP_FALL_FACE_DOWN);
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::fallBackward() {
+void MiP_Motion::fallBackward() {
   fallDown(MIP_FALL_ON_BACK);
-  m_lastError = MIP_ERROR_NONE;
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
-void MiP::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
+void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
   uint8_t command[1 + 1];
   command[0] = MIP_CMD_GET_UP;
   command[1] = getup;
 
-  // Send this command blindly with no error checking since there is no easy way
-  // to determine if it has failed.
-  rawSend(command, sizeof(command));
-  m_lastError = MIP_ERROR_NONE;
+  // Send this command blindly with no error checking since there is no easy
+  // way to determine if it has failed.
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
 }
 
 // ==========================================================================
 // Protected functions.
 // ==========================================================================
 
-// This internal protected method sends the desired set position command to fall
-// forward or backward.
-void MiP::fallDown(MiPFallDirection direction) {
+// This internal protected method sends the desired set position command to
+// fall forward or backward.
+void MiP_Motion::fallDown(MiPFallDirection direction) {
   uint8_t command[1 + 1];
   command[0] = MIP_CMD_SET_POSITION;
   command[1] = direction;
 
-  // Send this command blindly with no error checking since there is no easy way
-  // to determine if it has failed.
-  rawSend(command, sizeof(command));
+  // Send this command blindly with no error checking since there is no easy
+  // way to determine if it has failed.
+  m_mip.serial.rawSend(command, sizeof(command));
 }

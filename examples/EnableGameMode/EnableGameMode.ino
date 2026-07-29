@@ -10,35 +10,35 @@
  * shortened for bench testing or lengthened to watch the robot perform.
  *
  * The example exercises these API calls:
- *   - enableAppMode()
- *   - enableCageMode()
- *   - enableDanceMode()
- *   - enableStackMode()
- *   - enableTrickMode()
- *   - enableRoamMode()
- *   - isAppModeEnabled()
- *   - isCageModeEnabled()
- *   - isDanceModeEnabled()
- *   - isStackModeEnabled()
- *   - isTrickModeEnabled()
- *   - isRoamModeEnabled()
+ *   - mode.enableApp()
+ *   - mode.enableCage()
+ *   - mode.enableDance()
+ *   - mode.enableStack()
+ *   - mode.enableTrick()
+ *   - mode.enableRoam()
+ *   - mode.isAppEnabled()
+ *   - mode.isCageEnabled()
+ *   - mode.isDanceEnabled()
+ *   - mode.isStackEnabled()
+ *   - mode.isTrickEnabled()
+ *   - mode.isRoamEnabled()
  *
- * @copyright Copyright (C) 2018 Samuel Trassare (https://github.com/Tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * @copyright Copyright (C) 2018 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
- 
+
 #include <MPU_D1_mini.h>
 
 /**
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * enableCageMode(), enableDanceMode(), enableStackMode(), enableTrickMode(),
- * enableRoamMode(), enableAppMode(), and the corresponding isXModeEnabled()
- * query functions.
+ * mode.enableCage(), mode.enableDance(), mode.enableStack(),
+ * mode.enableTrick(), mode.enableRoam(), mode.enableApp(), and the
+ * corresponding mode.isXEnabled() query functions.
  */
 MiP mip;
 
@@ -77,6 +77,9 @@ void setup() {
   Serial1.println(F("EnableGameMode.ino: Cycles through each mode available."));
 
   delay(500);
+
+  // Reset MiP's volume to default so you can hear him cycling through the modes.
+  mip.sound.writeVolume(MIP_VOLUME_7);
 }
 
 /**
@@ -84,53 +87,54 @@ void setup() {
  *
  * @details Repeatedly enables each available game mode on the MiP robot in
  * sequence. After enabling a mode, the sketch queries the corresponding
- * isXModeEnabled() function to verify the mode was activated and prints a
+ * mode.isXEnabled() function to verify the mode was activated and prints a
  * confirmation message to Serial1. The sketch then delays for delayPeriod
  * milliseconds before moving to the next mode.
  *
  * Sequence:
- *   - enableCageMode()  -> isCageModeEnabled()
- *   - enableDanceMode() -> isDanceModeEnabled()
- *   - enableStackMode() -> isStackModeEnabled()
- *   - enableTrickMode() -> isTrickModeEnabled()
- *   - enableRoamMode()  -> isRoamModeEnabled()
- *   - enableAppMode()   -> isAppModeEnabled()
+ *   - mode.enableCage()  -> mode.isCageEnabled()
+ *   - mode.enableDance() -> mode.isDanceEnabled()
+ *   - mode.enableStack() -> mode.isStackEnabled()
+ *   - mode.enableTrick() -> mode.isTrickEnabled()
+ *   - mode.enableRoam()  -> mode.isRoamEnabled()
+ *   - mode.enableApp()   -> mode.isAppEnabled()
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-	
-  mip.enableCageMode();
-  if (mip.isCageModeEnabled()) {
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
+
+  mip.mode.enableCage();
+  if (mip.mode.isCageEnabled()) {
     Serial1.println(F(" Cage mode enabled."));
   }
   delay(delayPeriod);
 
-  mip.enableDanceMode();
-  if (mip.isDanceModeEnabled()) {
+  mip.mode.enableDance();
+  if (mip.mode.isDanceEnabled()) {
     Serial1.println(F(" Dance mode enabled."));
   }
   delay(delayPeriod);
 
-  mip.enableStackMode();
-  if (mip.isStackModeEnabled()) {
+  mip.mode.enableStack();
+  if (mip.mode.isStackEnabled()) {
     Serial1.println(F(" Stack mode enabled."));
   }
   delay(delayPeriod);
 
-  mip.enableTrickMode();
-  if (mip.isTrickModeEnabled()) {
+  mip.mode.enableTrick();
+  if (mip.mode.isTrickEnabled()) {
     Serial1.println(F(" Trick mode enabled."));
   }
   delay(delayPeriod);
 
-  mip.enableRoamMode();
-  if (mip.isRoamModeEnabled()) {
+  mip.mode.enableRoam();
+  if (mip.mode.isRoamEnabled()) {
     Serial1.println(F(" Roam mode enabled."));
   }
   delay(delayPeriod);
 
-  mip.enableAppMode();
-  if (mip.isAppModeEnabled()) {
+  mip.mode.enableApp();
+  if (mip.mode.isAppEnabled()) {
     Serial1.println(F(" App mode enabled."));
   }
   delay(delayPeriod);

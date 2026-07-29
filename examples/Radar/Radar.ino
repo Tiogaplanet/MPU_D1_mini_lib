@@ -9,9 +9,9 @@
  * readable description whenever the radar reading changes.
  *
  * The example exercises these API calls:
- *   - enableRadarMode()
+ *   - radar.enable()
  *   - isUpright()
- *   - readRadar()
+ *   - radar.read()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +19,14 @@
  * You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
- 
+
 #include <MPU_D1_mini.h>
 
 /**
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * enableRadarMode(), isUpright(), and readRadar().
+ * radar.enable(), isUpright(), and radar.read().
  */
 MiP mip;
 
@@ -62,7 +62,7 @@ void setup() {
   }
 
   // Enable radar mode so readRadar() returns distance categories.
-  mip.enableRadarMode();
+  mip.radar.enable();
 }
 
 /**
@@ -81,9 +81,9 @@ void setup() {
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-  
+
   static MiPRadar lastRadar = MIP_RADAR_INVALID;  // Remember last reported radar state.
-  MiPRadar currentRadar = mip.readRadar();        // Read current radar category.
+  MiPRadar currentRadar = mip.radar.read();        // Read current radar category.
 
   // Only act when a valid reading is available and it changed since last time.
   if (currentRadar != MIP_RADAR_INVALID && lastRadar != currentRadar) {

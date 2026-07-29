@@ -2,7 +2,7 @@
  * @file BareMinimumWifi.ino
  * @brief Demonstrates the absolute minimum code required to connect MiP to a WiFi network.
  *
- * @details This sketch serves as a clean starting template for custom projects using the 
+ * @details This sketch serves as a clean starting template for custom projects using the
  * Wemos D1 mini and MiP. It initializes the MiP library, establishes a WiFi connection
  * using the provided credentials, prints the assigned IP address, and sets up the loop
  * for Over-The-Air (OTA) updates and custom user code.
@@ -10,13 +10,13 @@
  * While using the MPU:D1 mini library, the entirety of the esp8266 library is available
  * for use, meaning you could manage your own WiFi connectivity with calls to WiFi.begin(),
  * WiFi.connect(), etc. Therefore, this library only wraps the aforementioned two WiFi
- * functions to provide minor additional capbility: MiP manages the ssid, password, and 
- * hostname variables and animates MiP's eyes while attempting to establish a WiFi 
+ * functions to provide minor additional capbility: MiP manages the ssid, password, and
+ * hostname variables and animates MiP's eyes while attempting to establish a WiFi
  * connection.
  *
  * Example used in API documentation:
- *   - begin(ssid, password, hostname)
- 
+ *   - wifi.begin(ssid, password, hostname)
+
  * @copyright Copyright (C) 2018 Samuel Trassare (https://github.com/Tiogaplanet)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ bool connectResult;
 /**
  * @brief Arduino setup routine.
  *
- * @details Initializes the MiP object and attempts to establish a WiFi connection 
- * using the provided SSID, password, and hostname. If successful, it prints the 
+ * @details Initializes the MiP object and attempts to establish a WiFi connection
+ * using the provided SSID, password, and hostname. If successful, it prints the
  * connected IP address to the debug serial monitor.
  */
 void setup() {
@@ -59,7 +59,7 @@ void setup() {
 
   Serial1.println(F("BareMinimumWifi.ino: Connect to a wireless access point."));
 
-  if (mip.wifiBegin(ssid, password, hostname) == WL_CONNECTED) {
+  if (mip.wifi.begin(ssid, password, hostname) == WL_CONNECTED) {
     // You could delete this chunk of code.
     // It's here only to show your IP address.
     Serial1.print(F(" IP address: "));
@@ -72,8 +72,8 @@ void setup() {
 /**
  * @brief Main Arduino loop routine.
  *
- * @details Handles Over-The-Air (OTA) firmware updates to keep the board accessible 
- * over the network. This is the main entry point for adding custom control logic 
+ * @details Handles Over-The-Air (OTA) firmware updates to keep the board accessible
+ * over the network. This is the main entry point for adding custom control logic
  * and behaviors for the MiP robot.
  */
 void loop() {

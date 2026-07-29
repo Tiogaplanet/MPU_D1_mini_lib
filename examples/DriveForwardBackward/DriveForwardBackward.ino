@@ -9,8 +9,8 @@
  * progress and completion.
  *
  * The example exercises these API calls:
- *   - driveForward()
- *   - driveBackward()
+ *   - motion.driveForward()
+ *   - motion.driveBackward()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * driveForward(), and driveBackward().
+ * motion.driveForward(), and motion.driveBackward().
  */
 MiP mip;
 
@@ -48,16 +48,20 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("DriveForwardBackward.ino: Use driveForward() and driveBackward() functions. Drive ahead and back, 1 second in each direction."));
+  Serial1.println(F("DriveForwardBackward.ino: Use motion.driveForward() and "
+                    "motion.driveBackward() functions. Drive ahead and back, 1 "
+                    "second in each direction."));
 
   /* Drive forward at speed 15 for 1000 milliseconds. */
-  mip.driveForward(15, 1000);
-  /* Wait 2000 ms to allow the forward motion to complete and provide a pause. */
+  mip.motion.driveForward(15, 1000);
+  /* Wait 2000 ms to allow the forward motion to complete and provide a pause.
+   */
   delay(2000);
 
   /* Drive backward at speed 15 for 1000 milliseconds. */
-  mip.driveBackward(15, 1000);
-  /* Wait 2000 ms to allow the backward motion to complete and provide a pause. */
+  mip.motion.driveBackward(15, 1000);
+  /* Wait 2000 ms to allow the backward motion to complete and provide a pause.
+   */
   delay(2000);
 
   Serial1.println();
@@ -71,5 +75,4 @@ void setup() {
  * repeated work in loop(). The function is intentionally left empty so the
  * sketch does not issue additional commands after the demonstration completes.
  */
-void loop() {
-}
+void loop() {}

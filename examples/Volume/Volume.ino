@@ -57,13 +57,15 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("Volume.ino: Use read/writeVolume(). Set volume level to off (0) and read out afterwards."));
+  Serial1.println(
+      F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
+        "volume level to off (0) and read out afterwards."));
 
   // Set the device volume to the predefined "off" constant.
-  mip.writeVolume(MIP_VOLUME_OFF);
+  mip.sound.writeVolume(MIP_VOLUME_OFF);
 
   // Read the current volume level from the device.
-  uint8_t volume = mip.readVolume();
+  uint8_t volume = mip.sound.readVolume();
 
   Serial1.print(F(" Volume = "));
   Serial1.println(volume);
@@ -79,5 +81,4 @@ void setup() {
  * require repeated work in loop(). The function is intentionally left empty
  * so the sketch completes once during initialization.
  */
-void loop() {
-}
+void loop() {}

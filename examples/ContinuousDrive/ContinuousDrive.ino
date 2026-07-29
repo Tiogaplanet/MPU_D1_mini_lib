@@ -10,7 +10,7 @@
  * loop remains non-blocking.
  *
  * The example exercises these API calls:
- *   - continuousDrive()
+ *   - motion.continuousDrive()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -103,7 +103,7 @@ void loop() {
          * Here both parameters are positive to indicate forward motion with
          * a rightward turning component.
          */
-        mip.continuousDrive(16, 16);
+        mip.motion.continuousDrive(16, 16);
       } else {
         startTime = currentTime;
         state = LEFT_TURN;
@@ -115,7 +115,7 @@ void loop() {
          * Negative forwardSpeed indicates backward motion; negative turnRate
          * indicates leftward turning component in this usage.
          */
-        mip.continuousDrive(-16, -16);
+        mip.motion.continuousDrive(-16, -16);
       } else {
         Serial1.println();
         Serial1.println(F("ContinuousDrive.ino: Done."));

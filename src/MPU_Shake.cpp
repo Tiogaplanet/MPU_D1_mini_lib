@@ -21,16 +21,19 @@
  */
 #include "MPU_D1_mini.h"
 
-bool MiP::hasBeenShaken() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Shake->hasBeenShaken()");
+// Implement the constructor to store the MiP reference.
+MiP_Shake::MiP_Shake(MiP& mip) : m_mip(mip) {}
+
+bool MiP_Shake::read() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Shake->read()");
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
-  processAllResponseData();
-  m_lastError = MIP_ERROR_NONE;
-  if (m_flags & MIP_FLAG_SHAKE_DETECTED) {
+  m_mip.serial.processAllResponseData();
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
+  if (m_mip.m_flags & MiP::MIP_FLAG_SHAKE_DETECTED) {
     // A shake event has been received since the last call to this function.
     // Return true and clear the shake detected bit.
-    m_flags &= ~MIP_FLAG_SHAKE_DETECTED;
+    m_mip.m_flags &= ~m_mip.MIP_FLAG_SHAKE_DETECTED;
     return true;
   }
   return false;

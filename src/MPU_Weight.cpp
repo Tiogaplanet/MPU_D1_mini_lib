@@ -19,46 +19,57 @@
  * Weight data is cached from OOB events when available; otherwise a direct
  * verified request is made with retries.
  */
+#include <Arduino.h>
+
 #include "MPU_D1_mini.h"
+#include "MPU_Weight.h"
 
-// MiP Protocol Command to request weight.
-// These command codes are placed in the first byte of requests sent to the MiP
-// and responses sent back from the MiP. See
-// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-// for the complete list.
-#define MIP_CMD_GET_WEIGHT 0x81
+// Implement the constructor to store the MiP reference.
+MiP_Weight::MiP_Weight(MiP& mip) : m_mip(mip) {
+  clear();
+}
 
-int8_t MiP::readWeight() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Weight->readWeight()");
+void MiP_Weight::processEvent(int8_t weightValue) {
+  m_lastWeight = weightValue;
+  m_mip.m_flags |= m_mip.MIP_FLAG_WEIGHT_VALID;
+}
+
+void MiP_Weight::clear() {
+  m_lastWeight = 0;
+}
+
+int8_t MiP_Weight::read() {
+  //MIP_DEBUG_INFO_PRINTLN("MiP->Weight->readWeight()");
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
-  processAllResponseData();
-  if ((m_flags & MIP_FLAG_WEIGHT_VALID)) {
+  m_mip.serial.processAllResponseData();
+  if ((m_mip.m_flags & m_mip.MIP_FLAG_WEIGHT_VALID)) {
     // Have a cached weight event already, so just return it.
-    m_lastError = MIP_ERROR_NONE;
+    m_mip.m_lastError = MiP::MIP_ERROR_NONE;
     return m_lastWeight;
   }
 
   // Haven't seen a weight event yet so request the weight explicitly.
   // Retry the read if it should fail on the first attempt.
   int8_t result;
-  for (uint8_t retry = 0; retry < MIP_MAX_RETRIES; retry++) {
+  for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     int8_t weight;
-    result = rawGetWeight(weight);
-    if (result == MIP_ERROR_NONE) {  // Error codes defined in MPU_D1_mini.h.
+    result = rawGet(weight);
+    if (result ==
+        MiP::MIP_ERROR_NONE) {  // Error codes defined in MPU_D1_mini.h.
       // Cache the returned value and return it to the caller.
-      m_lastError = MIP_ERROR_NONE;
+      m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       m_lastWeight = weight;
-      m_flags |=
-          MIP_FLAG_WEIGHT_VALID;  // From the enum FlagBits in MPU_D1_mini.h.
+      m_mip.m_flags |= m_mip.MIP_FLAG_WEIGHT_VALID;  // From the enum FlagBits
+                                                     // in MPU_D1_mini.h.
       return weight;
     }
 
     // An error was encountered so we will loop around and try again.
     // Wait for a bit before the next retry.
-    delay(MIP_RETRY_WAIT);
+    delay(MiP_Serial::MIP_RETRY_WAIT);
   }
-  m_lastError = result;
+  m_mip.m_lastError = result;
   return 0;
 }
 
@@ -68,24 +79,25 @@ int8_t MiP::readWeight() {
 
 // This internal protected method sends the get weight command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
-int8_t MiP::rawGetWeight(int8_t& weight) {
+int8_t MiP_Weight::rawGet(int8_t& weight) {
   const uint8_t getWeight[1] = {MIP_CMD_GET_WEIGHT};
   uint8_t response[1 + 1];
   size_t responseLength;
-  int8_t result = rawReceive(
+  int8_t result = m_mip.serial.rawReceive(
       getWeight, sizeof(getWeight), response, sizeof(response), responseLength);
   if (result)
     return result;
-  return parseWeight(weight, response, responseLength);
+  return parse(weight, response, responseLength);
 }
 
 // This internal protected method takes the weight response and validates it.
-int8_t MiP::parseWeight(int8_t& weight,
-                        const uint8_t response[],
-                        size_t responseLength) {
+int8_t MiP_Weight::parse(int8_t& weight,
+                         const uint8_t response[],
+                         size_t responseLength) {
   if (responseLength != 2 || response[0] != MIP_CMD_GET_WEIGHT) {
-    return MIP_ERROR_BAD_RESPONSE;  // Error codes defined in MPU_D1_mini.h.
+    return m_mip
+        .MIP_ERROR_BAD_RESPONSE;  // Error codes defined in MPU_D1_mini.h.
   }
   weight = response[1];
-  return MIP_ERROR_NONE;  // Error codes defined in MPU_D1_mini.h.
+  return MiP::MIP_ERROR_NONE;  // Error codes defined in MPU_D1_mini.h.
 }

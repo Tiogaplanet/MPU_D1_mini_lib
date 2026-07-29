@@ -3,8 +3,8 @@
  * @brief Example sketch demonstrating MiP distance-based drive commands.
  *
  * @details This sketch shows how to use the MiP library to queue and execute
- * distanceDrive() commands that move the robot forward/backward and rotate it
- * by specified degrees. The example queues a sequence of commands:
+ * motion.distanceDrive() commands that move the robot forward/backward and
+ * rotate it by specified degrees. The example queues a sequence of commands:
  *   - Drive forward a short distance.
  *   - Turn 360 degrees left.
  *   - Turn 360 degrees right.
@@ -15,7 +15,7 @@
  * firmware; the sketch simply issues the commands during setup().
  *
  * The example exercises these API calls:
- *   - distanceDrive()
+ *   - motion.distanceDrive()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,13 +54,15 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("DistanceDrive.ino: Use distanceDrive function. Drive forward, turn 360 degrees in each direction and backward."));
+  Serial1.println(
+    F("DistanceDrive.ino: Use distanceDrive function. Drive forward, turn "
+      "360 degrees in each direction and backward."));
 
   // Queue up multiple commands to run in sequence.
-  mip.distanceDrive(MIP_DRIVE_FORWARD, 30, MIP_TURN_RIGHT, 0);
-  mip.distanceDrive(MIP_DRIVE_FORWARD, 0, MIP_TURN_LEFT, 360);
-  mip.distanceDrive(MIP_DRIVE_FORWARD, 0, MIP_TURN_RIGHT, 360);
-  mip.distanceDrive(MIP_DRIVE_BACKWARD, 30, MIP_TURN_RIGHT, 0);
+  mip.motion.distanceDrive(MIP_DRIVE_FORWARD, 30, MIP_TURN_RIGHT, 0);
+  mip.motion.distanceDrive(MIP_DRIVE_FORWARD, 0, MIP_TURN_LEFT, 360);
+  mip.motion.distanceDrive(MIP_DRIVE_FORWARD, 0, MIP_TURN_RIGHT, 360);
+  mip.motion.distanceDrive(MIP_DRIVE_BACKWARD, 30, MIP_TURN_RIGHT, 0);
 
   Serial1.println();
   Serial1.println(F("DistanceDrive.ino: Done."));
@@ -74,5 +76,4 @@ void setup() {
  * queued distanceDrive() commands can execute on the robot without further
  * intervention from the sketch.
  */
-void loop() {
-}
+void loop() {}

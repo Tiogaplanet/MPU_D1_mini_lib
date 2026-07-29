@@ -8,7 +8,7 @@
  * prints a notification to Serial1. The sketch demonstrates basic use of the
  * MiP API for initialization and the shake-detection query:
  *   - begin()
- *   - hasBeenShaken()
+ *   - shake.read()
  *
  * Typical usage:
  *   - Load this sketch onto the MPU: D1 mini connected to a MiP Power Up.
@@ -32,7 +32,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin() and
- * hasBeenShaken(). Keeping the instance at file scope makes it available
+ * shake.read(). Keeping the instance at file scope makes it available
  * throughout setup() and loop().
  */
 MiP mip;
@@ -73,8 +73,8 @@ void setup() {
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-  
-  if (mip.hasBeenShaken()) {
+
+  if (mip.shake.read()) {
     Serial1.println(F(" Shake detected!"));
   }
 }

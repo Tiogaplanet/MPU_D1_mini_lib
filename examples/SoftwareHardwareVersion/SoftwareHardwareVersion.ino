@@ -1,19 +1,21 @@
 /**
  * @file SoftwareHardwareVersion.ino
- * @brief Example sketch that reads MiP software and hardware version information.
+ * @brief Example sketch that reads MiP software and hardware version
+ * information.
  *
  * @details
  * This sketch demonstrates how to query a MiP for its software version and
  * hardware information using the MiP library. It:
  *   - Initializes communication with the MiP using mip.begin().
  *   - Reads the software version into a MiPSoftwareVersion struct via
- *     readSoftwareVersion() and prints a formatted date and unique version.
+ *     version.readSoftware() and prints a formatted date and unique version.
  *   - Reads hardware information into a MiPHardwareInfo struct via
- *     readHardwareInfo() and prints voice chip and hardware revision details.
+ *     version.readHardware() and prints voice chip and hardware revision
+ * details.
  *
  * The example exercises these API calls:
- *   - readSoftwareVersion()
- *   - readHardwareInfo()
+ *   - version.readSoftware()
+ *   - version.readHardware()
  *
  * The output is printed to Serial1 in a human-readable format so the user can
  * inspect the device's firmware date and build as well as hardware revision
@@ -37,7 +39,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * readSoftwareVersion(), and readHardwareInfo().
+ * version.readSoftware(), and version.readHardware().
  */
 MiP mip;
 
@@ -58,15 +60,18 @@ MiP mip;
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("SoftwareHardwareVersion.ino: Failed connecting to MiP!"));
+    Serial1.println(
+      F("SoftwareHardwareVersion.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("SoftwareHardwareVersion.ino: Use readSoftwareVersion() and readHardwareInfo() functions."));
+  Serial1.println(
+    F("SoftwareHardwareVersion.ino: \n\rUse version.readSoftware() and "
+      "version.readHardware() functions."));
 
   /* Read and display software version information. */
   MiPSoftwareVersion softwareVersion;
-  mip.readSoftwareVersion(softwareVersion);
+  mip.version.readSoftware(softwareVersion);
   Serial1.print(F(" Software version: "));
   Serial1.print(softwareVersion.year);
   Serial1.print('-');
@@ -78,7 +83,7 @@ void setup() {
 
   /* Read and display hardware information. */
   MiPHardwareInfo hardwareInfo;
-  mip.readHardwareInfo(hardwareInfo);
+  mip.version.readHardware(hardwareInfo);
   Serial1.println(F(" Hardware info"));
   Serial1.print(F("  Voice chip version: "));
   Serial1.println(hardwareInfo.voiceChip);
@@ -96,5 +101,4 @@ void setup() {
  * require repeated work in loop(). The function is intentionally left empty
  * so the sketch completes once during initialization.
  */
-void loop() {
-}
+void loop() {}

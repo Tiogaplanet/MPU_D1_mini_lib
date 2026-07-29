@@ -56,7 +56,7 @@ void setup() {
   uint8_t red = 0xff;
   uint8_t green = 0x01;
   uint8_t blue = 0xfe;
-  mip.writeChestLED(red, green, blue);
+  mip.chestLED.write(red, green, blue);
   printCurrentChestLEDSetting();
   delay(1000);
 
@@ -66,7 +66,7 @@ void setup() {
   blue = 0x05;
   const uint16_t onTime = 990;
   const uint16_t offTime = 989;
-  mip.writeChestLED(red, green, blue, onTime, offTime);
+  mip.chestLED.write(red, green, blue, onTime, offTime);
   printCurrentChestLEDSetting();
   delay(4000);
 
@@ -77,7 +77,7 @@ void setup() {
   chestLED.blue = 0x00;
   chestLED.onTime = 0;
   chestLED.offTime = 0;
-  mip.writeChestLED(chestLED);
+  mip.chestLED.write(chestLED);
   printCurrentChestLEDSetting();
   delay(1000);
 
@@ -87,14 +87,14 @@ void setup() {
   red = 0xff;
   green = 0x01;
   blue = 0xfe;
-  mip.unverifiedWriteChestLED(red, green, blue);
+  mip.chestLED.unverifiedWrite(red, green, blue);
   delay(1000);
 
   Serial1.println(F(" Trying to set chest LED to blink red, no time specified."));
   red = 0xff;
   green = 0x01;
   blue = 0x05;
-  mip.unverifiedWriteChestLED(red, green, blue, onTime, offTime);
+  mip.chestLED.unverifiedWrite(red, green, blue, onTime, offTime);
   delay(4000);
 
   Serial1.println(F(" Trying to set chest LED back to green, no time specified."));
@@ -103,7 +103,7 @@ void setup() {
   chestLED.blue = 0x00;
   chestLED.onTime = 0;
   chestLED.offTime = 0;
-  mip.unverifiedWriteChestLED(chestLED);
+  mip.chestLED.unverifiedWrite(chestLED);
   delay(1000);
 
   Serial1.println();
@@ -130,7 +130,7 @@ void loop() {
  */
 static void printCurrentChestLEDSetting() {
   MiPChestLED chestLED;
-  mip.readChestLED(chestLED);
+  mip.chestLED.read(chestLED);
 
   Serial1.println(F(" Current Chest LED Setting"));
   Serial1.print(F("    red: "));

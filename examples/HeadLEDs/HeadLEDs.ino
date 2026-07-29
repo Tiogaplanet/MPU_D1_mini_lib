@@ -4,17 +4,17 @@
  *
  * @details This sketch shows how to use the MiP library to set and read the
  * robot's head (eye) LEDs using both verified and unverified APIs. It:
- *   - Sets each head LED to a different state using writeHeadLEDs().
- *   - Reads back the current head LED states with readHeadLEDs() and prints
+ *   - Sets each head LED to a different state using headLEDs.write().
+ *   - Reads back the current head LED states with headLEDs.read() and prints
  *     a human-readable description for each LED.
  *   - Restores all head LEDs to the ON state.
- *   - Repeats the sequence using unverifiedWriteHeadLEDs() to demonstrate
+ *   - Repeats the sequence using headLEDs.unverifiedWrite() to demonstrate
  *     the unverified API which may not always be accepted by the robot.
  *
  * The example exercises these API calls:
- *   - writeHeadLEDs()
- *   - readHeadLEDs()
- *   - unverifiedWriteHeadLEDs()
+ *   - headLEDs.write()
+ *   - headLEDs.read()
+ *   - headLEDs.unverifiedWrite()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * writeHeadLEDs(), readHeadLEDs(), and unverifiedWriteHeadLEDs().
+ * headLEDs.write(), headLEDs.read(), and headLEDs.unverifiedWrite().
  */
 MiP mip;
 
@@ -39,11 +39,12 @@ MiP mip;
  * @details Initializes communication with the MiP robot by calling mip.begin().
  * If the connection fails, an error message is printed to Serial1 and setup
  * returns early. On success, the sketch:
- *   - Sets the four head LEDs to different states (OFF, ON, BLINK_SLOW, BLINK_FAST).
+ *   - Sets the four head LEDs to different states (OFF, ON, BLINK_SLOW,
+ * BLINK_FAST).
  *   - Reads the current head LED states into a MiPHeadLEDs struct and prints
  *     each LED's state using printLEDString().
  *   - Restores all head LEDs to ON and demonstrates the unverified write API
- *     by attempting the same sequence with unverifiedWriteHeadLEDs().
+ *     by attempting the same sequence with headLEDs.unverifiedWrite().
  *
  * The function prints progress and results to Serial1 for observation.
  */
@@ -54,11 +55,13 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("HeadLEDs.ino: Use head LED functions. Should set each head LED to different state."));
-  mip.writeHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW, MIP_HEAD_LED_BLINK_FAST);
+  Serial1.println(F("HeadLEDs.ino: Use head LED functions. Should set each "
+                    "head LED to different state."));
+  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW,
+                     MIP_HEAD_LED_BLINK_FAST);
 
   MiPHeadLEDs headLEDs;
-  mip.readHeadLEDs(headLEDs);
+  mip.headLEDs.read(headLEDs);
   Serial1.println(F("Head LEDs"));
   Serial1.print(F("    led1: "));
   printLEDString(headLEDs.led1);
@@ -73,19 +76,24 @@ void setup() {
 
   // Turn all the LEDs back on now.
   Serial1.println(F(" Turning all eye LEDs back on now."));
-  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 = MIP_HEAD_LED_ON;
-  mip.writeHeadLEDs(headLEDs);
+  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 =
+    MIP_HEAD_LED_ON;
+  mip.headLEDs.write(headLEDs);
   delay(1000);
 
   // Attempt to run through the same sequence of head LED changes using the
-  // unverifiedWriteHeadLEDs() functions which don't always get accepted by MiP.
+  // headLEDs.unverifiedWrite() functions which don't always get accepted by
+  // MiP.
   Serial1.println(F(" Trying to set each head LED to a different state."));
-  mip.unverifiedWriteHeadLEDs(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW, MIP_HEAD_LED_BLINK_FAST);
+  mip.headLEDs.unverifiedWrite(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
+                               MIP_HEAD_LED_BLINK_SLOW,
+                               MIP_HEAD_LED_BLINK_FAST);
   delay(4000);
 
   Serial1.println(F(" Trying to set all eye LEDs back on now."));
-  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 = MIP_HEAD_LED_ON;
-  mip.unverifiedWriteHeadLEDs(headLEDs);
+  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 =
+    MIP_HEAD_LED_ON;
+  mip.headLEDs.unverifiedWrite(headLEDs);
 
   Serial1.println();
   Serial1.println(F("HeadLEDs.ino: Done."));
@@ -132,5 +140,4 @@ static void printLEDString(MiPHeadLED led) {
  * repeated work in loop(). The function is intentionally left empty so the
  * demonstration runs only once during initialization.
  */
-void loop() {
-}
+void loop() {}

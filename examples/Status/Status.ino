@@ -11,15 +11,15 @@
  * how to use the status-related API calls.
  *
  * The example exercises these API calls:
- *   - readBatteryVoltage()
- *   - readPosition()
- *   - isOnBack()
- *   - isFaceDown()
- *   - isUpright()
- *   - isPickedUp()
- *   - isHandStanding()
- *   - isFaceDownOnTray()
- *   - isOnBackWithKickstand()
+ *   - battery.readVoltage()
+ *   - position.read()
+ *   - position.isOnBack()
+ *   - position.isFaceDown()
+ *   - position.isUpright()
+ *   - position.isPickedUp()
+ *   - position.isHandStanding()
+ *   - position.isFaceDownOnTray()
+ *   - position.isOnBackWithKickstand()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -103,9 +103,9 @@ void setup() {
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
- 
-  float currentBatteryLevel = mip.readBatteryVoltage();
-  MiPPosition currentPosition = mip.readPosition();
+
+  float currentBatteryLevel = mip.battery.readVoltage();
+  MiPPosition currentPosition = mip.position.read();
 
   /* Report battery voltage when it changes. */
   if (currentBatteryLevel != lastBatteryLevel) {
@@ -117,25 +117,25 @@ void loop() {
 
   /* Report position changes by evaluating all position predicates. */
   if (currentPosition != lastPosition) {
-    if (mip.isOnBack()) {
+    if (mip.position.isOnBack()) {
       Serial1.println(F(" Position: On Back"));
     }
-    if (mip.isFaceDown()) {
+    if (mip.position.isFaceDown()) {
       Serial1.println(F(" Position: Face Down"));
     }
-    if (mip.isUpright()) {
+    if (mip.position.isUpright()) {
       Serial1.println(F(" Position: Upright"));
     }
-    if (mip.isPickedUp()) {
+    if (mip.position.isPickedUp()) {
       Serial1.println(F(" Position: Picked Up"));
     }
-    if (mip.isHandStanding()) {
+    if (mip.position.isHandStanding()) {
       Serial1.println(F(" Position: Hand Stand"));
     }
-    if (mip.isFaceDownOnTray()) {
+    if (mip.position.isFaceDownOnTray()) {
       Serial1.println(F(" Position: Face Down on Tray"));
     }
-    if (mip.isOnBackWithKickstand()) {
+    if (mip.position.isOnBackWithKickstand()) {
       Serial1.println(F(" Position: On Back With Kickstand"));
     }
 

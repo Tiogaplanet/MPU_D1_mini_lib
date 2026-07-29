@@ -6,11 +6,11 @@
  * APIs to enable gesture mode, poll for gesture events, and report the
  * detected gestures to Serial1. The sketch waits for the robot to be upright
  * before enabling gesture mode and then continuously reads available gesture
- * events using availableGestureEvents() and readGestureEvent().
+ * events using gesture.availableEvents() and gesture.readEvent().
  *
  * The example exercises these API calls:
- *   - availableGestureEvents()
- *   - readGestureEvent()
+ *   - gesture.availableEvents()
+ *   - gesture.readEvent()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,8 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * isUpright(), enableGestureMode(), availableGestureEvents(), and
- * readGestureEvent().
+ * position.isUpright(), gesture.enable(), gesture.availableEvents(), and
+ * gesture.readEvent().
  */
 MiP mip;
 
@@ -52,13 +52,14 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("Gesture.ino: Detect gesture and inform user as they occur."));
+  Serial1.println(
+    F("Gesture.ino: Detect gesture and inform user as they occur."));
 
-  Serial1.println(F(" Waiting for robot to be standing upright."));
-  while (!mip.isUpright()) {
+  Serial1.println(F(" Waiting for MiP to be standing upright."));
+  while (!mip.position.isUpright()) {
     // Waiting for the robot to be upright before enabling gesture mode.
   }
-  mip.enableGestureMode();
+  mip.gesture.enable();
 }
 
 /**
@@ -71,11 +72,12 @@ void setup() {
  * values including a defensive case for MIP_GESTURE_INVALID.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
-  
-  while (mip.availableGestureEvents() > 0) {
-    MiPGesture gesture = mip.readGestureEvent();
-    Serial1.print(F("Detected "));
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
+
+  while (mip.gesture.availableEvents() > 0) {
+    MiPGesture gesture = mip.gesture.readEvent();
+    Serial1.print(F(" Detected "));
     switch (gesture) {
       case MIP_GESTURE_LEFT:
         Serial1.println(F("Left gesture!"));
@@ -100,10 +102,10 @@ void loop() {
         break;
       case MIP_GESTURE_INVALID:
         /**
-         * @note MIP_GESTURE_INVALID should not normally be returned when
-         * availableGestureEvents() reported > 0, but handle it defensively.
-         */
-        Serial1.println(F("INVALID gesture!"));
+       * @note MIP_GESTURE_INVALID should not normally be returned when
+       * availableGestureEvents() reported > 0, but handle it defensively.
+       */
+        Serial1.println(F(" INVALID gesture!"));
         break;
     }
   }

@@ -13,47 +13,40 @@
    limitations under the License.
 */
 /**
- * @file MPU_Transport.cpp
+ * @file MPU_Serial.cpp
  * @brief Low-level UART transport layer for MiP communication.
  *
  * Handles raw sending/receiving, hex-to-binary conversion, request/response
  * timing, and processing of Out-Of-Band (OOB) event notifications.
  */
+#include "MPU_Serial.h"
 #include "MPU_D1_mini.h"
 
-#define MIP_REQUEST_DELAY 8
-#define MIP_RESPONSE_TIMEOUT 100
+// Implement the constructor to store the MiP reference.
+MiP_Serial::MiP_Serial(MiP& mip) : m_mip(mip) {
+  clear();
+}
 
-// expectResponse parameter values for transportSendRequest() parameter.
-#define MIP_EXPECT_NO_RESPONSE 0
-#define MIP_EXPECT_RESPONSE 1
+void MiP_Serial::clear() {
+  // Roll the timers back so that the first calls can occur immediately.
+  m_lastRequestTime =
+      millis() - 10;  // MIP_REQUEST_DELAY; // (10) offset slightly
+  m_expectedResponseSize = 0;
+  m_expectedResponseCommand = 0;
+  memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
+}
 
-// MiP Protocol Commands related to sensors.
-// These command codes are placed in the first byte of requests sent to the MiP
-// and responses sent back from the MiP. See
-// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-// for the complete list.
-#define MIP_CMD_RECEIVE_IR_DONGLE_CODE 0x03
-#define MIP_CMD_GET_DETECTED_MIP 0x04
-#define MIP_CMD_GET_GESTURE_RESPONSE 0x0A
-#define MIP_CMD_GET_RADAR_RESPONSE 0x0C
-#define MIP_CMD_GET_VOLUME 0x16
-#define MIP_CMD_SHAKE_RESPONSE 0x1A
-#define MIP_CMD_CLAP_RESPONSE 0x1D
-#define MIP_CMD_GET_STATUS 0x79
-#define MIP_CMD_GET_WEIGHT 0x81
-
-uint8_t MiP::rawReceive(const uint8_t request[],
-                        size_t requestLength,
-                        uint8_t responseBuffer[],
-                        size_t responseBufferSize,
-                        size_t& responseLength) {
+uint8_t MiP_Serial::rawReceive(const uint8_t request[],
+                               size_t requestLength,
+                               uint8_t responseBuffer[],
+                               size_t responseBufferSize,
+                               size_t& responseLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_RESPONSE);
   return transportGetResponse(
       responseBuffer, responseBufferSize, &responseLength);
 }
 
-void MiP::rawSend(const uint8_t request[], size_t requestLength) {
+void MiP_Serial::rawSend(const uint8_t request[], size_t requestLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
 }
 
@@ -61,19 +54,19 @@ void MiP::rawSend(const uint8_t request[], size_t requestLength) {
 // Protected functions.
 // ==========================================================================
 
-uint8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
-                                  size_t responseBufferSize,
-                                  size_t* pResponseLength) {
+uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
+                                         size_t responseBufferSize,
+                                         size_t* pResponseLength) {
   // Must call begin() and have it return 'true' before calling sending commands
   // to the MiP.
-  MIP_ASSERT(isInitialized());
+  m_mip.MIP_ASSERT(m_mip.isInitialized());
 
   // Caller is attempting to get a response that is larger than support by the
   // MiP and this library.
-  MIP_ASSERT(responseBufferSize <= MIP_RESPONSE_MAX_LEN);
+  m_mip.MIP_ASSERT(responseBufferSize <= MIP_RESPONSE_MAX_LEN);
 
   // UNDONE: I think it would be my bug if the following assert ever fired.
-  MIP_ASSERT(m_expectedResponseCommand != 0);
+  m_mip.MIP_ASSERT(m_expectedResponseCommand != 0);
 
   // Process all received bytes (which might include out of band notifications)
   // until we find the response to the last request made. Will timeout after a
@@ -89,7 +82,7 @@ uint8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
   if (!responseFound) {
     // Never received the expected response within the timeout window.
     MIP_DEBUG_WARN_PRINTLN(F("MiP: Response timeout"));
-    return MIP_ERROR_TIMEOUT;
+    return MiP::MIP_ERROR_TIMEOUT;
   }
 
   // Copy reponse data into caller provided buffer and clear state in transport
@@ -100,15 +93,15 @@ uint8_t MiP::transportGetResponse(uint8_t* pResponseBuffer,
   m_expectedResponseSize = 0;
   m_responseBuffer[0] = 0;
 
-  return MIP_ERROR_NONE;
+  return MiP::MIP_ERROR_NONE;
 }
 
-void MiP::transportSendRequest(const uint8_t* pRequest,
-                               size_t requestLength,
-                               int expectResponse) {
+void MiP_Serial::transportSendRequest(const uint8_t* pRequest,
+                                      size_t requestLength,
+                                      int expectResponse) {
   // Must call begin() and have it return 'true' before calling sending commands
   // to the MiP.
-  MIP_ASSERT(isInitialized());
+  m_mip.MIP_ASSERT(m_mip.isInitialized());
 
   // Let the MiP process the last request before letting another request be
   // issued.
@@ -133,7 +126,7 @@ void MiP::transportSendRequest(const uint8_t* pRequest,
   m_lastRequestTime = millis();
 }
 
-bool MiP::processAllResponseData() {
+bool MiP_Serial::processAllResponseData() {
   bool responseFound = false;
   uint8_t buffer[(MIP_RESPONSE_MAX_LEN - 1) * 2];
   size_t bytesToRead;
@@ -169,7 +162,7 @@ bool MiP::processAllResponseData() {
         m_expectedResponseSize = 0;
         m_responseBuffer[0] = 0;
         MIP_DEBUG_ERROR_PRINTF(
-            "MiP: Response too short: %d, %d\n", bytesRead, bytesToRead * 2);
+            "MiP: Response too short: %d, %d\r\n", bytesRead, bytesToRead * 2);
         break;
       }
     } else {
@@ -179,7 +172,7 @@ bool MiP::processAllResponseData() {
   return responseFound;
 }
 
-void MiP::processOobResponseData(uint8_t commandByte) {
+void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   size_t length = 0;
   size_t bytesRead;
 
@@ -189,17 +182,17 @@ void MiP::processOobResponseData(uint8_t commandByte) {
     case MIP_CMD_GET_RADAR_RESPONSE:
     case MIP_CMD_GET_GESTURE_RESPONSE:
     case MIP_CMD_CLAP_RESPONSE:
-    case MIP_CMD_GET_WEIGHT:
-    case MIP_CMD_GET_DETECTED_MIP:
+    case MiP_Weight::MIP_CMD_GET_WEIGHT:
+    case MiP_Infrared::MIP_CMD_GET_DETECTED_MIP:
       length = 1;
       break;
     case MIP_CMD_SHAKE_RESPONSE:
       length = 0;
       break;
-    case MIP_CMD_GET_STATUS:
+    case MiP::MIP_CMD_GET_STATUS:
       length = 2;
       break;
-    case MIP_CMD_RECEIVE_IR_DONGLE_CODE:
+    case MiP_Infrared::MIP_CMD_RECEIVE_IR_DONGLE_CODE:
       // MIP_CMD_RECEIVE_IR_DONGLE_CODE is the only message delivered by MiP
       // that has a variable length so we need to read the next byte which
       // contains the length.
@@ -241,56 +234,62 @@ void MiP::processOobResponseData(uint8_t commandByte) {
   uint8_t response[MIP_RESPONSE_MAX_LEN];
   response[0] = commandByte;
   copyHexTextToBinary(&response[1], buffer, length);
+  // Sam: From this point, start implementing the dispatch code.  Instead of the
+  // ugly following switch statement, each component class should handle their
+  // own logic.
+  m_mip.dispatchEvent(commandByte, response, length + 1);
+  /*
+    // Have 32 bits ready in case of an IR event.
+    uint32_t irCode = 0;
 
-  // Have 32 bits ready in case of an IR event.
-  uint32_t irCode = 0;
-
-  // Process the response just received.
-  switch (commandByte) {
-    case MIP_CMD_GET_RADAR_RESPONSE:
-      if (response[1] >= MIP_RADAR_NONE && response[1] <= MIP_RADAR_0CM_10CM) {
-        m_lastRadar = (MiPRadar)response[1];
-        m_flags |= MIP_FLAG_RADAR_VALID;
-      }
-      break;
-    case MIP_CMD_GET_GESTURE_RESPONSE:
-      if (response[1] >= MIP_GESTURE_LEFT &&
-          response[1] <= MIP_GESTURE_BACKWARD) {
-        m_gestureEvents.push((MiPGesture)response[1]);
-      }
-      break;
-    case MIP_CMD_SHAKE_RESPONSE:
-      m_flags |= MIP_FLAG_SHAKE_DETECTED;
-      break;
-    case MIP_CMD_GET_STATUS:
-      parseStatus(m_lastStatus, response, length + 1);
-      break;
-    case MIP_CMD_GET_WEIGHT:
-      m_lastWeight = response[1];
-      m_flags |= MIP_FLAG_WEIGHT_VALID;
-      break;
-    case MIP_CMD_CLAP_RESPONSE:
-      m_clapEvents.push(response[1]);
-      break;
-    case MIP_CMD_GET_DETECTED_MIP:
-      m_detectedMiPEvents.push(response[1]);
-      break;
-    case MIP_CMD_RECEIVE_IR_DONGLE_CODE:
-      for (size_t i = 0; i < length; i++) {
-        irCode <<= 8;
-        irCode |= response[i + 1];
-      }
-      m_irCodeEvents.push(irCode);
-      break;
-    default:
-      // Invalid notification command bytes were already handled in the previous
-      // switch so should never get here.
-      MIP_ASSERT(false);
-      break;
-  }
+    // Process the response just received.
+    switch (commandByte) {
+      case MIP_CMD_GET_RADAR_RESPONSE:
+        if (response[1] >= MIP_RADAR_NONE && response[1] <= MIP_RADAR_0CM_10CM)
+    { m_lastRadar = (MiPRadar)response[1]; m_flags |= MIP_FLAG_RADAR_VALID;
+        }
+        break;
+      case MIP_CMD_GET_GESTURE_RESPONSE:
+        if (response[1] >= MIP_GESTURE_LEFT &&
+            response[1] <= MIP_GESTURE_BACKWARD) {
+          m_gestureEvents.push((MiPGesture)response[1]);
+        }
+        break;
+      case MIP_CMD_SHAKE_RESPONSE:
+        m_flags |= MIP_FLAG_SHAKE_DETECTED;
+        break;
+      case MIP_CMD_GET_STATUS:
+        parseStatus(m_lastStatus, response, length + 1);
+        break;
+      case MIP_CMD_GET_WEIGHT:
+        m_lastWeight = response[1];
+        m_flags |= MIP_FLAG_WEIGHT_VALID;
+        break;
+      case MIP_CMD_CLAP_RESPONSE:
+        //clap.m_clapEvents.push(response[1]);
+            clap.processEvent(response[1]);
+        break;
+      case MIP_CMD_GET_DETECTED_MIP:
+        m_detectedMiPEvents.push(response[1]);
+        break;
+      case MIP_CMD_RECEIVE_IR_DONGLE_CODE:
+        for (size_t i = 0; i < length; i++) {
+          irCode <<= 8;
+          irCode |= response[i + 1];
+        }
+        m_irCodeEvents.push(irCode);
+        break;
+      default:
+        // Invalid notification command bytes were already handled in the
+    previous
+        // switch so should never get here.
+        MIP_ASSERT(false);
+        break;
+        }
+*/
 }
 
-uint8_t MiP::discardUnexpectedSerialData() {
+uint8_t MiP_Serial::discardUnexpectedSerialData() {
   uint8_t discardedBytes = 0;
 
   // Unexpected response data encountered. Throw away all data in serial buffer
@@ -306,7 +305,9 @@ uint8_t MiP::discardUnexpectedSerialData() {
   return discardedBytes;
 }
 
-void MiP::copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length) {
+void MiP_Serial::copyHexTextToBinary(uint8_t* pDest,
+                                     uint8_t* pSrc,
+                                     uint8_t length) {
   while (length-- > 0) {
     *pDest = (parseHexDigit(pSrc[0]) << 4) | parseHexDigit(pSrc[1]);
     pDest++;
@@ -314,7 +315,7 @@ void MiP::copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length) {
   }
 }
 
-uint8_t MiP::parseHexDigit(uint8_t digit) {
+uint8_t MiP_Serial::parseHexDigit(uint8_t digit) {
   if (digit >= '0' && digit <= '9')
     return digit - '0';
   if (digit >= 'a' && digit <= 'f')
