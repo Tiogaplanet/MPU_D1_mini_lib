@@ -14,11 +14,12 @@
  *   - RESTART: clear LEDs and disable gesture mode while waiting for upright.
  *   - WAITING_TO_STANDUP: wait for the robot to report upright.
  *   - WAITING_FOR_GESTURE: blink outer eyes and poll for left/right gestures.
- *   - PLAYING_EYE_ANIMATION: play a 5-frame eye animation in the chosen direction.
+ *   - PLAYING_EYE_ANIMATION: play a 5-frame eye animation in the chosen
+ * direction.
  *
  * The example demonstrates use of these MiP APIs:
- *   - begin(), isUpright(), enableGestureMode(), disableGestureMode()
- *   - writeHeadLEDs()
+ *   - begin(), position.isUpright(), gesture.enable(), gesture.disable()
+ *   - headLEDs.write()
  *
  * The helper functions blinkOuterEyes() and animateEyes() encapsulate the
  * LED keyframe updates used by the animation sequence.
@@ -41,7 +42,8 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * isUpright(), enableGestureMode(), disableGestureMode(), and writeHeadLEDs().
+ * position.isUpright(), gesture.enable(), gesture.disable(), and
+ * headLEDs.write().
  */
 static MiP g_mip;
 
@@ -88,13 +90,15 @@ void setup() {
  *   - Clears LEDs and disables gesture mode when restarting.
  *   - Waits for the robot to be upright before enabling gesture mode.
  *   - When upright, blinks the outer eyes and waits for left/right gestures.
- *   - On gesture detection, starts a 5-frame eye animation in the gesture direction.
+ *   - On gesture detection, starts a 5-frame eye animation in the gesture
+ * direction.
  *
  * The animation advances every 250 ms while PLAYING_EYE_ANIMATION is active.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
- 
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
+
   enum States {
     RESTART,
     WAITING_TO_STANDUP,
@@ -102,41 +106,47 @@ void loop() {
     PLAYING_EYE_ANIMATION
   } static state = RESTART;
 
-  static int8_t animationDirection = 0; /**< +1 = leftward animation, -1 = rightward */
-  static uint32_t keyframeStart = 0;    /**< Timestamp when current keyframe started */
-  static uint8_t frameCount = 0;        /**< Remaining frames in current animation */
+  static int8_t animationDirection =
+    0; /**< +1 = leftward animation, -1 = rightward */
+  static uint32_t keyframeStart =
+    0;                           /**< Timestamp when current keyframe started */
+  static uint8_t frameCount = 0; /**< Remaining frames in current animation */
   MiPGesture gesture;
 
   switch (state) {
     case RESTART:
-      /* Turn all of the eye LEDs off and prepare to wait for the MiP to indicate that it is standing. */
-      g_mip.disableGestureMode();
+      /* Turn all of the eye LEDs off and prepare to wait for the MiP to indicate
+     * that it is standing. */
+      g_mip.gesture.disable();
       g_headLEDs.clear();
-      g_mip.writeHeadLEDs(g_headLEDs);
+      g_mip.headLEDs.write(g_headLEDs);
       state = WAITING_TO_STANDUP;
       break;
 
     case WAITING_TO_STANDUP:
-      /* Waiting for the robot to indicate that it is standing upright and balancing on its own. */
-      if (g_mip.isUpright()) {
+      /* Waiting for the robot to indicate that it is standing upright and
+     * balancing on its own. */
+      if (g_mip.position.isUpright()) {
         /* Switch into gesture mode now that robot is up and balancing. */
-        g_mip.enableGestureMode();
+        g_mip.gesture.enable();
 
-        /* Blink the left and right most eye LEDs in a fast mode to indicate readiness. */
+        /* Blink the left and right most eye LEDs in a fast mode to indicate
+       * readiness. */
         blinkOuterEyes();
         state = WAITING_FOR_GESTURE;
       }
       break;
 
     case WAITING_FOR_GESTURE:
-      if (!g_mip.isUpright()) {
+      if (!g_mip.position.isUpright()) {
         /* Robot is no longer up and balancing so go back to restart. */
         state = RESTART;
         return;
       }
 
-      /* Poll for a gesture event. readGestureEvent() returns the last gesture or MIP_GESTURE_INVALID. */
-      gesture = g_mip.readGestureEvent();
+      /* Poll for a gesture event. readGestureEvent() returns the last gesture or
+     * MIP_GESTURE_INVALID. */
+      gesture = g_mip.gesture.readEvent();
       if (gesture == MIP_GESTURE_LEFT) {
         /* User moved hand from right to left; animate leftward. */
         animationDirection = 1;
@@ -157,12 +167,12 @@ void loop() {
       }
       keyframeStart = millis();
       frameCount = 5; /* Play five keyframes */
-      g_mip.writeHeadLEDs(g_headLEDs);
+      g_mip.headLEDs.write(g_headLEDs);
       state = PLAYING_EYE_ANIMATION;
       break;
 
     case PLAYING_EYE_ANIMATION:
-      if (!g_mip.isUpright()) {
+      if (!g_mip.position.isUpright()) {
         /* Robot fell or is not balancing; restart the sequence. */
         state = RESTART;
         return;
@@ -174,7 +184,8 @@ void loop() {
         animateEyes(animationDirection);
         frameCount--;
         if (frameCount == 0) {
-          /* Animation finished; return to waiting for gestures and blink outer eyes. */
+          /* Animation finished; return to waiting for gestures and blink outer
+         * eyes. */
           blinkOuterEyes();
           state = WAITING_FOR_GESTURE;
         }
@@ -194,7 +205,7 @@ static void blinkOuterEyes() {
   g_headLEDs.led2 = MIP_HEAD_LED_OFF;
   g_headLEDs.led3 = MIP_HEAD_LED_OFF;
   g_headLEDs.led4 = MIP_HEAD_LED_BLINK_FAST;
-  g_mip.writeHeadLEDs(g_headLEDs);
+  g_mip.headLEDs.write(g_headLEDs);
 }
 
 /**
@@ -222,5 +233,5 @@ static void animateEyes(int8_t direction) {
     g_headLEDs.led3 = g_headLEDs.led4;
     g_headLEDs.led4 = MIP_HEAD_LED_OFF;
   }
-  g_mip.writeHeadLEDs(g_headLEDs);
+  g_mip.headLEDs.write(g_headLEDs);
 }
