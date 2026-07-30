@@ -1,23 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Serial.cpp
- * @brief Low-level UART transport layer for MiP communication.
+ * @brief Implements serial transport for the MiP library.
  *
- * Handles raw sending/receiving, hex-to-binary conversion, request/response
- * timing, and processing of Out-Of-Band (OOB) event notifications.
+ * @details This source file implements low-level request, response, and event
+ * processing.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Serial.h"
 #include "MPU_D1_mini.h"
@@ -234,59 +227,10 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   uint8_t response[MIP_RESPONSE_MAX_LEN];
   response[0] = commandByte;
   copyHexTextToBinary(&response[1], buffer, length);
-  // Sam: From this point, start implementing the dispatch code.  Instead of the
-  // ugly following switch statement, each component class should handle their
-  // own logic.
-  m_mip.dispatchEvent(commandByte, response, length + 1);
-  /*
-    // Have 32 bits ready in case of an IR event.
-    uint32_t irCode = 0;
 
-    // Process the response just received.
-    switch (commandByte) {
-      case MIP_CMD_GET_RADAR_RESPONSE:
-        if (response[1] >= MIP_RADAR_NONE && response[1] <= MIP_RADAR_0CM_10CM)
-    { m_lastRadar = (MiPRadar)response[1]; m_flags |= MIP_FLAG_RADAR_VALID;
-        }
-        break;
-      case MIP_CMD_GET_GESTURE_RESPONSE:
-        if (response[1] >= MIP_GESTURE_LEFT &&
-            response[1] <= MIP_GESTURE_BACKWARD) {
-          m_gestureEvents.push((MiPGesture)response[1]);
-        }
-        break;
-      case MIP_CMD_SHAKE_RESPONSE:
-        m_flags |= MIP_FLAG_SHAKE_DETECTED;
-        break;
-      case MIP_CMD_GET_STATUS:
-        parseStatus(m_lastStatus, response, length + 1);
-        break;
-      case MIP_CMD_GET_WEIGHT:
-        m_lastWeight = response[1];
-        m_flags |= MIP_FLAG_WEIGHT_VALID;
-        break;
-      case MIP_CMD_CLAP_RESPONSE:
-        //clap.m_clapEvents.push(response[1]);
-            clap.processEvent(response[1]);
-        break;
-      case MIP_CMD_GET_DETECTED_MIP:
-        m_detectedMiPEvents.push(response[1]);
-        break;
-      case MIP_CMD_RECEIVE_IR_DONGLE_CODE:
-        for (size_t i = 0; i < length; i++) {
-          irCode <<= 8;
-          irCode |= response[i + 1];
-        }
-        m_irCodeEvents.push(irCode);
-        break;
-      default:
-        // Invalid notification command bytes were already handled in the
-    previous
-        // switch so should never get here.
-        MIP_ASSERT(false);
-        break;
-        }
-*/
+  // Send the event back to the parent class to be dispatched to the correct
+  // handler.
+  m_mip.dispatchEvent(commandByte, response, length + 1);
 }
 
 uint8_t MiP_Serial::discardUnexpectedSerialData() {

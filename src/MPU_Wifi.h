@@ -1,20 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Wifi.h
- * @brief Defines how the MPU, and thus MiP, interfaces with wifi.
+ *
+ * @brief Defines the public interface for Wi-Fi management in the MiP library.
+ *
+ * @details This header declares the Wi-Fi API used to connect MiP to a network.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_WIFI_H
 #define MPU_WIFI_H
@@ -69,14 +65,16 @@ class MiP_Wifi {
    */
   uint8_t disableAirplaneMode();
 
+ protected:
   void clear();
 
  private:
+  MiP& m_mip;  // Stores a reference to the main MiP class.
   char m_ssid[32];
   char m_password[64];
   char m_hostname[63];
 
-  MiP& m_mip;  // Stores a reference to the main MiP class.
+  friend class MiP;
 };
 
 #endif  // MPU_WIFI_H

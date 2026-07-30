@@ -1,23 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_EEPROM.cpp
- * @brief Implements reading and writing user data to the MiP robot's EEPROM.
+ * @brief Implements EEPROM access for the MiP library.
  *
- * Provides verified (with read-back confirmation and retry) access to the
- * 16-byte user data area (addresses 0x20 to 0x2F).
+ * @details This source file implements EEPROM read and write operations for the
+ * MiP library.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_EEPROM.h"
 #include "MPU_D1_mini.h"
@@ -101,10 +94,10 @@ int8_t MiP_EEPROM::rawRead(uint8_t address, uint8_t& userData) {
   uint8_t response[1 + 2];
   size_t responseLength;
   int8_t result = m_mip.serial.rawReceive(getUserData,
-                                   sizeof(getUserData),
-                                   response,
-                                   sizeof(response),
-                                   responseLength);
+                                          sizeof(getUserData),
+                                          response,
+                                          sizeof(response),
+                                          responseLength);
   if (result)
     return result;
   if (responseLength != 3 || response[0] != MIP_CMD_GET_USER_DATA ||

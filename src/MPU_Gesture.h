@@ -1,20 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Gesture.h
- * @brief Defines the functions for interfacing with MiP's gesture system.
+ * @brief Defines the public interface for gesture handling in the MiP library.
+ *
+ * @details This header declares the gesture API used to enable and read gesture
+ * events.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_GESTURE_H
 #define MPU_GESTURE_H
@@ -69,8 +65,6 @@ class MiP_Gesture {
    */
   MiP_Gesture(MiP& mip);
 
-  void clear();
-
   /**
    * @brief Enables gesture detection mode on the MiP.
    *
@@ -121,6 +115,9 @@ class MiP_Gesture {
 
   void processEvent(uint8_t gestureCode);
 
+ protected:
+  void clear();
+
  private:
   // Helper utilities for sub-functions
   void verifiedSet(MiPGestureMode desiredMode);
@@ -130,6 +127,8 @@ class MiP_Gesture {
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   CircularQueue<MiPGesture, 8> m_gestureEvents;
+
+  friend class MiP;
 };
 
 #endif  // MPU_GESTURE_H

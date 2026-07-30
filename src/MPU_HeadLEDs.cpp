@@ -1,26 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_HeadLEDs.cpp
- * @brief Implements control and reading of the MiP robot's head LEDs and
- *        provides verified/unverified write methods for the chest LED (via
- *        shared infrastructure).
+ * @brief Implements head LED control for the MiP library.
  *
- * Head LEDs support 4 independent positions with multiple patterns (off, on,
- * blink slow/fast). Verified methods include read-back confirmation with
- * automatic retries.
+ * @details This source file implements head LED state updates and command
+ * handling.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_HeadLEDs.h"
 #include "MPU_D1_mini.h"

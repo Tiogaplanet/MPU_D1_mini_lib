@@ -1,31 +1,16 @@
-/* Copyright (C) 2018  Adam Green (https://github.com/adamgreen)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_D1_mini.h
- * @brief A library to interface the WeMos D1 mini and clones to the
- * WowWee MiP robot.
+ * @brief Defines the core MiP API and subsystem interfaces.
  *
- * This file contains the constructor and destructor for the overall MiP object
- * and declarations for all of the subcomponents available to the user for
- * interacting with MiP.  Also provided are some defines for setting debugging
- * levels for the programmer.
+ * @details This header declares the main MiP class and the public interfaces
+ * exposed by the library subsystems.
  *
- * @author Samuel Trassare, Adam Green
- * @date 2026-07-18
- * @version 1.1.0
- * @copyright Apache License, Version 2.0
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_D1_MINI_H
 #define MPU_D1_MINI_H
@@ -295,7 +280,7 @@ class MiP {
   // See MPU_Radar.h for interfacing with the radar.
   MiP_Radar radar;
 
-  // See MPU_Serial.h for interfacing with MiP's serial port.  
+  // See MPU_Serial.h for interfacing with MiP's serial port.
   MiP_Serial serial;
 
   // See MPU_Shake.h for reading the shake detection system.

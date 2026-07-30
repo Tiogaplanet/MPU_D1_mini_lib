@@ -1,24 +1,15 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Mode.cpp
- * @brief Implements switching between and querying the various game/app modes
- *        of the WowWee MiP robot.
+ * @brief Implements mode switching for the MiP library.
  *
- * Modes include App, Cage, Dance, Stack, Trick, and Roam. All changes are
- * verified with read-back confirmation and automatic retries where possible.
+ * @details This source file implements mode-setting logic and status queries.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_D1_mini.h"
 
@@ -120,10 +111,10 @@ int8_t MiP_Mode::rawGet(MiPGameMode& mode) {
   m_mip.motion.stop();
 
   int8_t result = m_mip.serial.rawReceive(getGameMode,
-                             sizeof(getGameMode),
-                             response,
-                             sizeof(response),
-                             responseLength);
+                                          sizeof(getGameMode),
+                                          response,
+                                          sizeof(response),
+                                          responseLength);
   if (result)
     return result;
   if (responseLength != 2 || response[0] != MIP_CMD_GET_GAME_MODE ||

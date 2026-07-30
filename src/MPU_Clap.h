@@ -1,21 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Clap.h
- * @brief Defines the one and only function related to MiP's battery - read the
- * voltage.
+ * @brief Defines the public interface for clap event handling in the MiP
+ * library.
+ *
+ * @details This header declares the clap-detection API used by the MiP library.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_CLAP_H
 #define MPU_CLAP_H
@@ -70,8 +65,6 @@ class MiP_Clap {
    * @param mip A reference to the main MiP object to access core services.
    */
   MiP_Clap(MiP& mip);
-
-  void clear();
 
   void processEvent(uint8_t clapCode);
 
@@ -135,6 +128,9 @@ class MiP_Clap {
    */
   void writeDelay(uint16_t delay);
 
+ protected:
+  void clear();
+
  private:
   void checkedEnableEvents(MiPClapEnabled enabled);
   int8_t readSettings(MiPClapSettings& settings);
@@ -144,6 +140,8 @@ class MiP_Clap {
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   CircularQueue<uint8_t, 8> m_clapEvents;
+
+  friend class MiP;
 };
 
 #endif  // MPU_CLAP_H

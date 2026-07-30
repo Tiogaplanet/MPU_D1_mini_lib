@@ -1,23 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_ChestLED.cpp
- * @brief Implements solid color and flashing control for the MiP chest LED.
+ * @brief Implements chest LED control for the MiP library.
  *
- * Provides both verified (with read-back confirmation) and unverified
- * (fire-and-forget) methods.
+ * @details This source file implements chest LED state updates and command
+ * handling.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_ChestLED.h"
 #include "MPU_D1_mini.h"
@@ -178,10 +171,10 @@ int8_t MiP_ChestLED::rawGet(MiPChestLED& chestLED) {
   uint8_t response[1 + 5];
   size_t responseLength;
   uint8_t result = m_mip.serial.rawReceive(getChestLED,
-                                    sizeof(getChestLED),
-                                    response,
-                                    sizeof(response),
-                                    responseLength);
+                                           sizeof(getChestLED),
+                                           response,
+                                           sizeof(response),
+                                           responseLength);
   if (result)
     return result;
   if (responseLength != sizeof(response) ||

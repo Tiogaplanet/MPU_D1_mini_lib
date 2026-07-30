@@ -17,7 +17,7 @@
  * The example exercises these API calls:
  *   - motion.distanceDrive()
  *
- * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
+ * @copyright Copyright (C) 2018-2026 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -77,3 +77,4 @@ void setup() {
  * intervention from the sketch.
  */
 void loop() {}
+

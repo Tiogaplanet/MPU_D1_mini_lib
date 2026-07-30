@@ -35,7 +35,7 @@
  *     debug service; choose a unique name for each device on your network.
  *
  * @author Samuel Trassare (https://github.com/Tiogaplanet)
- * @copyright Copyright (C) 2018 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * @license Apache-2.0
  */
 
@@ -204,3 +204,4 @@ void loop() {
   // Service the telnet debug server (must be called frequently).
   debug.handle();
 }
+

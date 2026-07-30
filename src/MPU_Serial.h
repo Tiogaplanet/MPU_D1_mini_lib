@@ -1,21 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Serial.h
- * @brief Defines the functions for sending and receiving between the MPU and
- * MiP.
+ * @brief Defines the public interface for serial transport in the MiP library.
+ *
+ * @details This header declares the low-level serial API used for MiP
+ * communication.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_SERIAL_H
 #define MPU_SERIAL_H
@@ -67,8 +62,6 @@ class MiP_Serial {
    */
   MiP_Serial(MiP& mip);
 
-  void clear();
-
   /**
    * @brief Sends a raw command to the MiP (fire-and-forget).
    *
@@ -95,6 +88,9 @@ class MiP_Serial {
   void processOobResponseData(uint8_t commandByte);
   uint8_t discardUnexpectedSerialData();
 
+ protected:
+  void clear();
+
  private:
   uint8_t transportGetResponse(uint8_t* pResponseBuffer,
                                size_t responseBufferSize,
@@ -111,6 +107,8 @@ class MiP_Serial {
   uint8_t m_expectedResponseSize;
   uint8_t m_expectedResponseCommand;
   uint8_t m_responseBuffer[MIP_RESPONSE_MAX_LEN];
+  
+  friend class MiP;
 };
 
 #endif  // MPU_SERIAL_H

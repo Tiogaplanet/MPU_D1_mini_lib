@@ -1,24 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Gesture.cpp
- * @brief Implements enabling, disabling, and reading gesture events from the
- *        WowWee MiP robot.
+ * @brief Implements gesture handling for the MiP library.
  *
- * Gesture mode shares infrastructure with radar mode. Events are queued and
- * retrieved via the common response processing system.
+ * @details This source file implements gesture mode switching and event
+ * processing.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Gesture.h"
 #include "MPU_D1_mini.h"
@@ -29,9 +21,8 @@ MiP_Gesture::MiP_Gesture(MiP& mip) : m_mip(mip) {
 }
 
 void MiP_Gesture::clear() {
-	m_gestureEvents.clear();
+  m_gestureEvents.clear();
 }
-
 
 void MiP_Gesture::processEvent(uint8_t clapCode) {
   if (clapCode >= MIP_GESTURE_LEFT && clapCode <= MIP_GESTURE_BACKWARD) {
@@ -137,10 +128,10 @@ int8_t MiP_Gesture::rawGet(MiPGestureMode& mode) {
   uint8_t response[1 + 1];
   size_t responseLength;
   int8_t result = m_mip.serial.rawReceive(getGestureRadarMode,
-                                   sizeof(getGestureRadarMode),
-                                   response,
-                                   sizeof(response),
-                                   responseLength);
+                                          sizeof(getGestureRadarMode),
+                                          response,
+                                          sizeof(response),
+                                          responseLength);
   if (result)
     return result;
   if (responseLength != 2 || response[0] != MIP_CMD_GET_GESTURE_RADAR_MODE ||

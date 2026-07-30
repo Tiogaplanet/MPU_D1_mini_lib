@@ -28,7 +28,7 @@
  * This sketch prints status and results to Serial1 and is intended for use
  * with the MiP Power Up: D1 mini library and a WowWee MiP robot.
  *
- * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
+ * @copyright Copyright (C) 2018-2026 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -128,3 +128,4 @@ void loop() {
     Serial1.println(F(" claps"));
   }
 }
+

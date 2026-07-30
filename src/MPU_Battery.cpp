@@ -1,24 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Battery.cpp
- * @brief Reads MiP's battery voltage from cached status data.
+ * @brief Implements battery voltage monitoring for the MiP library.
  *
- * No direct serial request is sent to the robot — relies on the latest
- * Out-Of-Band (OOB) status update. The latest update is never more than
- * 30 seconds old.
+ * @details This source file implements the battery-monitoring logic used by the
+ * MiP library.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Battery.h"
 #include "MPU_D1_mini.h"

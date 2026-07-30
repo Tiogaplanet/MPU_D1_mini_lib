@@ -1,6 +1,16 @@
 /**
  * @file MPU_Weight.h
+ *
  * @brief Defines the one and only function for reporting MiP's weight - read().
+ *
+ * @details This header declares the API used to report MiP's payload weight.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_WEIGHT_H
 #define MPU_WEIGHT_H
@@ -30,8 +40,6 @@ class MiP_Weight {
 
   void processEvent(int8_t weightValue);
 
-  void clear();
-
   /**
    * @brief Reads the current weight on the MiP's weight sensor.
    *
@@ -42,12 +50,17 @@ class MiP_Weight {
    */
   int8_t read();
 
+ protected:
+  void clear();
+
  private:
   int8_t rawGet(int8_t& weight);
   int8_t parse(int8_t& weight, const uint8_t response[], size_t responseLength);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   int8_t m_lastWeight;
+
+  friend class MiP;
 };
 
 #endif  // MPU_WEIGHT_H

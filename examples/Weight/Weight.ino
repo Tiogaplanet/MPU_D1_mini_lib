@@ -19,7 +19,7 @@
  *   - Open Serial1 to observe printed weight updates.
  *
  * @author Adam Green (https://github.com/adamgreen)
- * @copyright Copyright (C) 2018 Adam Green
+ * @copyright Copyright (C) 2018-2026 Adam Green
  * @license Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,3 +105,4 @@ void loop() {
     lastWeight = currentWeight;
   }
 }
+

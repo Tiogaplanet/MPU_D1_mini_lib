@@ -1,20 +1,17 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Infrared.h
- * @brief Defines the interface for MiP's infrared system.
+ * @brief Defines the public interface for infrared communication in the MiP
+ * library.
+ *
+ * @details This header declares the infrared API used for MiP detection and
+ * remote control.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_INFRARED_H
 #define MPU_INFRARED_H
@@ -53,8 +50,6 @@ class MiP_Infrared {
    * @param mip A reference to the main MiP object to access core services.
    */
   MiP_Infrared(MiP& mip);
-
-  void clear();
 
   /**
    * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
@@ -145,6 +140,9 @@ class MiP_Infrared {
 
   void processEvent(uint8_t command, const uint8_t* payload, size_t length);
 
+ protected:
+  void clear();
+
  private:
   void rawSetMiPDetectionMode(uint8_t id, uint8_t txPower);
   void verifiedRemoteControl(uint8_t desiredRemoteControlMode);
@@ -155,6 +153,8 @@ class MiP_Infrared {
   uint8_t m_irId;
   CircularQueue<uint32_t, 8> m_irCodeEvents;
   CircularQueue<uint8_t, 8> m_detectedMiPEvents;
+
+  friend class MiP;
 };
 
 #endif  // MPU_INFRARED_H

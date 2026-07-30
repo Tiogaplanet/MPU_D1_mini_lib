@@ -17,7 +17,7 @@
  *   - Use another MiP or compatible IR receiver to observe or react to the
  *     transmitted codes.
  *
- * @copyright Copyright (C) 2018 Samuel Trassare (https://github.com/tiogaplanet)
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare (https://github.com/tiogaplanet)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -106,3 +106,4 @@ void loop() {
   // Pause between transmissions to avoid flooding the receiver.
   delay(1000);
 }
+

@@ -1,24 +1,15 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Motion.cpp
- * @brief Implements driving, turning, stopping, falling, and getting up
- *        movements for the WowWee MiP robot.
+ * @brief Implements motion control for the MiP library.
  *
- * Most motion commands are fire-and-forget (no read-back possible).
- * Continuous drive includes rate limiting to avoid overwhelming the robot.
+ * @details This source file implements motion commands and movement helpers.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Motion.h"
 #include "MPU_D1_mini.h"

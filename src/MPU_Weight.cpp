@@ -1,23 +1,16 @@
-/* Copyright (C) 2026  Samuel Trassare (https://github.com/Tiogaplanet)
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 /**
  * @file MPU_Weight.cpp
- * @brief Implements reading the physical weight sensor on the WowWee MiP robot.
+ * @brief Implements weight reporting for the MiP library.
  *
- * Weight data is cached from OOB events when available; otherwise a direct
- * verified request is made with retries.
+ * @details This source file implements weight parsing and cached value
+ * handling.
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include <Arduino.h>
 
@@ -39,9 +32,9 @@ void MiP_Weight::clear() {
 }
 
 int8_t MiP_Weight::read() {
-  //MIP_DEBUG_INFO_PRINTLN("MiP->Weight->readWeight()");
-  // Fetch bytes from the Serial receive buffer and process any event data found
-  // within.
+  // MIP_DEBUG_INFO_PRINTLN("MiP->Weight->readWeight()");
+  //  Fetch bytes from the Serial receive buffer and process any event data
+  //  found within.
   m_mip.serial.processAllResponseData();
   if ((m_mip.m_flags & m_mip.MIP_FLAG_WEIGHT_VALID)) {
     // Have a cached weight event already, so just return it.

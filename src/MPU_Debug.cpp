@@ -1,22 +1,16 @@
-/* Copyright (C) 2018  Joao Lopes https://github.com/JoaoLopesF
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, version 3.
-
-   This program is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
-   This is the implementation of the MiPDebug server for outputting debug
-   messages to Telnet. Written by Samuel Trassare and based on Joao Lopes'
-   original RemoteDebug library.
-*/
+/**
+ * @file MPU_Debug.cpp
+ * @brief Implements the debug functionality for the MPU D1 mini.
+ *
+ * @details This source file implements the MiP debugging functionality..
+ *
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 #include "MPU_Debug.h"
 #include <Arduino.h>
 

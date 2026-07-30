@@ -18,7 +18,7 @@
  *   - eeprom.write()
  *
  * @author Adam Green
- * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
+ * @copyright Copyright (C) 2018-2026 Adam Green (https://github.com/adamgreen)
  * @license Apache-2.0
  */
 
@@ -109,3 +109,4 @@ void setup() {
  * the sketch completes once and remains idle.
  */
 void loop() {}
+
