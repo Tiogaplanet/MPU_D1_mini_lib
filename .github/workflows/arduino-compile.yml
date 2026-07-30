@@ -26,6 +26,7 @@ jobs:
           arduino-cli core install esp8266:esp8266 --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
       # Step 3.5: Patch elf2bin.py Syntax Warnings via Python Inline Code
+      # Step 3.5 can be removed if the esp8266 library releases the current (29-Jul-2026) git master branch in a new version.
       - name: Patch elf2bin.py Syntax Warnings
         run: |
           python3 -c "
