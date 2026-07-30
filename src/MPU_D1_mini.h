@@ -128,10 +128,12 @@ class MiPStatus {
   MiPStatus() {
     clear();
   }
+
   void clear() {
     battery = 0.0f;
     position = MIP_POSITION_ON_BACK_WITH_KICKSTAND;
   }
+
   float battery;
   MiPPosition position;
 };

@@ -28,6 +28,7 @@ class MiP;
  * @brief Manages MiP's battery monitoring.
  */
 class MiP_Odometer {
+ public:
   // MiP Protocol Commands related to the odometer.
   // These command codes are placed in the first byte of requests sent to the
   // MiP and responses sent back from the MiP. See
@@ -35,8 +36,6 @@ class MiP_Odometer {
   // for the complete list.
   static constexpr uint8_t MIP_CMD_READ_ODOMETER = 0x85;
   static constexpr uint8_t MIP_CMD_RESET_ODOMETER = 0x86;
-
- public:
   /**
    * @brief Constructs the Battery manager.
    * @param mip A reference to the main MiP object to access core services.
