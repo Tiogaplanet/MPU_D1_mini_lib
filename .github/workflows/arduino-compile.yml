@@ -28,7 +28,7 @@ jobs:
       # Step 3.5: Patch elf2bin.py Syntax Warnings for Python 3.12+
       - name: Patch elf2bin.py Syntax Warnings
         run: |
-          ELF2BIN_PATH="$HOME/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/elf2bin.py"
+          ELF2BIN_PATH=$HOME/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/elf2bin.py
           if [ -f "$ELF2BIN_PATH" ]; then
             sed -i "s/re.split('\s+', line)/re.split(r'\s+', line)/g" "$ELF2BIN_PATH"
           fi
