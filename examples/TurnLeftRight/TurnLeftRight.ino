@@ -10,8 +10,8 @@
  *
  * The example exercises these API calls:
  *   - begin()
- *   - turnLeft()
- *   - turnRight()
+ *   - motion.turnLeft()
+ *   - motion.turnRight()
  *
  * Usage notes:
  *   - Ensure the MiP is powered and able to turn in the available space.
@@ -36,8 +36,8 @@
  * @brief Global MiP instance used to control the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * turnLeft(), and turnRight(). Keeping the instance at file scope makes it
- * available in both setup() and loop().
+ * motion.turnLeft(), and motion.turnRight(). Keeping the instance at file scope
+ * makes it available in both setup() and loop().
  */
 MiP mip;
 
@@ -62,15 +62,16 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("TurnLeftRight.ino: Use turnLeft & turnRight() functions. Turn 180 degrees to left and then 180 degrees to right."));
+  Serial1.println(F("TurnLeftRight.ino: Use turnLeft & turnRight() functions. "
+                    "Turn 180 degrees to left and then 180 degrees to right."));
 
   for (uint8_t i = 0; i < 3; i++) {
     // Turn 180 degrees left at speed 12.
-    mip.turnLeft(180, 12);
+    mip.motion.turnLeft(180, 12);
     delay(2000);
 
     // Turn 180 degrees right at speed 12.
-    mip.turnRight(180, 12);
+    mip.motion.turnRight(180, 12);
     delay(2000);
   }
 
@@ -85,5 +86,4 @@ void setup() {
  * require repeated work in loop(). The function is intentionally left empty
  * so the sketch completes once during initialization.
  */
-void loop() {
-}
+void loop() {}

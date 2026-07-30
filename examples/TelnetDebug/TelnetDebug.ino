@@ -11,7 +11,7 @@
  * telnet debug service is running.
  *
  * Behavior summary:
- *   - Connect to Wi‑Fi and the MiP using mip.begin(ssid, password, hostname).
+ *   - Connect to WiFi using mip.wifi.begin(ssid, password, hostname).
  *   - Start the telnet debug server with debug.begin(hostname).
  *   - Periodically print example messages at multiple debug levels using the
  *     mDebug* macros (mDebugV, mDebugD, mDebugI, mDebugW, mDebugE).
@@ -22,7 +22,7 @@
  * debug.setResetCmdEnabled(true).
  *
  * API usage demonstrated:
- *   - MiP::wifiBegin(ssid, password, hostname)
+ *   - MiP::wifi.begin(ssid, password, hostname)
  *   - MiPDebug::begin(hostname)
  *   - MiPDebug::setResetCmdEnabled()
  *   - MiPDebug::handle()
@@ -132,7 +132,7 @@ void setup() {
     return;
   }
 
-  mip.wifiBegin(ssid, password, hostname);
+  mip.wifi.begin(ssid, password, hostname);
 
   // Start telnet debug server and enable the reset command.
   debug.begin(hostname);

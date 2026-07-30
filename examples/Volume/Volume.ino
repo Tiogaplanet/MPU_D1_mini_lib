@@ -4,13 +4,13 @@
  *
  * @details
  * This sketch connects to a MiP robot and demonstrates how to set the device
- * volume using writeVolume() and then read the current volume back using
- * readVolume(). The example sets the volume to the predefined constant
+ * volume using sound.writeVolume() and then read the current volume back using
+ * sound.readVolume(). The example sets the volume to the predefined constant
  * MIP_VOLUME_OFF (mute) and prints the resulting volume level to Serial1.
  *
  * The example exercises these API calls:
- *   - writeVolume()
- *   - readVolume()
+ *   - sound.writeVolume()
+ *   - sound.readVolume()
  *
  * Usage notes:
  *   - Ensure the MiP is powered and able to accept UART commands.
@@ -35,7 +35,7 @@
  * @brief Global MiP instance used to control the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * writeVolume(), and readVolume(). Keeping the instance at file scope makes
+ * sound.writeVolume(), and sound.readVolume(). Keeping the instance at file scope makes
  * it available in both setup() and loop().
  */
 MiP mip;
@@ -58,8 +58,8 @@ void setup() {
   }
 
   Serial1.println(
-      F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
-        "volume level to off (0) and read out afterwards."));
+    F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
+      "volume level to off (0) and read out afterwards."));
 
   // Set the device volume to the predefined "off" constant.
   mip.sound.writeVolume(MIP_VOLUME_OFF);

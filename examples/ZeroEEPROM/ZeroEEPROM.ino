@@ -4,13 +4,13 @@
  *
  * @details
  * This sketch demonstrates how to iterate over the MiP's user EEPROM address
- * range and write a zero value to each byte using the setUserData() API.
- * After writing each byte the sketch reads it back with getUserData() and
+ * range and write a zero value to each byte using the eeprom.write() API.
+ * After writing each byte the sketch reads it back with eeprom.read() and
  * prints the address and recovered value to Serial1 for verification.
  *
  * The example exercises these API calls:
- *   - setUserData()
- *   - getUserData()
+ *   - eeprom.write()
+ *   - eeprom.read()
  *
  * Usage notes:
  *   - Running this sketch will overwrite the MiP user EEPROM contents with
@@ -18,10 +18,10 @@
  *   - The sketch pauses one second between writes so the user can observe
  *     progress on Serial1 and the device.
  *
- * @copyright Copyright (C) 2018 Samuel Trassare (https://github.com/Tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * @copyright Copyright (C) 2018 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  *     http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * setUserData(), and getUserData().
+ * eeprom.write(), and eeprom.read().
  */
 MiP mip;
 
@@ -56,10 +56,11 @@ uint8_t eepromContents;
  * - Initializes the MiP connection via mip.begin(). If the connection fails,
  *   prints an error to Serial1 and returns early.
  * - Iterates over the MiP user EEPROM address range from 0x00 up to
- *   (MiP::LAST_EEPROM_ADDRESS - MiP::BASE_EEPROM_ADDRESS) inclusive and:
- *     1. Writes a zero to each EEPROM offset using setUserData(offset, 0x00).
+ *   (MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS)
+ * inclusive and:
+ *     1. Writes a zero to each EEPROM offset using eeprom.write(offset, 0x00).
  *     2. Waits one second to allow observation and avoid flooding the device.
- *     3. Reads the byte back with getUserData(offset) and prints the address
+ *     3. Reads the byte back with eeprom.read(offset) and prints the address
  *        and recovered value in hexadecimal to Serial1 for verification.
  *
  * Note:
@@ -76,15 +77,17 @@ void setup() {
   Serial1.println(F("ZeroEEPROM.ino: Writes zeros to each byte in EEPROM."));
 
   // Iterate over the valid user EEPROM offsets and write zeros.
-  for (uint8_t i = 0x00; i <= MiP::LAST_EEPROM_ADDRESS - MiP::BASE_EEPROM_ADDRESS; i++) {
+  for (uint8_t i = 0x00;
+       i <= MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS;
+       i++) {
     // Write a zero to EEPROM at offset i.
-    mip.setUserData(i, 0x00);
+    mip.eeprom.write(i, 0x00);
 
     // Delay so the user can observe progress and to avoid rapid-fire writes.
     delay(1000);
 
     // Read back the value we just wrote for verification.
-    eepromContents = mip.getUserData(i);
+    eepromContents = mip.eeprom.read(i);
 
     // Print the EEPROM offset and the recovered value in hex.
     Serial1.print(F(" 0x2"));
@@ -104,5 +107,4 @@ void setup() {
  * repeated actions in loop(). The loop is intentionally left empty so the
  * sketch completes once and remains idle.
  */
-void loop() {
-}
+void loop() {}

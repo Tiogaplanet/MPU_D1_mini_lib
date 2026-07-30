@@ -4,16 +4,16 @@
  *
  * @details
  * This simple example shows how to start a long turn and then interrupt it
- * using the MiP::stop() function. The sketch:
- *   - Connects to the MiP using mip.begin().
- *   - Commands a 360-degree left turn with mip.turnLeft(360, 6).
- *   - Waits briefly and then calls mip.stop() to interrupt the motion.
+ * using the motion.stop() function. The sketch:
+ *   - Connects to the MiP using begin().
+ *   - Commands a 360-degree left turn with motion.turnLeft(360, 6).
+ *   - Waits briefly and then calls motion.stop() to interrupt the motion.
  *   - Prints progress messages to Serial1 for observation.
  *
  * The example exercises these API calls:
  *   - begin()
- *   - turnLeft()
- *   - stop()
+ *   - motion.turnLeft()
+ *   - motion.stop()
  *
  * @copyright Copyright (C) 2018 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,11 +60,11 @@ void setup() {
   Serial1.println(F("Stop.ino: Use stop() function. Interrupt a 360 degree turn with stop()."));
 
   // Start a 360-degree left turn at speed 6.
-  mip.turnLeft(360, 6);
+  mip.motion.turnLeft(360, 6);
 
   // Wait briefly to allow the turn to begin, then interrupt it.
   delay(1000);
-  mip.stop();
+  mip.motion.stop();
   delay(1000);
 
   Serial1.println();

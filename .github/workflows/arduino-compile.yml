@@ -25,6 +25,14 @@ jobs:
           arduino-cli core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
           arduino-cli core install esp8266:esp8266 --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
+      # Step 3.5: Patch elf2bin.py Syntax Warnings for Python 3.12+
+      - name: Patch elf2bin.py Syntax Warnings
+        run: |
+          ELF2BIN_PATH="$HOME/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/elf2bin.py"
+          if [ -f "$ELF2BIN_PATH" ]; then
+            sed -i "s/re.split('\s+', line)/re.split(r'\s+', line)/g" "$ELF2BIN_PATH"
+          fi
+
       # Step 4: Symlink this repository into the local Arduino library path
       # This allows the CLI compiler to locate and include your "MPU_D1_mini_lib"
       - name: Install Local Library
@@ -40,4 +48,4 @@ jobs:
             if [ -d "$example" ]; then
               arduino-cli compile --warnings all --fqbn esp8266:esp8266:d1_mini "$example"
             fi
-          done                             
+          done
