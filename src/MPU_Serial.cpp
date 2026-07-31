@@ -157,15 +157,15 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
 
   // Determine payload length from the command byte.
   switch (commandByte) {
-    case MIP_CMD_GET_RADAR_RESPONSE:
-    case MIP_CMD_GET_GESTURE_RESPONSE:
-    case MIP_CMD_CLAP_RESPONSE:
+    case MiP_Radar::MIP_CMD_GET_RADAR_RESPONSE:
+    case MiP_Gesture::MIP_CMD_GET_GESTURE_RESPONSE:
+    case MiP_Clap::MIP_CMD_CLAP_RESPONSE:
     case MiP_Weight::MIP_CMD_GET_WEIGHT:
     case MiP_Infrared::MIP_CMD_GET_DETECTED_MIP:
       length = 1;
       break;
 
-    case MIP_CMD_SHAKE_RESPONSE:
+    case MiP_Shake::MIP_CMD_SHAKE_RESPONSE:
       length = 0;
       break;
 
@@ -194,7 +194,7 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   uint8_t buffer[4 * 2];  // max payload for IR dongle code is 4 bytes
   bytesRead = Serial.readBytes(buffer, length * 2);
   if (bytesRead != length * 2) {
-    MIP_DEBUG_ERROR_PRINTF("MiP: OOB too short: %d, %d", bytesRead, length * 2);
+    MIP_DEBUG_ERROR_PRINTF("MiP: OOB too short: %d, %d\r\n", bytesRead, length * 2);
     return;
   }
 
@@ -218,7 +218,7 @@ bool MiP_Serial::readIrLength(size_t& length) {
   if (length < 2 || length > 4) {
     uint8_t discarded = discardUnexpectedSerialData();
     MIP_DEBUG_ERROR_PRINTF(
-        "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\n",
+        "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\r\n",
         static_cast<unsigned>(length),
         discarded);
     return false;
