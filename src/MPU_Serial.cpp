@@ -15,18 +15,24 @@
 #include "MPU_Serial.h"
 #include "MPU_D1_mini.h"
 
-// Implement the constructor to store the MiP reference.
 MiP_Serial::MiP_Serial(MiP& mip) : m_mip(mip) {
   clear();
 }
 
 void MiP_Serial::clear() {
-  // Roll the timers back so that the first calls can occur immediately.
-  m_lastRequestTime =
-      millis() - 10;  // MIP_REQUEST_DELAY; // (10) offset slightly
+  // Allow the first request to be sent immediately.
+  m_lastRequestTime = millis() - MIP_REQUEST_DELAY;
   m_expectedResponseSize = 0;
   m_expectedResponseCommand = 0;
   memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+void MiP_Serial::rawSend(const uint8_t request[], size_t requestLength) {
+  transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
 }
 
 uint8_t MiP_Serial::rawReceive(const uint8_t request[],
@@ -39,47 +45,75 @@ uint8_t MiP_Serial::rawReceive(const uint8_t request[],
       responseBuffer, responseBufferSize, &responseLength);
 }
 
-void MiP_Serial::rawSend(const uint8_t request[], size_t requestLength) {
-  transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
+bool MiP_Serial::processAllResponseData() {
+  bool responseFound = false;
+  uint8_t buffer[(MIP_RESPONSE_MAX_LEN - 1) * 2];
+  size_t bytesToRead;
+  size_t bytesRead;
+
+  while (Serial.available() >= 2) {
+    // Every MiP message starts with two hex ASCII digits that form the command
+    // byte.
+    uint8_t highNibble = Serial.read();
+    uint8_t lowNibble = Serial.read();
+    uint8_t commandByte =
+        (parseHexDigit(highNibble) << 4) | parseHexDigit(lowNibble);
+
+    if (m_expectedResponseCommand != 0 &&
+        commandByte == m_expectedResponseCommand) {
+      // This is the reply we are waiting for.
+      m_responseBuffer[0] = commandByte;
+
+      bytesToRead = m_expectedResponseSize - 1;
+      bytesRead = Serial.readBytes(buffer, bytesToRead * 2);
+
+      if (bytesRead == bytesToRead * 2) {
+        copyHexTextToBinary(&m_responseBuffer[1], buffer, bytesToRead);
+        responseFound = true;
+        // Keep draining the buffer so later OOB events are not lost.
+      } else {
+        // Incomplete response – abandon this attempt.
+        m_expectedResponseCommand = 0;
+        m_expectedResponseSize = 0;
+        m_responseBuffer[0] = 0;
+        MIP_DEBUG_ERROR_PRINTF(
+            "MiP: Response too short: %d, %d\r\n", bytesRead, bytesToRead * 2);
+        break;
+      }
+    } else {
+      // Not the expected reply → treat as Out-Of-Band notification.
+      processOobResponseData(commandByte);
+    }
+  }
+  return responseFound;
 }
 
-// ==========================================================================
-// Protected functions.
-// ==========================================================================
+// ---------------------------------------------------------------------------
+// Protected / private helpers
+// ---------------------------------------------------------------------------
 
 uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
                                          size_t responseBufferSize,
                                          size_t* pResponseLength) {
-  // Must call begin() and have it return 'true' before calling sending commands
-  // to the MiP.
   m_mip.MIP_ASSERT(m_mip.isInitialized());
-
-  // Caller is attempting to get a response that is larger than support by the
-  // MiP and this library.
   m_mip.MIP_ASSERT(responseBufferSize <= MIP_RESPONSE_MAX_LEN);
-
-  // UNDONE: I think it would be my bug if the following assert ever fired.
   m_mip.MIP_ASSERT(m_expectedResponseCommand != 0);
 
-  // Process all received bytes (which might include out of band notifications)
-  // until we find the response to the last request made. Will timeout after a
-  // second.
-  m_expectedResponseSize = (uint8_t)responseBufferSize;
+  m_expectedResponseSize = static_cast<uint8_t>(responseBufferSize);
+
   uint32_t startTime = millis();
   bool responseFound = false;
+
   do {
     responseFound = processAllResponseData();
-  } while (!responseFound &&
-           (uint32_t)millis() - startTime < MIP_RESPONSE_TIMEOUT);
+  } while (!responseFound && (millis() - startTime) < MIP_RESPONSE_TIMEOUT);
 
   if (!responseFound) {
-    // Never received the expected response within the timeout window.
     MIP_DEBUG_WARN_PRINTLN(F("MiP: Response timeout"));
     return MiP::MIP_ERROR_TIMEOUT;
   }
 
-  // Copy reponse data into caller provided buffer and clear state in transport
-  // about the expected response.
+  // Copy the collected response to the caller and reset our state.
   memcpy(pResponseBuffer, m_responseBuffer, m_expectedResponseSize);
   *pResponseLength = m_expectedResponseSize;
   m_expectedResponseCommand = 0;
@@ -92,85 +126,36 @@ uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
 void MiP_Serial::transportSendRequest(const uint8_t* pRequest,
                                       size_t requestLength,
                                       int expectResponse) {
-  // Must call begin() and have it return 'true' before calling sending commands
-  // to the MiP.
   m_mip.MIP_ASSERT(m_mip.isInitialized());
 
-  // Let the MiP process the last request before letting another request be
-  // issued.
+  // Honour the minimum inter-request delay.
   while (millis() - m_lastRequestTime < MIP_REQUEST_DELAY) {
     delay(1);
   }
 
-  // Remember the command byte (first byte) if expecting a response to this
-  // request since the response should start with the same byte.
-  if (expectResponse)
+  if (expectResponse) {
     m_expectedResponseCommand = pRequest[0];
-  else
+  } else {
     m_expectedResponseCommand = 0;
+  }
 
   m_expectedResponseSize = 0;
   m_responseBuffer[0] = 0;
 
-  // Send the specified bytes to the MiP via the UART.
+  // Transmit the raw bytes (the MiP expects plain binary on the wire,
+  // but higher layers already supply the correct binary command bytes).
   while (requestLength-- > 0) {
     Serial.write(*pRequest++);
   }
+
   m_lastRequestTime = millis();
-}
-
-bool MiP_Serial::processAllResponseData() {
-  bool responseFound = false;
-  uint8_t buffer[(MIP_RESPONSE_MAX_LEN - 1) * 2];
-  size_t bytesToRead;
-  size_t bytesRead;
-
-  while (Serial.available() >= 2) {
-    uint8_t highNibble = Serial.read();
-    uint8_t lowNibble = Serial.read();
-    uint8_t commandByte =
-        (parseHexDigit(highNibble) << 4) | parseHexDigit(lowNibble);
-
-    if (m_expectedResponseCommand != 0 &&
-        commandByte == m_expectedResponseCommand) {
-      // Store away the command byte that we just read into response buffer so
-      // that it isn't lost.
-      m_responseBuffer[0] = commandByte;
-
-      // Already read the command byte into element 0 of the response buffer
-      // earlier so just need to read in the rest of the expected response bytes
-      // now.
-      bytesToRead = m_expectedResponseSize - 1;
-      bytesRead = Serial.readBytes(buffer, bytesToRead * 2);
-      if (bytesRead == bytesToRead * 2) {
-        copyHexTextToBinary(&m_responseBuffer[1], buffer, bytesToRead);
-        responseFound = true;
-        // Continue to process any other bytes in the receive buffer.
-        // This would allow something like a rawGetStatus() call to receive the
-        // actual data returned for this request and not an older OOB perioidic
-        // status notification.
-      } else {
-        // Timed out waiting for all of the response data.
-        m_expectedResponseCommand = 0;
-        m_expectedResponseSize = 0;
-        m_responseBuffer[0] = 0;
-        MIP_DEBUG_ERROR_PRINTF(
-            "MiP: Response too short: %d, %d\r\n", bytesRead, bytesToRead * 2);
-        break;
-      }
-    } else {
-      processOobResponseData(commandByte);
-    }
-  }
-  return responseFound;
 }
 
 void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   size_t length = 0;
   size_t bytesRead;
 
-  // The number of additional bytes to read depends on which notification has
-  // been found in serial buffer.
+  // Determine payload length from the command byte.
   switch (commandByte) {
     case MIP_CMD_GET_RADAR_RESPONSE:
     case MIP_CMD_GET_GESTURE_RESPONSE:
@@ -179,82 +164,86 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
     case MiP_Infrared::MIP_CMD_GET_DETECTED_MIP:
       length = 1;
       break;
+
     case MIP_CMD_SHAKE_RESPONSE:
       length = 0;
       break;
+
     case MiP::MIP_CMD_GET_STATUS:
       length = 2;
       break;
+
     case MiP_Infrared::MIP_CMD_RECEIVE_IR_DONGLE_CODE:
-      // MIP_CMD_RECEIVE_IR_DONGLE_CODE is the only message delivered by MiP
-      // that has a variable length so we need to read the next byte which
-      // contains the length.
-      uint8_t nibbles[2];
-      bytesRead = Serial.readBytes(nibbles, sizeof(nibbles));
-      if (bytesRead != sizeof(nibbles)) {
-        MIP_DEBUG_ERROR_PRINTLN(F("MiP: Missing IR code length"));
-        return;
-      }
-      length = (parseHexDigit(nibbles[0]) << 4) | parseHexDigit(nibbles[1]);
-      if (length < 2 || length > 4) {
-        uint8_t discardedBytes = discardUnexpectedSerialData();
-        MIP_DEBUG_ERROR_PRINTF(
-            "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\n",
-            length,
-            discardedBytes);
+      // Variable-length message – length is the next byte.
+      if (!readIrLength(length)) {
         return;
       }
       break;
-    default:
-      uint8_t discardedBytes = discardUnexpectedSerialData();
+
+    default: {
+      uint8_t discarded = discardUnexpectedSerialData();
       MIP_DEBUG_ERROR_PRINTF(
           "MiP: Bad OOB command byte: 0x%02x (discarded %d bytes)\n",
           commandByte,
-          discardedBytes);
+          discarded);
+    }
       return;
   }
 
-  // Read in the additional bytes of the notification.  The "4" comes from
-  // maximum length which is a response for MIP_CMD_RECEIVE_IR_DONGLE_CODE.
-  uint8_t buffer[4 * 2];
+  // Read the remaining payload (still in hex-ASCII pairs).
+  uint8_t buffer[4 * 2];  // max payload for IR dongle code is 4 bytes
   bytesRead = Serial.readBytes(buffer, length * 2);
   if (bytesRead != length * 2) {
     MIP_DEBUG_ERROR_PRINTF("MiP: OOB too short: %d, %d", bytesRead, length * 2);
     return;
   }
 
-  // Convert the hex data to a binary response.
+  // Convert to binary and hand off to the main class for dispatch.
   uint8_t response[MIP_RESPONSE_MAX_LEN];
   response[0] = commandByte;
   copyHexTextToBinary(&response[1], buffer, length);
 
-  // Send the event back to the parent class to be dispatched to the correct
-  // handler.
   m_mip.dispatchEvent(commandByte, response, length + 1);
 }
 
+bool MiP_Serial::readIrLength(size_t& length) {
+  uint8_t nibbles[2];
+  if (Serial.readBytes(nibbles, sizeof(nibbles)) != sizeof(nibbles)) {
+    MIP_DEBUG_ERROR_PRINTLN(F("MiP: Missing IR code length"));
+    return false;
+  }
+
+  length = (parseHexDigit(nibbles[0]) << 4) | parseHexDigit(nibbles[1]);
+
+  if (length < 2 || length > 4) {
+    uint8_t discarded = discardUnexpectedSerialData();
+    MIP_DEBUG_ERROR_PRINTF(
+        "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\n",
+        static_cast<unsigned>(length),
+        discarded);
+    return false;
+  }
+  return true;
+}
+
 uint8_t MiP_Serial::discardUnexpectedSerialData() {
-  uint8_t discardedBytes = 0;
+  uint8_t discarded = 0;
 
-  // Unexpected response data encountered. Throw away all data in serial buffer
-  // since it is hard to tell where next response begins.
+  // Throw away everything currently in the UART RX buffer.
+  // A short inter-byte delay accounts for data still arriving at 115200 baud.
   while (Serial.available() > 0) {
-    discardedBytes++;
+    discarded++;
     Serial.read();
-
-    // Delay long enough for next serial byte to be received if MiP is still
-    // actively sending at 115200 baud.
     delayMicroseconds(100);
   }
-  return discardedBytes;
+  return discarded;
 }
 
 void MiP_Serial::copyHexTextToBinary(uint8_t* pDest,
                                      uint8_t* pSrc,
                                      uint8_t length) {
   while (length-- > 0) {
-    *pDest = (parseHexDigit(pSrc[0]) << 4) | parseHexDigit(pSrc[1]);
-    pDest++;
+    *pDest++ = (parseHexDigit(pSrc[0]) << 4) | parseHexDigit(pSrc[1]);
     pSrc += 2;
   }
 }

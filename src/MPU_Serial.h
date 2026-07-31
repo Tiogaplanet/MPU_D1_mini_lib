@@ -21,7 +21,7 @@
 class MiP;
 
 /**
- * @brief Manages MiP's battery monitoring.
+ * @brief Manages low-level UART transport and OOB event demux.
  */
 class MiP_Serial {
  public:
@@ -84,14 +84,15 @@ class MiP_Serial {
                      uint8_t responseBuffer[],
                      size_t responseBufferSize,
                      size_t& responseLength);
+
   bool processAllResponseData();
-  void processOobResponseData(uint8_t commandByte);
-  uint8_t discardUnexpectedSerialData();
 
  protected:
   void clear();
 
  private:
+  uint8_t discardUnexpectedSerialData();
+  void processOobResponseData(uint8_t commandByte);
   uint8_t transportGetResponse(uint8_t* pResponseBuffer,
                                size_t responseBufferSize,
                                size_t* pResponseLength);
@@ -99,15 +100,19 @@ class MiP_Serial {
                             size_t requestLength,
                             int expectResponse);
 
+  // Hex helpers
   void copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length);
   uint8_t parseHexDigit(uint8_t digit);
+
+  // Optional readability helper for the variable-length IR case
+  bool readIrLength(size_t& length);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   uint32_t m_lastRequestTime;
   uint8_t m_expectedResponseSize;
   uint8_t m_expectedResponseCommand;
   uint8_t m_responseBuffer[MIP_RESPONSE_MAX_LEN];
-  
+
   friend class MiP;
 };
 
