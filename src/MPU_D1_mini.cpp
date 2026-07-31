@@ -159,7 +159,7 @@ void MiP::dispatchEvent(uint8_t command,
                         const uint8_t* payload,
                         size_t length) {
   switch (command) {
-    case MiP_Serial::MIP_CMD_CLAP_RESPONSE:
+    case MiP_Clap::MIP_CMD_CLAP_RESPONSE:
       // A clap event was found. Dispatch it to the Clap component.
       if (length >= 2) {
         clap.processEvent(payload[1]);
@@ -192,7 +192,7 @@ void MiP::dispatchEvent(uint8_t command,
       // internally to tell them apart.
       infrared.processEvent(command, payload, length);
       break;
-    case MiP_Serial::MIP_CMD_SHAKE_RESPONSE:
+    case MiP_Shake::MIP_CMD_SHAKE_RESPONSE:
       m_flags |= MIP_FLAG_SHAKE_DETECTED;
       break;
     default:
