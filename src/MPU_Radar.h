@@ -45,13 +45,15 @@ enum MiPRadarMode : uint8_t {
  */
 class MiP_Radar {
  public:
-  // MiP Protocol Commands related to the radat system.
+  // MiP Protocol Commands related to the radar system.
   // These command codes are placed in the first byte of requests sent to the
   // MiP and responses sent back from the MiP. See
   // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  // for the complete list. The radar response command is used only in MPU_Serial
+  // but is defined here so that it rests with the rest of the radar class.
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
   static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
+  static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;
 
   /**
    * @brief Constructs the radar manager.
