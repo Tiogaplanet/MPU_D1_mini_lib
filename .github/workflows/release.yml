@@ -1,0 +1,85 @@
+name: Arduino Library Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*' # Triggers on semantic version tags like v1.2.0
+
+jobs:
+  # -------------------------------------------------------------------
+  # Job 1: Validate Library Compliance & Compile Example Sketches
+  # -------------------------------------------------------------------
+  validate-and-build:
+    name: Lint & Compile Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 1: Run Official Arduino Lint Action
+      - name: Run Arduino Lint
+        uses: arduino/arduino-lint-action@v1
+        with:
+          compliance: specification
+          library-manager: submit
+
+      # Step 2: Set up Arduino CLI for ESP8266
+      - name: Setup Arduino CLI
+        uses: arduino/setup-cli@v1
+
+      - name: Install ESP8266 Core
+        run: |
+          arduino-cli core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+          arduino-cli core install esp8266:esp8266 --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+      # Step 3: Verify Example Sketches Compile Cleanly
+      - name: Compile Example Sketches
+        run: |
+          mkdir -p ~/.arduino15/libraries/
+          ln -s $GITHUB_WORKSPACE ~/.arduino15/libraries/MPU_D1_mini
+          for sketch in examples/*/*.ino; do
+            if [ -f "$sketch" ]; then
+              echo "Building $sketch..."
+              arduino-cli compile --fqbn esp8266:esp8266:d1_mini "$sketch"
+            fi
+          done
+
+  # -------------------------------------------------------------------
+  # Job 2: Create Release Package & Publish to GitHub Releases
+  # -------------------------------------------------------------------
+  publish-release:
+    name: Create GitHub Release
+    needs: validate-and-build # Only run if lint & compile tests pass
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants permission to create GitHub releases
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Extract version string from tag (e.g. v1.2.0 -> 1.2.0)
+      - name: Extract Tag Version
+        id: vars
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      # Create a clean ZIP file suitable for 'Add .ZIP Library...' in Arduino IDE
+      - name: Package Library ZIP
+        run: |
+          ZIP_NAME="MPU_D1_mini-${{ steps.vars.outputs.VERSION }}.zip"
+          zip -r "$ZIP_NAME" . -x "*.git*" "bump_version.py" ".github*"
+
+      # Publish Official GitHub Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.vars.outputs.VERSION }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true # Auto-generates changelog from commits
+          files: |
+            MPU_D1_mini-${{ steps.vars.outputs.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
