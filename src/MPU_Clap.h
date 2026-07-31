@@ -55,8 +55,10 @@ class MiP_Clap {
   // These command codes are placed in the first byte of requests sent to the
   // MiP and responses sent back from the MiP. See
   // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  // for the complete list. The clap detection command is used only in MPU_Serial
+  // but is defined here to rest with the rest of the Clap class.
   static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;
+  static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;
   static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;
   static constexpr uint8_t MIP_CMD_GET_CLAP_SETTINGS = 0x1F;
 
