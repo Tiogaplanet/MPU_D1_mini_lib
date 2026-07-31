@@ -25,18 +25,6 @@ class MiP;
  */
 class MiP_Serial {
  public:
-  // MiP Protocol Commands related to sensors.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
-  static constexpr uint8_t MIP_CMD_RECEIVE_IR_DONGLE_CODE = 0x03;
-  static constexpr uint8_t MIP_CMD_GET_DETECTED_MIP = 0x04;
-  static constexpr uint8_t MIP_CMD_GET_GESTURE_RESPONSE = 0x0A;
-  static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;
-  static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
-  static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;
-
   static constexpr uint8_t MIP_REQUEST_DELAY = 8;
   static constexpr uint8_t MIP_RESPONSE_TIMEOUT = 100;
 
