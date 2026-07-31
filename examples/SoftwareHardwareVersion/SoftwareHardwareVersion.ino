@@ -69,6 +69,9 @@ void setup() {
     F("SoftwareHardwareVersion.ino: \n\rUse version.readSoftware() and "
       "version.readHardware() functions."));
 
+  Serial1.print(F("MiP Power Up: D1 mini library version: "));
+  Serial1.println(mip.version.readMPUString());
+  
   /* Read and display software version information. */
   MiPSoftwareVersion softwareVersion;
   mip.version.readSoftware(softwareVersion);
