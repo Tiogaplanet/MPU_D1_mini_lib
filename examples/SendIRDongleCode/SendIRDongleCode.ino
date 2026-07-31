@@ -89,7 +89,7 @@ void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
 
   uint16_t dongleCode;
-  char formattedOutput[14];
+  char formattedOutput[16];
 
   // Compose a 16-bit dongle code from two bytes. Change these bytes to test.
   dongleCode = 0x45;

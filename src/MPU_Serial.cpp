@@ -19,14 +19,6 @@ MiP_Serial::MiP_Serial(MiP& mip) : m_mip(mip) {
   clear();
 }
 
-void MiP_Serial::clear() {
-  // Allow the first request to be sent immediately.
-  m_lastRequestTime = millis() - MIP_REQUEST_DELAY;
-  m_expectedResponseSize = 0;
-  m_expectedResponseCommand = 0;
-  memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
-}
-
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -91,6 +83,14 @@ bool MiP_Serial::processAllResponseData() {
 // ---------------------------------------------------------------------------
 // Protected / private helpers
 // ---------------------------------------------------------------------------
+
+void MiP_Serial::clear() {
+  // Allow the first request to be sent immediately.
+  m_lastRequestTime = millis() - MIP_REQUEST_DELAY;
+  m_expectedResponseSize = 0;
+  m_expectedResponseCommand = 0;
+  memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
+}
 
 uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
                                          size_t responseBufferSize,
