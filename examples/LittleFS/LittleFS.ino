@@ -4,9 +4,9 @@
  *
  * @details
  * This sketch is a LittleFS-based rewrite of the original SPIFFS example.
- * It mounts the LittleFS filesystem onboard the D1 mini, writes a short password to a temporary
- * file, reads it back, compares the contents, and indicates success or
- * failure using the MiP chest LED:
+ * It mounts the LittleFS filesystem onboard the D1 mini, writes a short 
+ * password to a temporary file, reads it back, compares the contents, and
+ * indicates success or failure using the MiP chest LED:
  *   - Violet when the read matches the written password.
  *   - Red when the read does not match or an error occurs.
  * After verification, the temporary file is removed and the chest LED is
@@ -23,21 +23,19 @@
  *   - chestLED.write()
  *   - LittleFS.begin(), LittleFS.open(), LittleFS.remove()
  *
+ * This sketch primarily shows how MiP can be used as an output device, rather
+ * than strictly testing MiP or its API.
+ *
  * Notes:
  *   - LittleFS is provided by the ESP8266 core for Wemos D1 mini boards.
  *
- * @copyright Copyright (C) 2018-2026 Samuel Trassare (https://github.com/Tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * @author Samuel Trassare (Original Author)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
-
 #include <MPU_D1_mini.h>
 #include <FS.h>
 #include <LittleFS.h>

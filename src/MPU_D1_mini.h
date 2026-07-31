@@ -5,11 +5,12 @@
  * @details This header declares the main MiP class and the public interfaces
  * exposed by the library subsystems.
  *
- * @copyright Copyright (C) 2018-2026 Samuel Trassare
- * (https://github.com/Tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You may
- * obtain a copy of the License at
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_D1_MINI_H
@@ -52,10 +53,9 @@
 #define MPU_D1_MINI_VERSION "1.1.0"
 
 // Combined numerical value for preprocessor version checks (1.1.0 -> 10100)
-#define MPU_D1_MINI_VERSION_NUMBER \
-  (MPU_D1_MINI_VERSION_MAJOR * 10000 + \
-  MPU_D1_MINI_VERSION_MINOR * 100 + \
-  MPU_D1_MINI_VERSION_PATCH)
+#define MPU_D1_MINI_VERSION_NUMBER                                       \
+  (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + \
+   MPU_D1_MINI_VERSION_PATCH)
 
 // Setup some debug levels for reporting library status via Serial1.
 #define MIP_DEBUG_NONE 0

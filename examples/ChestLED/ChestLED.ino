@@ -2,24 +2,25 @@
  * @file ChestLED.ino
  * @brief Example sketch demonstrating MiP chest LED read/write operations.
  *
- * @details This sketch shows how to use the MiP library to set and read the chest LED
- * color and blink timing. It demonstrates the verified write APIs,
+ * @details This sketch shows how to use the MiP library to set and read the
+ * chest LED color and blink timing. It demonstrates the verified write APIs,
  * chestLED.read() and chestLED.write(), and the unverified write APIs,
- * chestLED.unverifiedWrite() which may not always be accepted by the robot. This sketch
- * exhaustively tests the MiP_ChestLED class.
+ * chestLED.unverifiedWrite() which may not always be accepted by the robot.
+ * This sketch exhaustively tests the MiP_ChestLED class.
  *
  * The example exercises these API calls:
  *   - chestLED.read()
  *   - chestLED.write()
  *   - chestLED.unverifiedWrite()
  *
- * @copyright Copyright (C) 2018-2026 Adam Green (https://github.com/adamgreen)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-
 #include <MPU_D1_mini.h>
 
 /**
@@ -61,7 +62,8 @@ void setup() {
   printCurrentChestLEDSetting();
   delay(1000);
 
-  Serial1.println(F(" Set chest LED to blink red, on time: 990, off time: 989."));
+  Serial1.println(
+    F(" Set chest LED to blink red, on time: 990, off time: 989."));
   red = 0xff;
   green = 0x01;
   blue = 0x05;
@@ -83,7 +85,8 @@ void setup() {
   delay(1000);
 
   // Attempt to run through the same sequence of chest LED changes using the
-  // chestLED.unverifiedWrite() functions which don't always get accepted by MiP.
+  // chestLED.unverifiedWrite() functions which don't always get accepted by
+  // MiP.
   Serial1.println(F(" Trying to set chest LED to magenta, no time specified."));
   red = 0xff;
   green = 0x01;
@@ -91,14 +94,16 @@ void setup() {
   mip.chestLED.unverifiedWrite(red, green, blue);
   delay(1000);
 
-  Serial1.println(F(" Trying to set chest LED to blink red, no time specified."));
+  Serial1.println(
+    F(" Trying to set chest LED to blink red, no time specified."));
   red = 0xff;
   green = 0x01;
   blue = 0x05;
   mip.chestLED.unverifiedWrite(red, green, blue, onTime, offTime);
   delay(4000);
 
-  Serial1.println(F(" Trying to set chest LED back to green with a flash time."));
+  Serial1.println(
+    F(" Trying to set chest LED back to green with a flash time."));
   chestLED.red = 0x00;
   chestLED.green = 0xff;
   chestLED.blue = 0x00;
@@ -117,8 +122,7 @@ void setup() {
  * This example performs all actions in setup() and does not require repeated
  * work in loop(). The function is intentionally left empty.
  */
-void loop() {
-}
+void loop() {}
 
 /**
  * @brief Print the current chest LED setting to Serial1.

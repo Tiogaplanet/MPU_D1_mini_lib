@@ -6,11 +6,12 @@
  * exposed by the debug subsystem. Written by Samuel Trassare and based on Joao
  Lopes' original RemoteDebug library.
  *
- * @copyright Copyright (C) 2018-2026 Samuel Trassare
- * (https://github.com/Tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You may
- * obtain a copy of the License at
+ * @author Joao Lopes (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #ifndef MPU_DEBUG_H

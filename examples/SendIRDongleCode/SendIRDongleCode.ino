@@ -17,18 +17,14 @@
  *   - Use another MiP or compatible IR receiver to observe or react to the
  *     transmitted codes.
  *
- * @copyright Copyright (C) 2018-2026 Samuel Trassare (https://github.com/tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
-
 #include <MPU_D1_mini.h>
 
 /**
@@ -71,7 +67,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(F("SendIRDongleCode.ino: Send code to another MiP using IR."));
+  Serial1.println(
+      F("SendIRDongleCode.ino: Send code to another MiP using IR."));
 }
 
 /**
@@ -86,7 +83,8 @@ void setup() {
  * Modify the dongleCode assignment to test different transmitted values.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  if (!connectResult)
+    return; // If connecting to MiP failed in setup(), exit now.
 
   uint16_t dongleCode;
   char formattedOutput[16];
@@ -106,4 +104,3 @@ void loop() {
   // Pause between transmissions to avoid flooding the receiver.
   delay(1000);
 }
-

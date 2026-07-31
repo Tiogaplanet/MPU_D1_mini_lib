@@ -5,11 +5,12 @@
  * @details This source file implements low-level request, response, and event
  * processing.
  *
- * @copyright Copyright (C) 2018-2026 Samuel Trassare
- * (https://github.com/Tiogaplanet)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You may
- * obtain a copy of the License at
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Serial.h"
@@ -194,7 +195,8 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   uint8_t buffer[4 * 2];  // max payload for IR dongle code is 4 bytes
   bytesRead = Serial.readBytes(buffer, length * 2);
   if (bytesRead != length * 2) {
-    MIP_DEBUG_ERROR_PRINTF("MiP: OOB too short: %d, %d\r\n", bytesRead, length * 2);
+    MIP_DEBUG_ERROR_PRINTF(
+        "MiP: OOB too short: %d, %d\r\n", bytesRead, length * 2);
     return;
   }
 

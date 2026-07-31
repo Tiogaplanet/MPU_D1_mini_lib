@@ -1,7 +1,7 @@
 /**
  * @file SoftwareHardwareVersion.ino
- * @brief Example sketch that reads MiP software and hardware version
- * information.
+ * @brief Example sketch that reads MiP's software and hardware version
+ * information. It also displays the MPU:D1 mini library version.
  *
  * @details
  * This sketch demonstrates how to query a MiP for its software version and
@@ -21,18 +21,14 @@
  * inspect the device's firmware date and build as well as hardware revision
  * information.
  *
- * @copyright Copyright (C) 2018-2026 Adam Green (https://github.com/adamgreen)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
-
 #include <MPU_D1_mini.h>
 
 /**
@@ -69,9 +65,9 @@ void setup() {
     F("SoftwareHardwareVersion.ino: \n\rUse version.readSoftware() and "
       "version.readHardware() functions."));
 
-  Serial1.print(F("MiP Power Up: D1 mini library version: "));
+  Serial1.print(F(" MiP Power Up: D1 mini library version: "));
   Serial1.println(mip.version.readMPUString());
-  
+
   /* Read and display software version information. */
   MiPSoftwareVersion softwareVersion;
   mip.version.readSoftware(softwareVersion);
@@ -105,4 +101,3 @@ void setup() {
  * so the sketch completes once during initialization.
  */
 void loop() {}
-
