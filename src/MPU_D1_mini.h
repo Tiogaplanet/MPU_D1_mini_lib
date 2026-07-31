@@ -49,9 +49,9 @@
 #define MIP_DEBUG_WARN 2
 #define MIP_DEBUG_INFO 3
 
-// Default to WARN if not defined by the user in the sketch.
+// Default to NONE if not defined by the user in the sketch.
 #ifndef MIP_DEBUG_LEVEL
-#define MIP_DEBUG_LEVEL MIP_DEBUG_WARN
+#define MIP_DEBUG_LEVEL MIP_DEBUG_NONE
 #endif
 
 // Create the macros for conditional printing of debug messages via Serial1.

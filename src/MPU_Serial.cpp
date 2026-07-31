@@ -183,7 +183,7 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
     default: {
       uint8_t discarded = discardUnexpectedSerialData();
       MIP_DEBUG_ERROR_PRINTF(
-          "MiP: Bad OOB command byte: 0x%02x (discarded %d bytes)\n",
+          "MiP: Bad OOB command byte: 0x%02x (discarded %d bytes)\r\n",
           commandByte,
           discarded);
     }
