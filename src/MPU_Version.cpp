@@ -63,6 +63,14 @@ void MiP_Version::readSoftware(MiPSoftwareVersion& software) {
   m_mip.m_lastError = result;
 }
 
+const char* MiP_Version::readMPUString() const {
+  return MPU_D1_MINI_VERSION;
+}
+
+uint32_t MiP_Version::readMPUNumber() const {
+  return MPU_D1_MINI_VERSION_NUMBER;
+}
+
 // ==========================================================================
 // Protected functions.
 // ==========================================================================
