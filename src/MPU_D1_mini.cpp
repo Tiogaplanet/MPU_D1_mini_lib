@@ -287,6 +287,8 @@ int8_t MiP::parseStatus(MiPStatus& status,
 }
 
 void MiP::mipAssert(bool condition, uint32_t lineNumber, const char* fileName) {
+  (void)lineNumber;
+  (void)fileName;
   if (!condition) {
     MIP_DEBUG_ERROR_PRINTF(
         "MiP: Assert failed in file %s at line: %d\n", fileName, lineNumber);
