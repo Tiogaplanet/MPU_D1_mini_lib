@@ -23,6 +23,14 @@ class MiP;
  */
 class MiP_Shake {
  public:
+  // MiP Protocol Command for shake responses.
+  // This command is sent from MiP to UART and this library only uses this 
+  // command in the MPU_Serial class. It is defined here so that it rests
+  // with the rest of the Shake class. See
+  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
+  // for the complete list of MiP commands.
+  static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
+
   /**
    * @brief Constructs the shake manager.
    * @param mip A reference to the main MiP object to access core services.
