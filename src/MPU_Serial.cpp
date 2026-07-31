@@ -216,7 +216,7 @@ bool MiP_Serial::readIrLength(size_t& length) {
   length = (parseHexDigit(nibbles[0]) << 4) | parseHexDigit(nibbles[1]);
 
   if (length < 2 || length > 4) {
-    uint8_t discarded = discardUnexpectedSerialData();
+    discardUnexpectedSerialData();
     MIP_DEBUG_ERROR_PRINTF(
         "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\r\n",
         static_cast<unsigned>(length),
