@@ -3,14 +3,15 @@
  * @brief Example sketch demonstrating MiP chest LED read/write operations.
  *
  * @details This sketch shows how to use the MiP library to set and read the chest LED
- * color and blink timing. It demonstrates the verified write APIs
- * (readChestLED, writeChestLED) and the unverified write APIs
- * (unverifiedWriteChestLED) which may not always be accepted by the robot.
+ * color and blink timing. It demonstrates the verified write APIs,
+ * chestLED.read() and chestLED.write(), and the unverified write APIs,
+ * chestLED.unverifiedWrite() which may not always be accepted by the robot. This sketch
+ * exhaustively tests the MiP_ChestLED class.
  *
  * The example exercises these API calls:
- *   - readChestLED()
- *   - writeChestLED()
- *   - unverifiedChestLED()
+ *   - chestLED.read()
+ *   - chestLED.write()
+ *   - chestLED.unverifiedWrite()
  *
  * @copyright Copyright (C) 2018-2026 Adam Green (https://github.com/adamgreen)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,7 +83,7 @@ void setup() {
   delay(1000);
 
   // Attempt to run through the same sequence of chest LED changes using the
-  // unverifiedWriteChestLED() functions which don't always get accepted by MiP.
+  // chestLED.unverifiedWrite() functions which don't always get accepted by MiP.
   Serial1.println(F(" Trying to set chest LED to magenta, no time specified."));
   red = 0xff;
   green = 0x01;
@@ -97,12 +98,12 @@ void setup() {
   mip.chestLED.unverifiedWrite(red, green, blue, onTime, offTime);
   delay(4000);
 
-  Serial1.println(F(" Trying to set chest LED back to green, no time specified."));
+  Serial1.println(F(" Trying to set chest LED back to green with a flash time."));
   chestLED.red = 0x00;
   chestLED.green = 0xff;
   chestLED.blue = 0x00;
-  chestLED.onTime = 0;
-  chestLED.offTime = 0;
+  chestLED.onTime = 200;
+  chestLED.offTime = 200;
   mip.chestLED.unverifiedWrite(chestLED);
   delay(1000);
 
@@ -147,4 +148,3 @@ static void printCurrentChestLEDSetting() {
   Serial1.println(F(" milliseconds"));
   Serial1.println();
 }
-
