@@ -3,12 +3,9 @@ name: Arduino Library Release Pipeline
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*' # Triggers on semantic version tags like v1.2.0
+      - 'v[0-9]+.[0-9]+.[0-9]+*'   # e.g. v2.0.0
 
 jobs:
-  # -------------------------------------------------------------------
-  # Job 1: Validate Library Compliance & Compile Example Sketches
-  # -------------------------------------------------------------------
   validate-and-build:
     name: Lint & Compile Tests
     runs-on: ubuntu-latest
@@ -17,68 +14,78 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 1: Run Official Arduino Lint Action
       - name: Run Arduino Lint
         uses: arduino/arduino-lint-action@v1
         with:
           compliance: specification
           library-manager: submit
 
-      # Step 2: Set up Arduino CLI for ESP8266
+      # Official action (same as arduino-compile.yml)
       - name: Setup Arduino CLI
-        uses: arduino/setup-cli@v1
+        uses: arduino/setup-arduino-cli@v2
 
-      - name: Install ESP8266 Core
+      - name: Install ESP8266 Core Platform
         run: |
           arduino-cli core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
           arduino-cli core install esp8266:esp8266 --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
-      # Step 3: Verify Example Sketches Compile Cleanly
-      - name: Compile Example Sketches
+      # Optional: same elf2bin patch as compile workflow (safe to keep)
+      - name: Patch elf2bin.py Syntax Warnings
         run: |
-          mkdir -p ~/.arduino15/libraries/
-          ln -s $GITHUB_WORKSPACE ~/.arduino15/libraries/MPU_D1_mini
-          for sketch in examples/*/*.ino; do
-            if [ -f "$sketch" ]; then
-              echo "Building $sketch..."
-              arduino-cli compile --fqbn esp8266:esp8266:d1_mini "$sketch"
+          python3 -c "
+          import os
+          path = os.path.expanduser('~/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/elf2bin.py')
+          if os.path.exists(path):
+              with open(path, 'r') as f: text = f.read()
+              text = text.replace(\"re.split('\s+', line)\", \"re.split(r'\s+', line)\")
+              with open(path, 'w') as f: f.write(text)
+              print('Successfully patched elf2bin.py')
+          else:
+              print('Warning: elf2bin.py target file path not found')
+          "
+
+      - name: Install Local Library
+        run: |
+          mkdir -p $HOME/Arduino/libraries
+          ln -s $GITHUB_WORKSPACE $HOME/Arduino/libraries/MPU_D1_mini_lib
+
+      - name: Compile all examples
+        run: |
+          for example in $HOME/Arduino/libraries/MPU_D1_mini_lib/examples/*; do
+            if [ -d "$example" ]; then
+              echo "Building $example..."
+              arduino-cli compile --warnings all --fqbn esp8266:esp8266:d1_mini "$example"
             fi
           done
 
-  # -------------------------------------------------------------------
-  # Job 2: Create Release Package & Publish to GitHub Releases
-  # -------------------------------------------------------------------
   publish-release:
     name: Create GitHub Release
-    needs: validate-and-build # Only run if lint & compile tests pass
+    needs: validate-and-build
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Grants permission to create GitHub releases
+      contents: write
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Extract version string from tag (e.g. v1.2.0 -> 1.2.0)
       - name: Extract Tag Version
         id: vars
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      # Create a clean ZIP file suitable for 'Add .ZIP Library...' in Arduino IDE
       - name: Package Library ZIP
         run: |
           ZIP_NAME="MPU_D1_mini-${{ steps.vars.outputs.VERSION }}.zip"
           zip -r "$ZIP_NAME" . -x "*.git*" "bump_version.py" ".github*"
 
-      # Publish Official GitHub Release
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Release v${{ steps.vars.outputs.VERSION }}
           tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
-          generate_release_notes: true # Auto-generates changelog from commits
+          generate_release_notes: true
           files: |
             MPU_D1_mini-${{ steps.vars.outputs.VERSION }}.zip
         env:
