@@ -14,7 +14,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Version.h"
-#include "MPU_D1_mini.h"
+#include "MiP_Power_Up_-_D1_mini.h"
 
 // Implement the constructor to store the MiP reference.
 MiP_Version::MiP_Version(MiP& mip) : m_mip(mip) {}

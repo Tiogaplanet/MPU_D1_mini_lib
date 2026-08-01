@@ -23,7 +23,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MPU_D1_mini.h>
+#include <MiP_Power_Up_-_D1_mini.h>
 #include <time.h> // We'll read the time and parse it.
 
 /**

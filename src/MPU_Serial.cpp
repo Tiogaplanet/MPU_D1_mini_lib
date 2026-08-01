@@ -14,7 +14,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Serial.h"
-#include "MPU_D1_mini.h"
+#include "MiP_Power_Up_-_D1_mini.h"
 
 MiP_Serial::MiP_Serial(MiP& mip) : m_mip(mip) {
   clear();

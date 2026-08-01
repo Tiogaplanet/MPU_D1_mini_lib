@@ -1,5 +1,5 @@
 /**
- * @file MPU_D1_mini.cpp
+ * @file MiP_Power_Up_-_D1_mini.cpp
  * @brief Implements the core MiP API and library initialization.
  *
  * @details This source file implements the main MiP object lifecycle and shared
@@ -13,7 +13,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include "MPU_D1_mini.h"
+#include "MiP_Power_Up_-_D1_mini.h"
 
 // Number of times that begin() method should try to initialize the MiP.
 #define MIP_MAX_BEGIN_RETRIES 5
