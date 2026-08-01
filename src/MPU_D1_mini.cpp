@@ -7,7 +7,7 @@
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -169,9 +169,9 @@ void MiP::dispatchEvent(uint8_t command,
     case MiP_Weight::MIP_CMD_GET_WEIGHT:
       // A weight event was found. Dispatch it to the Weight component.
       MIP_DEBUG_INFO_PRINT(
-          "MiP->Core->dispatchEvent(), in clap case. payload[1]: ");
+          "MiP->Core->dispatchEvent(), in weight case. payload[1]: ");
       MIP_DEBUG_INFO_PRINTLN(payload[1]);
-      if (length >= 1) {
+      if (length >= 2) {
         weight.processEvent(payload[1]);
       }
       break;
@@ -196,6 +196,11 @@ void MiP::dispatchEvent(uint8_t command,
     case MiP_Shake::MIP_CMD_SHAKE_RESPONSE:
       m_flags |= MIP_FLAG_SHAKE_DETECTED;
       break;
+    case MiP_Radar::MIP_CMD_GET_RADAR_RESPONSE:
+      if (length >= 2) {
+        radar.processEvent(payload[1]);
+      }
+      break;
     default:
       // An unknown OOB event was received.
       MIP_DEBUG_WARN_PRINTF("MiP: Unknown OOB Event: 0x%02X\n", command);
@@ -214,6 +219,7 @@ void MiP::clear() {
   clap.clear();
   gesture.clear();
   infrared.clear();
+  radar.clear();
   serial.clear();
   weight.clear();
   wifi.clear();

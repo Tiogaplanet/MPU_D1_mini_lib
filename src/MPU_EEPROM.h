@@ -2,12 +2,12 @@
  * @file MPU_EEPROM.h
  * @brief Defines the public interface for EEPROM access in the MiP library.
  *
- * @details This header declares the EEPROM read and write API used by the MiP
+ * @details This header declares the EEPROM read and write API used by the MPU
  * library.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -26,15 +26,22 @@ class MiP;
  */
 class MiP_EEPROM {
  public:
-  // MiP Protocol Commands related to MiP's EEPROM.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the EEPROM subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_SET_USER_DATA = 0x12;
   static constexpr uint8_t MIP_CMD_GET_USER_DATA = 0x13;
 
-  // EEPROM base address.
+  /**
+   * @brief The EEPROM boundaries.  Attempts to write outside these addresses
+   * will fail.
+   */
   static constexpr uint8_t BASE_EEPROM_ADDRESS = 0x20;
   // Last addressable address in EEPROM.
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;

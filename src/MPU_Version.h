@@ -4,12 +4,13 @@
  * @brief Defines the functions for reporting MiP's software and hardware
  * versions.
  *
- * @details This header declares the API used to report the hardware and
- * software versions.
+ * @details This header declares the API used to report MiP's hardware and
+ * software versions. It also declares the functions for reporting the MPU
+ * library version.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -24,7 +25,7 @@
 class MiP;
 
 /**
- * @brief Stores the MiP's software firmware version details.
+ * @brief Stores the MiP's software version details.
  */
 class MiPSoftwareVersion {
  public:
@@ -65,6 +66,18 @@ class MiPHardwareInfo {
 class MiP_Version {
  public:
   /**
+   * @brief MiP protocol command bytes used by the version tracking subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
+  static constexpr uint8_t MIP_CMD_GET_SOFTWARE_VERSION = 0x14;
+  static constexpr uint8_t MIP_CMD_GET_HARDWARE_INFO = 0x19;
+
+  /**
    * @brief Constructs the Version manager.
    * @param mip A reference to the main MiP object for core services.
    */
@@ -83,12 +96,12 @@ class MiP_Version {
   void readHardware(MiPHardwareInfo& hardware);
 
   /**
-   * @brief Returns the semver string of this Arduino library (e.g. "1.1.0").
+   * @brief Returns the semver string of this Arduino library (e.g. "2.0.0").
    */
   const char* readMPUString() const;
 
   /**
-   * @brief Returns the encoded integer version number (e.g. 10100 for 1.1.0).
+   * @brief Returns the encoded integer version number (e.g. 20000 for 2.0.0).
    */
   uint32_t readMPUNumber() const;
 

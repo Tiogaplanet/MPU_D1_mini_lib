@@ -2,12 +2,12 @@
  * @file MPU_HeadLEDs.h
  * @brief Defines the public interface for head LED control in the MiP library.
  *
- * @details This header declares the head LED API used to configure MiP eye
+ * @details This header declares the head LED API used to configure MiP's eye
  * patterns.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -52,20 +52,24 @@ class MiPHeadLEDs {
 };
 
 /**
- * @brief Manages MiP's battery monitoring.
+ * @brief Manages MiP's eye LEDs.
  */
 class MiP_HeadLEDs {
  public:
-  // MiP Protocol Commands related to the head LEDs.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the head LED subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_SET_HEAD_LEDS = 0x8A;
   static constexpr uint8_t MIP_CMD_GET_HEAD_LEDS = 0x8B;
 
   /**
-   * @brief Constructs the Battery manager.
+   * @brief Constructs the eye LED manager.
    * @param mip A reference to the main MiP object to access core services.
    */
   MiP_HeadLEDs(MiP& mip);

@@ -7,7 +7,7 @@
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -46,12 +46,15 @@ enum MiPRadarMode : uint8_t {
  */
 class MiP_Radar {
  public:
-  // MiP Protocol Commands related to the radar system.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list. The radar response command is used only in MPU_Serial
-  // but is defined here so that it rests with the rest of the radar class.
+  /**
+   * @brief MiP protocol command bytes used by the radar subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
   static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
   static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;
@@ -95,6 +98,18 @@ class MiP_Radar {
    */
   MiPRadar read();
 
+  /**
+   * @brief Handles an incoming radar OOB event from the transport layer.
+   *
+   * Called by MiP::dispatchEvent() when a MIP_CMD_GET_RADAR_RESPONSE
+   * notification is received. Updates the cached distance and marks the
+   * radar data as valid.
+   *
+   * @param radarCode Raw distance code from the MiP (MIP_RADAR_NONE ..
+   *                  MIP_RADAR_0CM_10CM).
+   */
+  void processEvent(uint8_t radarCode);
+
  private:
   void verifiedSet(MiPRadarMode desiredMode);
   bool check(MiPRadarMode expectedMode);
@@ -103,6 +118,8 @@ class MiP_Radar {
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   MiPRadar m_lastRadar;
+  
+  friend class MiP;
 };
 
 #endif  // MPU_RADAR_H

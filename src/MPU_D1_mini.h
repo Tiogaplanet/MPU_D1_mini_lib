@@ -1,13 +1,13 @@
 /**
  * @file MPU_D1_mini.h
- * @brief Defines the core MiP API and subsystem interfaces.
+ * @brief Defines the core MPU API and subsystem interfaces.
  *
  * @details This header declares the main MiP class and the public interfaces
  * exposed by the library subsystems.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -42,18 +42,18 @@
 #include "MPU_Sound.h"
 #include "MPU_Version.h"
 #include "MPU_Weight.h"
-#include "MPU_Wifi.h"
+#include "MPU_WiFi.h"
 
 // MiP Power Up: D1 mini library versioning
-#define MPU_D1_MINI_VERSION_MAJOR 1
-#define MPU_D1_MINI_VERSION_MINOR 1
+#define MPU_D1_MINI_VERSION_MAJOR 2
+#define MPU_D1_MINI_VERSION_MINOR 0
 #define MPU_D1_MINI_VERSION_PATCH 0
 
 // Combined string representation matching library.properties
-#define MPU_D1_MINI_VERSION "1.1.0"
+#define MPU_D1_MINI_VERSION "2.0.0"
 
-// Combined numerical value for preprocessor version checks (1.1.0 -> 10100)
-#define MPU_D1_MINI_VERSION_NUMBER                                       \
+// Combined numerical value for preprocessor version checks (2.0.0 -> 20000)
+#define MPU_D1_MINI_VERSION_NUMBER \
   (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + \
    MPU_D1_MINI_VERSION_PATCH)
 
@@ -145,18 +145,22 @@ class MiPStatus {
  */
 class MiP {
  public:
-  // MiP Protocol Commands related to core functions.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes related to core functions.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;
   static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;
   static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
-  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
-  static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
 
-  // Integer error codes that can be encountered by MiP API functions.
+  /**
+   * @brief Integer error codes that can be encountered by the MiP library.
+   */
   static constexpr uint8_t MIP_ERROR_NONE = 0;  // Success
   static constexpr uint8_t MIP_ERROR_TIMEOUT =
       1;  // Timed out waiting for response.
@@ -217,9 +221,7 @@ class MiP {
    */
   bool isInitialized();
 
-  // ==========================================================================
-  // Error Handling
-  // ==========================================================================
+  // Error Handling.
   /**
    * @brief Retrieves the error code from the most recently executed MiP API
    * function.
@@ -309,7 +311,7 @@ class MiP {
   // See MPU_Weight.h for reading MiP's weight.
   MiP_Weight weight;
 
-  // See MPU_Wifi.h for interfacing with the MPU's wifi system.
+  // See MPU_WiFi.h for interfacing with the MPU's wifi system.
   MiP_Wifi wifi;
 
  protected:

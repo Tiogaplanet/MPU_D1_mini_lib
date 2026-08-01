@@ -7,7 +7,7 @@
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -161,11 +161,14 @@ enum MiPVolume : uint8_t {
  */
 class MiP_Sound {
  public:
-  // MiP Protocol Commands related to MiP's sound system.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+/**
+   * @brief MiP protocol command bytes used by the sound subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_PLAY_SOUND = 0x06;
   static constexpr uint8_t MIP_CMD_SET_VOLUME = 0x15;
   static constexpr uint8_t MIP_CMD_GET_VOLUME = 0x16;

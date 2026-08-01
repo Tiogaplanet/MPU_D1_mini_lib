@@ -6,7 +6,7 @@
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -50,6 +50,13 @@ MiPRadar MiP_Radar::read() {
   }
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
   return m_lastRadar;
+}
+
+void MiP_Radar::processEvent(uint8_t radarCode) {
+  if (radarCode >= MIP_RADAR_NONE && radarCode <= MIP_RADAR_0CM_10CM) {
+    m_lastRadar = static_cast<MiPRadar>(radarCode);
+    m_mip.m_flags |= MiP::MIP_FLAG_RADAR_VALID;
+  }
 }
 
 // This internal protected method sends the command to change the radar/gesture

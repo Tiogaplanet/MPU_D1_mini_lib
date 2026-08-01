@@ -1,0 +1,50 @@
+name: Cleanup old workflow runs
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'   # weekly
+  workflow_dispatch:        # allow manual run
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete old runs (keep last 5 per workflow)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const keep = 5;
+            const workflows = await github.rest.actions.listRepoWorkflows({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            for (const wf of workflows.data.workflows) {
+              const runs = await github.paginate(
+                github.rest.actions.listWorkflowRuns,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: wf.id,
+                  per_page: 100
+                }
+              );
+
+              // runs are newest-first; delete everything after the first `keep`
+              for (const run of runs.slice(keep)) {
+                console.log(`Deleting run ${run.id} (${wf.name})`);
+                try {
+                  await github.rest.actions.deleteWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: run.id
+                  });
+                } catch (e) {
+                  console.log(`  skip: ${e.message}`);
+                }
+              }
+            }

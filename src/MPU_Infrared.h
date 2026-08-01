@@ -1,6 +1,6 @@
 /**
  * @file MPU_Infrared.h
- * @brief Defines the public interface for infrared communication in the MiP
+ * @brief Defines the public interface for infrared communication in the MPU
  * library.
  *
  * @details This header declares the infrared API used for MiP detection and
@@ -8,7 +8,7 @@
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -29,11 +29,15 @@ class MiP;
  */
 class MiP_Infrared {
  public:
-  // MiP Protocol Commands related to MiP's IR capability.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the infrared subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_RECEIVE_IR_DONGLE_CODE = 0x03;
   static constexpr uint8_t MIP_CMD_GET_DETECTED_MIP = 0x04;
   static constexpr uint8_t MIP_CMD_SET_DETECTION_MODE = 0x0E;
@@ -41,7 +45,9 @@ class MiP_Infrared {
   static constexpr uint8_t MIP_CMD_GET_IR_REMOTE_CONTROL = 0x11;
   static constexpr uint8_t MIP_CMD_SEND_IR_DONGLE_CODE = 0x8C;
 
-  // IR mode definitions.
+  /**
+   * @brief Infrared mode definitions.
+   */
   static constexpr uint8_t MIP_IR_DETECTION_MODE_DISABLE = 0;
   static constexpr uint8_t MIP_IR_REMOTE_CONTROL_DISABLE = 0;
   static constexpr uint8_t MIP_IR_REMOTE_CONTROL_ENABLE = 1;
