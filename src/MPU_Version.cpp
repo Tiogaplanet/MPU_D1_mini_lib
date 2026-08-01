@@ -1,8 +1,9 @@
 /**
  * @file MPU_Version.cpp
- * @brief Implements version reporting for the MiP library.
+ * @brief Implements version reporting for the MPU library.
  *
- * @details This source file implements software and hardware version queries.
+ * @details This source file implements MiP's software and hardware version
+ * queries and reports the MPU version number and string.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -14,14 +15,6 @@
  */
 #include "MPU_Version.h"
 #include "MPU_D1_mini.h"
-
-// MiP Protocol Commands to request hardware and software info.
-// These command codes are placed in the first byte of requests sent to the MiP
-// and responses sent back from the MiP. See
-// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-// for the complete list.
-static constexpr uint8_t MIP_CMD_GET_SOFTWARE_VERSION = 0x14;
-static constexpr uint8_t MIP_CMD_GET_HARDWARE_INFO = 0x19;
 
 // Implement the constructor to store the MiP reference.
 MiP_Version::MiP_Version(MiP& mip) : m_mip(mip) {}

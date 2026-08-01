@@ -1,10 +1,10 @@
 /**
  * @file MPU_Queue.h
- * @brief Fixed-size circular queue (ring buffer) used internally by the MiP
+ * @brief Fixed-size circular queue (ring buffer) used internally by the MPU
  *        library.
  *
  * @details This template class overwrites the oldest element when full. It is
- * **not** thread-safe. Used for buffering clap, gesture, IR, and detection
+ * not thread-safe. Used for buffering clap, gesture, IR, and detection
  * events.
  *
  * @author Adam Green (Original Author)
@@ -15,8 +15,8 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#ifndef MPU_QUEUE_H_
-#define MPU_QUEUE_H_
+#ifndef MPU_QUEUE_H
+#define MPU_QUEUE_H
 
 #include <stdint.h>
 
@@ -99,4 +99,4 @@ class CircularQueue {
   uint8_t m_writeIndex;
 };
 
-#endif  // MPU_QUEUE_H_
+#endif  // MPU_QUEUE_H

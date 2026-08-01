@@ -1,6 +1,6 @@
 /**
  * @file MPU_D1_mini.h
- * @brief Defines the core MiP API and subsystem interfaces.
+ * @brief Defines the core MPU API and subsystem interfaces.
  *
  * @details This header declares the main MiP class and the public interfaces
  * exposed by the library subsystems.
@@ -145,18 +145,22 @@ class MiPStatus {
  */
 class MiP {
  public:
-  // MiP Protocol Commands related to core functions.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes related to core functions.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;
   static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;
   static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
-  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
-  static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
 
-  // Integer error codes that can be encountered by MiP API functions.
+  /**
+   * @brief Integer error codes that can be encountered by the MPU library.
+   */
   static constexpr uint8_t MIP_ERROR_NONE = 0;  // Success
   static constexpr uint8_t MIP_ERROR_TIMEOUT =
       1;  // Timed out waiting for response.
@@ -217,9 +221,7 @@ class MiP {
    */
   bool isInitialized();
 
-  // ==========================================================================
-  // Error Handling
-  // ==========================================================================
+  // Error Handling.
   /**
    * @brief Retrieves the error code from the most recently executed MiP API
    * function.

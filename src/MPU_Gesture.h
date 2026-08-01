@@ -1,6 +1,6 @@
 /**
  * @file MPU_Gesture.h
- * @brief Defines the public interface for gesture handling in the MiP library.
+ * @brief Defines the public interface for gesture handling in the MPU library.
  *
  * @details This header declares the gesture API used to enable and read gesture
  * events.
@@ -47,21 +47,25 @@ enum MiPGesture : uint8_t {
 };
 
 /**
- * @brief Manages MiP's gesture system.
+ * @brief Manages MiP's gesture subsystem.
  */
 class MiP_Gesture {
  public:
-  // MiP Protocol Commands related to sensors.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the gesture subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
   static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RESPONSE = 0x0A;
 
   /**
-   * @brief Constructs the Battery manager.
+   * @brief Constructs the gesture subsystem manager.
    * @param mip A reference to the main MiP object to access core services.
    */
   MiP_Gesture(MiP& mip);

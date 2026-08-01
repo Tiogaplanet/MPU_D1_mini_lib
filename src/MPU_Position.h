@@ -1,9 +1,9 @@
 /**
  * @file MPU_Position.h
- * @brief Defines the public interface for position reporting in the MiP
+ * @brief Defines the public interface for position reporting in the MPU
  * library.
  *
- * @details This header declares the position API used to inspect MiP
+ * @details This header declares the position API used to inspect MiP's
  * orientation.
  *
  * @author Adam Green (Original Author)
@@ -23,7 +23,7 @@
 class MiP;
 
 /**
- * @brief MiP physical orientation/position states.
+ * @brief MiP physical orientation or position states.
  */
 enum MiPPosition : uint8_t {
   MIP_POSITION_ON_BACK = 0x00,
@@ -47,7 +47,7 @@ class MiP_Position {
   MiP_Position(MiP& mip);
 
   /**
-   * @brief Reads the current physical position/orientation of the MiP.
+   * @brief Reads the current physical position or orientation of the MiP.
    *
    * Uses cached status data (updated automatically from OOB events).
    * No new serial request is sent to the robot.

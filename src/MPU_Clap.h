@@ -1,9 +1,9 @@
 /**
  * @file MPU_Clap.h
- * @brief Defines the public interface for clap event handling in the MiP
+ * @brief Defines the public interface for clap event handling in the MPU
  * library.
  *
- * @details This header declares the clap-detection API used by the MiP library.
+ * @details This header declares the clap-detection API used by the MPU library.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -52,12 +52,15 @@ class MiPClapSettings {
  */
 class MiP_Clap {
  public:
-  // MiP Protocol Commands related to clap detection.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list. The clap detection command is used only in MPU_Serial
-  // but is defined here to rest with the rest of the Clap class.
+  /**
+   * @brief MiP protocol command bytes used by the clap detection subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;
   static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;
   static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;

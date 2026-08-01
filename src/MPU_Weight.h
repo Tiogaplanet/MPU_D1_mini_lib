@@ -1,7 +1,7 @@
 /**
  * @file MPU_Weight.h
  *
- * @brief Defines the one and only function for reporting MiP's weight - read().
+ * @brief Declares the one and only function for reporting MiP's weight - read().
  *
  * @details This header declares the API used to report MiP's payload weight.
  *
@@ -26,11 +26,15 @@ class MiP;
  */
 class MiP_Weight {
  public:
-  // MiP Protocol Command to request weight.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the weight detection subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_GET_WEIGHT = 0x81;
 
   /**

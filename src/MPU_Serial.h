@@ -1,6 +1,6 @@
 /**
  * @file MPU_Serial.h
- * @brief Defines the public interface for serial transport in the MiP library.
+ * @brief Defines the public interface for serial transport in the MPU library.
  *
  * @details This header declares the low-level serial API used for MiP
  * communication.

@@ -1,9 +1,9 @@
 /**
  * @file MPU_Wifi.h
  *
- * @brief Defines the public interface for Wi-Fi management in the MiP library.
+ * @brief Defines the public interface for wifi management in the MPU library.
  *
- * @details This header declares the Wi-Fi API used to connect MiP to a network.
+ * @details This header declares the wifi API used to connect MiP to a network.
  *
  * @author Samuel Trassare (Original Author)
  ** @copyright Copyright (C) 2018-2026 Samuel Trassare

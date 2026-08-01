@@ -1,10 +1,9 @@
 /**
  * @file MPU_Debug.h
- * @brief Defines the debug functionality for the MPU D1 mini.
+ * @brief Defines the debug functionality for the MPU library.
  *
  * @details This header declares the debug class and the public interfaces
- * exposed by the debug subsystem. Written by Samuel Trassare and based on Joao
- Lopes' original RemoteDebug library.
+ * exposed by the debug subsystem.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)

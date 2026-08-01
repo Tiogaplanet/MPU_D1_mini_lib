@@ -1,6 +1,6 @@
 /**
  * @file MPU_Odometer.h
- * @brief Defines the public interface for odometer tracking in the MiP library.
+ * @brief Defines the public interface for odometer tracking in the MPU library.
  *
  * @details This header declares the odometer API used to read and reset
  * distance data.
@@ -22,19 +22,24 @@
 class MiP;
 
 /**
- * @brief Manages MiP's battery monitoring.
+ * @brief Manages MiP's odometer monitoring.
  */
 class MiP_Odometer {
  public:
-  // MiP Protocol Commands related to the odometer.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the odometer subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_READ_ODOMETER = 0x85;
   static constexpr uint8_t MIP_CMD_RESET_ODOMETER = 0x86;
+
   /**
-   * @brief Constructs the Battery manager.
+   * @brief Constructs the odometer manager.
    * @param mip A reference to the main MiP object to access core services.
    */
   MiP_Odometer(MiP& mip);

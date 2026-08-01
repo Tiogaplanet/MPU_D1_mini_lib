@@ -1,6 +1,6 @@
 /**
  * @file MPU_Mode.h
- * @brief Defines the public interface for mode switching in the MiP library.
+ * @brief Defines the public interface for mode switching in the MPU library.
  *
  * @details This header declares the mode-selection API used to change MiP
  * behavior.
@@ -38,11 +38,15 @@ enum MiPGameMode : uint8_t {
  */
 class MiP_Mode {
  public:
-  // MiP Protocol Commands related to modes.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the mode subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_SET_GAME_MODE = 0x76;
   static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
 

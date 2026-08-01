@@ -1,9 +1,9 @@
 /**
  * @file MPU_Battery.h
- * @brief Defines the public interface for battery monitoring in the MiP
+ * @brief Defines the public interface for battery monitoring in the MPU
  * library.
  *
- * @details This header declares the battery-monitoring API used by the MiP
+ * @details This header declares the battery-monitoring API used by the MPU
  * library.
  *
  * @author Adam Green (Original Author)

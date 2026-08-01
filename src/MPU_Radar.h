@@ -1,6 +1,6 @@
 /**
  * @file MPU_Radar.h
- * @brief Defines the public interface for radar tracking in the MiP library.
+ * @brief Defines the public interface for radar tracking in the MPU library.
  *
  * @details This header declares the radar API used to enable and read radar
  * events.
@@ -46,12 +46,15 @@ enum MiPRadarMode : uint8_t {
  */
 class MiP_Radar {
  public:
-  // MiP Protocol Commands related to the radar system.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list. The radar response command is used only in MPU_Serial
-  // but is defined here so that it rests with the rest of the radar class.
+  /**
+   * @brief MiP protocol command bytes used by the radar subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
   static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
   static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;

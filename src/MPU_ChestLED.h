@@ -1,9 +1,9 @@
 /**
  * @file MPU_ChestLED.h
- * @brief Defines the public interface for chest LED control in the MiP library.
+ * @brief Defines the public interface for chest LED control in the MPU library.
  *
- * @details This header declares the chest LED API used to configure and query
- * MiP LEDs.
+ * @details This header declares the API used to configure and query MiP's
+ * three-color chest LED.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -44,15 +44,19 @@ class MiPChestLED {
 };
 
 /**
- * @brief Manages the MiP chest LED.
+ * @brief Manages MiP's chest LED.
  */
 class MiP_ChestLED {
  public:
-  // MiP Protocol Commands related to the chest LED.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+  /**
+   * @brief MiP protocol command bytes used by the chest LED subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_GET_CHEST_LED = 0x83;
   static constexpr uint8_t MIP_CMD_SET_CHEST_LED = 0x84;
   static constexpr uint8_t MIP_CMD_FLASH_CHEST_LED = 0x89;

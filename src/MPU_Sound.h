@@ -1,6 +1,6 @@
 /**
  * @file MPU_Sound.h
- * @brief Defines the public interface for sound playback in the MiP library.
+ * @brief Defines the public interface for sound playback in the MPU library.
  *
  * @details This header declares the sound API used to play audio and manage
  * volume.
@@ -161,11 +161,14 @@ enum MiPVolume : uint8_t {
  */
 class MiP_Sound {
  public:
-  // MiP Protocol Commands related to MiP's sound system.
-  // These command codes are placed in the first byte of requests sent to the
-  // MiP and responses sent back from the MiP. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list.
+/**
+   * @brief MiP protocol command bytes used by the sound subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_PLAY_SOUND = 0x06;
   static constexpr uint8_t MIP_CMD_SET_VOLUME = 0x15;
   static constexpr uint8_t MIP_CMD_GET_VOLUME = 0x16;

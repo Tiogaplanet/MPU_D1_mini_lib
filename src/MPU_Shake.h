@@ -1,8 +1,8 @@
 /**
  * @file MPU_Shake.h
- * @brief Defines the public interface for shake detection in the MiP library.
+ * @brief Defines the public interface for shake detection in the MPU library.
  *
- * @details This header declares the shake-detection API used by the MiP
+ * @details This header declares the shake-detection API used by the MPU
  * library.
  *
  * @author Adam Green (Original Author)
@@ -24,12 +24,15 @@ class MiP;
  */
 class MiP_Shake {
  public:
-  // MiP Protocol Command for shake responses.
-  // This command is sent from MiP to UART and this library only uses this 
-  // command in the MPU_Serial class. It is defined here so that it rests
-  // with the rest of the Shake class. See
-  // https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-  // for the complete list of MiP commands.
+  /**
+   * @brief MiP protocol command bytes used by the shake-detection subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
   static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
 
   /**
