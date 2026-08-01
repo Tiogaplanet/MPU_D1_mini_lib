@@ -96,12 +96,12 @@ class MiP_Version {
   void readHardware(MiPHardwareInfo& hardware);
 
   /**
-   * @brief Returns the semver string of this Arduino library (e.g. "1.1.0").
+   * @brief Returns the semver string of this Arduino library (e.g. "2.0.0").
    */
   const char* readMPUString() const;
 
   /**
-   * @brief Returns the encoded integer version number (e.g. 10100 for 1.1.0).
+   * @brief Returns the encoded integer version number (e.g. 20000 for 2.0.0).
    */
   uint32_t readMPUNumber() const;
 

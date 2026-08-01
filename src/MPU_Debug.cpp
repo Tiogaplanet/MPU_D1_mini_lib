@@ -1,8 +1,8 @@
 /**
  * @file MPU_Debug.cpp
- * @brief Implements the debug functionality for the MPU D1 mini.
+ * @brief Implements the debug functionality for the MPU: D1 mini.
  *
- * @details This source file implements the MiP debugging functionality..
+ * @details This source file implements the MiP debugging functionality.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -13,10 +13,11 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "MPU_Debug.h"
+
 #include <Arduino.h>
 
 // Show the library version number in the home debug screen.
-#define VERSION "1.1.0"
+#define VERSION "2.0.0"
 
 // The Telnet server instance.
 WiFiServer telnetServer(TELNET_PORT);
