@@ -1,5 +1,5 @@
 /**
- * @file MPU_D1_mini.h
+ * @file MiP_Power_Up_-_D1_mini.h
  * @brief Defines the core MPU API and subsystem interfaces.
  *
  * @details This header declares the main MiP class and the public interfaces
@@ -44,7 +44,7 @@
 #include "MPU_Weight.h"
 #include "MPU_WiFi.h"
 
-// MiP Power Up: D1 mini library versioning
+// MiP Power Up - D1 mini library versioning
 #define MPU_D1_MINI_VERSION_MAJOR 2
 #define MPU_D1_MINI_VERSION_MINOR 0
 #define MPU_D1_MINI_VERSION_PATCH 0
@@ -138,7 +138,7 @@ class MiPStatus {
 };
 
 /**
- * @mainpage MiP Power Up: D1 mini library
+ * @mainpage MiP Power Up - D1 mini library
  *
  * This library provides a complete interface to control the WowWee MiP robot
  * over UART from a WeMos D1 mini (or compatible ESP8266 board).

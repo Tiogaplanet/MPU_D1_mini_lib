@@ -26,7 +26,7 @@
  *   - clap.readEvent()
  *
  * This sketch prints status and results to Serial1 and is intended for use
- * with the MiP Power Up: D1 mini library and a WowWee MiP robot.
+ * with the MiP Power Up - D1 mini library and a WowWee MiP robot.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -36,7 +36,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MPU_D1_mini.h>
+#include <MiP_Power_Up_-_D1_mini.h>
 
 /**
  * @brief Global MiP instance used to communicate with the robot.

@@ -1,13 +1,13 @@
 # Changelog
 
-All notable changes to the MiP Power Up: D1 mini library are documented in this file.
+All notable changes to the MiP Power Up - D1 mini library are documented in this file.
 
 ## [2.0.0] - 2026-08-01
 ### Breaking
 - Replaced monolithic `MiP` API with subsystem objects
   (`mip.chestLED`, `mip.motion`, `mip.radar`, `mip.sound`, `mip.wifi`, ...).
 - Wi‑Fi/OTA setup moved to `mip.wifi.begin()`.
-- Library renamed to “MiP Power Up: D1 mini”.
+- Library renamed to “MiP Power Up - D1 mini”.
 
 ### Added
 - Modular source layout under `src/`.

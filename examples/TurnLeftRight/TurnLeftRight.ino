@@ -29,7 +29,7 @@
  * limitations under the License.
  */
 
-#include <MPU_D1_mini.h>
+#include <MiP_Power_Up_-_D1_mini.h>
 
 /**
  * @brief Global MiP instance used to control the robot.

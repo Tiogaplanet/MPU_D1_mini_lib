@@ -15,7 +15,7 @@
  */
 #include <Arduino.h>
 
-#include "MPU_D1_mini.h"
+#include "MiP_Power_Up_-_D1_mini.h"
 #include "MPU_Weight.h"
 
 // Implement the constructor to store the MiP reference.
@@ -50,12 +50,12 @@ int8_t MiP_Weight::read() {
     int8_t weight;
     result = rawGet(weight);
     if (result ==
-        MiP::MIP_ERROR_NONE) {  // Error codes defined in MPU_D1_mini.h.
+        MiP::MIP_ERROR_NONE) {  // Error codes defined in MiP_Power_Up_-_D1_mini.h.
       // Cache the returned value and return it to the caller.
       m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       m_lastWeight = weight;
       m_mip.m_flags |= m_mip.MIP_FLAG_WEIGHT_VALID;  // From the enum FlagBits
-                                                     // in MPU_D1_mini.h.
+                                                     // in MiP_Power_Up_-_D1_mini.h.
       return weight;
     }
 
@@ -90,8 +90,8 @@ int8_t MiP_Weight::parse(int8_t& weight,
                          size_t responseLength) {
   if (responseLength != 2 || response[0] != MIP_CMD_GET_WEIGHT) {
     return m_mip
-        .MIP_ERROR_BAD_RESPONSE;  // Error codes defined in MPU_D1_mini.h.
+        .MIP_ERROR_BAD_RESPONSE;  // Error codes defined in MiP_Power_Up_-_D1_mini.h.
   }
   weight = response[1];
-  return MiP::MIP_ERROR_NONE;  // Error codes defined in MPU_D1_mini.h.
+  return MiP::MIP_ERROR_NONE;  // Error codes defined in MiP_Power_Up_-_D1_mini.h.
 }
