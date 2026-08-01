@@ -1,55 +1,90 @@
-/* Copyright (C) 2018  Adam Green (https://github.com/adamgreen)
+/**
+ * @file PlaySound.ino
+ * @brief Example sketch demonstrating MiP sound playback and sound lists.
+ *
+ * @details This sketch shows how to use the MiP library to play single sounds
+ * and to build and play sound lists (sequences). It demonstrates playing a
+ * single sound with sound.play(), creating a sound list with sound.beginList()
+ * and sound.addEntryToList(), and playing the list with sound.playList(). The
+ * example plays a single "drinking" sound, then constructs a two-entry sound
+ * list (eating, then burping) with different volumes and repeats the list.
+ *
+ * The example exercises these API calls:
+ *   - sound.play()
+ *   - sound.beginList()
+ *   - sound.addEntryToList()
+ *   - sound.playList()
+ *
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+#include <MPU_D1_mini.h>
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+/**
+ * @brief Global MiP instance used to control the robot.
+ *
+ * @details Use this object to call MiP API functions such as begin(),
+ * sound.play(), sound.beginList(), sound.addEntryToList(), and
+ * sound.playList().
+ */
+MiP mip;
 
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/* Example used in following API documentation:
-    playSound()
-    beginSoundList()
-    addSoundToList()
-    playSoundList()
-*/
-#include <mip_esp8266.h>
-
-MiP     mip;
-
+/**
+ * @brief Arduino setup function.
+ *
+ * @details Initializes communication with the MiP robot by calling mip.begin().
+ * If the connection fails, an error message is printed to Serial1 and setup
+ * returns early. On success, the sketch demonstrates:
+ *   - Playing a single sound with playSound().
+ *   - Building a sound list using beginSoundList() and addEntryToSoundList().
+ *   - Playing the sound list with playSoundList() and repeating it after a
+ * delay.
+ *
+ * The example uses delays to allow sounds and sound lists to complete before
+ * proceeding to the next action.
+ */
 void setup() {
   bool connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("Failed connecting to MiP!"));
+    Serial1.println(F("PlaySound.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("PlaySound.ino - Play a few sounds."));
+  Serial1.println(F("PlaySound.ino: Play a few sounds."));
 
-  // Play a single sound.
-  mip.playSound(MIP_SOUND_ACTION_DRINKING, MIP_VOLUME_4);
-  delay(3000);
+  // Play a single sound (drinking) at volume level 4.
+  mip.sound.play(MIP_SOUND_ACTION_DRINKING, MIP_VOLUME_4);
+  delay(3000);  // Allow the single sound to play.
 
-  // Play 2 sounds with 1 second delay between them, repeating them a second time.
-  // Play the first at a lower volume than the second.
-  mip.beginSoundList();
-  mip.addEntryToSoundList(MIP_SOUND_ACTION_EATING, 1000, MIP_VOLUME_4);
-  mip.addEntryToSoundList(MIP_SOUND_ACTION_BURPING, 0, MIP_VOLUME_7);
-  mip.playSoundList(1);
+  // Build a sound list: two entries with a 1 second gap between them,
+  // then play the list once and repeat it later.
+  mip.sound.beginList();
+  // First entry: eating, 1000 ms delay before next entry, volume 4.
+  mip.sound.addEntryToList(MIP_SOUND_ACTION_EATING, 1000, MIP_VOLUME_4);
+  // Second entry: burping, no delay after, louder volume 7.
+  mip.sound.addEntryToList(MIP_SOUND_ACTION_BURPING, 0, MIP_VOLUME_7);
+  // Play the constructed list once (repeat count = 1).
+  mip.sound.playList(1);
 
-  // Play the sound list again after waiting for the previous play to complete.
+  // Wait long enough for the list to finish, then play it again.
   delay(10000);
-  mip.playSoundList();
+  mip.sound.playList();
 
   Serial1.println();
-  Serial1.println(F("Sample done."));
+  Serial1.println(F("PlaySound.ino: Done."));
 }
 
-void loop() {
-}
+/**
+ * @brief Arduino loop function.
+ *
+ * @details This example performs all actions in setup() and does not require
+ * repeated work in loop(). The function is intentionally left empty so the
+ * demonstration runs only once during initialization.
+ */
+void loop() {}
 

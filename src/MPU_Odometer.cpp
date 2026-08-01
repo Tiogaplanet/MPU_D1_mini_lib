@@ -1,0 +1,82 @@
+/**
+ * @file MPU_Odometer.cpp
+ * @brief Implements odometer tracking for the MiP library.
+ *
+ * @details This source file implements odometer read and reset operations.
+ *
+ * @author Adam Green (Original Author)
+ * @author Samuel Trassare (Maintainer)
+ * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+#include "MPU_Odometer.h"
+#include "MPU_D1_mini.h"
+
+// Implement the constructor to store the MiP reference.
+MiP_Odometer::MiP_Odometer(MiP& mip) : m_mip(mip) {}
+
+float MiP_Odometer::read() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->read()");
+  int8_t result;
+
+  // Retry the read if it should fail on the first attempt.
+  for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
+    float distance;
+    result = rawRead(distance);
+    if (result == MiP::MIP_ERROR_NONE) {
+      m_mip.m_lastError = MiP::MIP_ERROR_NONE;
+      return distance;
+    }
+
+    // An error was encountered so we will loop around and try again.
+    // Wait for a bit before the next retry.
+    delay(MiP_Serial::MIP_RETRY_WAIT);
+  }
+  m_mip.m_lastError = result;
+  return 0.0f;
+}
+
+void MiP_Odometer::reset() {
+  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->reset()");
+  uint8_t command[1] = {MIP_CMD_RESET_ODOMETER};
+
+  // Send this command blindly with no error checking since there is no robust
+  // way to determine if it has failed.
+  // TODO: Not true.  Read the odometer.  If the value is greater than 0.0, call
+  // reset, then check for 0.0.
+  m_mip.serial.rawSend(command, sizeof(command));
+}
+
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
+// This internal protected method sends the read odometer command with minimal
+// error handling. The error recovery happens at a higher level of the driver.
+int8_t MiP_Odometer::rawRead(float& distanceInCm) {
+  const uint8_t readOdometer[1] = {MIP_CMD_READ_ODOMETER};
+  uint8_t response[1 + 4];
+  size_t responseLength;
+  int8_t result = m_mip.serial.rawReceive(readOdometer,
+                                          sizeof(readOdometer),
+                                          response,
+                                          sizeof(response),
+                                          responseLength);
+  if (result)
+    return result;
+  if (responseLength != sizeof(response) ||
+      response[0] != MIP_CMD_READ_ODOMETER) {
+    return MiP::MIP_ERROR_BAD_RESPONSE;
+  }
+
+  // Tick count is stored as big-endian in response buffer.
+  uint32_t ticks = (uint32_t)response[1] << 24 | (uint32_t)response[2] << 16 |
+                   (uint32_t)response[3] << 8 | response[4];
+
+  // Odometer has 48.5 ticks / cm.
+  distanceInCm = (float)((double)ticks / 48.5);
+  return result;
+}
