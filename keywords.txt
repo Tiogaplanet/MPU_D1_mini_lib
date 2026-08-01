@@ -25,7 +25,7 @@ MiP_Shake	KEYWORD1
 MiP_Sound	KEYWORD1
 MiP_Version	KEYWORD1
 MiP_Weight	KEYWORD1
-MiP_Wifi	KEYWORD1
+MiP_WiFi	KEYWORD1
 
 MiPStatus	KEYWORD1
 MiPChestLED	KEYWORD1
@@ -179,7 +179,7 @@ readHardware	KEYWORD2
 # --- Weight ---
 # (uses read / processEvent already listed)
 
-# --- Wifi ---
+# --- WiFi ---
 # (uses begin already listed)
 connect	KEYWORD2
 enableAirplaneMode	KEYWORD2

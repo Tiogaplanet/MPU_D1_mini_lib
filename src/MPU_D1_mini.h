@@ -7,7 +7,7 @@
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -42,7 +42,7 @@
 #include "MPU_Sound.h"
 #include "MPU_Version.h"
 #include "MPU_Weight.h"
-#include "MPU_Wifi.h"
+#include "MPU_WiFi.h"
 
 // MiP Power Up: D1 mini library versioning
 #define MPU_D1_MINI_VERSION_MAJOR 1
@@ -159,7 +159,7 @@ class MiP {
   static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
 
   /**
-   * @brief Integer error codes that can be encountered by the MPU library.
+   * @brief Integer error codes that can be encountered by the MiP library.
    */
   static constexpr uint8_t MIP_ERROR_NONE = 0;  // Success
   static constexpr uint8_t MIP_ERROR_TIMEOUT =
@@ -311,7 +311,7 @@ class MiP {
   // See MPU_Weight.h for reading MiP's weight.
   MiP_Weight weight;
 
-  // See MPU_Wifi.h for interfacing with the MPU's wifi system.
+  // See MPU_WiFi.h for interfacing with the MPU's wifi system.
   MiP_Wifi wifi;
 
  protected:

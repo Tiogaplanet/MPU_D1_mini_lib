@@ -1,13 +1,13 @@
 /**
  * @file MPU_Radar.h
- * @brief Defines the public interface for radar tracking in the MPU library.
+ * @brief Defines the public interface for radar tracking in the MiP library.
  *
  * @details This header declares the radar API used to enable and read radar
  * events.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
- * * @copyright Copyright (C) 2018-2026 Samuel Trassare
+ * @copyright Copyright (C) 2018-2026 Samuel Trassare
  * (https://github.com/Tiogaplanet) Licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
@@ -98,6 +98,18 @@ class MiP_Radar {
    */
   MiPRadar read();
 
+  /**
+   * @brief Handles an incoming radar OOB event from the transport layer.
+   *
+   * Called by MiP::dispatchEvent() when a MIP_CMD_GET_RADAR_RESPONSE
+   * notification is received. Updates the cached distance and marks the
+   * radar data as valid.
+   *
+   * @param radarCode Raw distance code from the MiP (MIP_RADAR_NONE ..
+   *                  MIP_RADAR_0CM_10CM).
+   */
+  void processEvent(uint8_t radarCode);
+
  private:
   void verifiedSet(MiPRadarMode desiredMode);
   bool check(MiPRadarMode expectedMode);
@@ -106,6 +118,8 @@ class MiP_Radar {
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   MiPRadar m_lastRadar;
+  
+  friend class MiP;
 };
 
 #endif  // MPU_RADAR_H
