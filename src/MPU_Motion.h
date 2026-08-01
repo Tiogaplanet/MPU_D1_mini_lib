@@ -1,6 +1,6 @@
 /**
  * @file MPU_Motion.h
- * @brief Defines the public interface for motion control in the MiP library.
+ * @brief Defines the public interface for motion control in the MPU library.
  *
  * @details This header declares the motion API used to drive, turn, and
  * stabilize MiP.
@@ -57,7 +57,28 @@ enum MiPGetUp : uint8_t {
 class MiP_Motion {
  public:
   /**
-   * @brief Constructs the battery manager.
+   * @brief MiP protocol command bytes used by the motion subsystem.
+   *
+   * These values are placed in the first byte of requests sent to the MiP
+   * (and appear in the corresponding responses).  See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
+  static constexpr uint8_t MIP_CMD_CONTINUOUS_DRIVE = 0x78;
+  static constexpr uint8_t MIP_CMD_DISTANCE_DRIVE = 0x70;
+  static constexpr uint8_t MIP_CMD_TURN_LEFT = 0x73;
+  static constexpr uint8_t MIP_CMD_TURN_RIGHT = 0x74;
+  static constexpr uint8_t MIP_CMD_DRIVE_FORWARD = 0x71;
+  static constexpr uint8_t MIP_CMD_DRIVE_BACKWARD = 0x72;
+  static constexpr uint8_t MIP_CMD_STOP = 0x77;
+  static constexpr uint8_t MIP_CMD_SET_POSITION = 0x08;
+  static constexpr uint8_t MIP_CMD_GET_UP = 0x23;
+
+  static constexpr uint8_t MIP_CONTINUOUS_DRIVE_DELAY = 50;
+
+  /**
+   * @brief Constructs the drive system manager.
    * @param mip A reference to the main MiP object to access core services.
    */
   MiP_Motion(MiP& mip);
@@ -153,10 +174,10 @@ class MiP_Motion {
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
  private:
+  void fallDown(MiPFallDirection direction);
+
   MiP& m_mip;  // Stores a reference to the main MiP class.
   uint32_t m_lastContinuousDriveTime;
-
-  void fallDown(MiPFallDirection direction);
 };
 
 #endif  // MPU_MOTION_H

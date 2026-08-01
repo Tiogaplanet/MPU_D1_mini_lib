@@ -1,16 +1,20 @@
 /**
  * @file GetUp.ino
- * @brief Example sketch demonstrating MiP get-up behavior after a fall.
+ * @brief Example sketch demonstrating MiP's get-up behavior.
  *
- * @details This sketch shows how to use the MiP library to command the robot
- * to intentionally fall forward and then attempt to recover using getUp().
+ * @details This sketch shows how to use the MPU:D1 mini library to command MiP
+ * to get up from resting on the kickstand and from face down on the tray.
+ * As stated in WowWee's documentation, "Mip will attempt to get up from front
+ * [or back] if angle is correct." Give MiP some room for this test because it
+ * does drive forward a bit after getting up from the kickstand.
+ *
  * The sequence performed in setup() is:
  *   - Initialize communication with the MiP robot.
- *   - Command the robot to fall forward.
- *   - Attempt to get up from the front using 
- *     motion.getUp(MIP_GETUP_FROM_FRONT). 
+ *   - Command MiP to get up from resting on the kickstand.
+ *   - Command MiP to fall forward on the tray.
+ *   - Attempt to get up again.
  *
- * The sketch prints status messages to Serial1 so the user can observe the 
+ * The sketch prints status messages to Serial1 so the user can observe the
  * sequence. The example exercises the following API calls:
  *   - motion.fallForward()
  *   - motion.getUp()
@@ -39,13 +43,9 @@ MiP mip;
  * @details Called once after the board powers up or resets. This function:
  *   - Initializes communication with the MiP robot via mip.begin().
  *   - If the connection fails, prints an error to Serial1 and returns early.
- *   - Commands the robot to fall forward, waits briefly, then attempts to
- *     get up from the front using getUp(MIP_GETUP_FROM_FRONT).
+ *   - Commands MiP to get up from the kickstand then fall forward, wait 
+ *     briefly, then attempt to get up from the tray.
  *   - Prints progress and completion messages to Serial1.
- *
- * Note: The example includes a comment that this particular get-up attempt
- * "never works" on the referenced hardware/firmware; the call is included
- * to demonstrate the API usage.
  */
 void setup() {
   bool connectResult = mip.begin();
@@ -54,19 +54,20 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-    F("GetUp.ino: Use getUp(). Attempt to get up from a front fall."));
-  Serial1.println(F("GetUp.ino: (This one never works!)"));
+  Serial1.println(F("GetUp.ino: Get up from the kickstand and tray."));
 
-  /* Command the robot to fall forward. */
+  Serial1.println(F(" Getting up from kickstand."));
+  mip.motion.getUp(MIP_GETUP_FROM_BACK);
+  delay(1000);
+
+  Serial1.println(F(" Falling forward."));
   mip.motion.fallForward();
-  delay(3000);
+  delay(1000);
 
-  /* Attempt to get up from the front. */
+  Serial1.println(F(" Getting up again."));
   mip.motion.getUp(MIP_GETUP_FROM_FRONT);
   delay(3000);
 
-  Serial1.println();
   Serial1.println(F("GetUp.ino: Done."));
 }
 

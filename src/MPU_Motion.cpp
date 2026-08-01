@@ -1,6 +1,6 @@
 /**
  * @file MPU_Motion.cpp
- * @brief Implements motion control for the MiP library.
+ * @brief Implements motion control for the MPU library.
  *
  * @details This source file implements motion commands and movement helpers.
  *
@@ -15,28 +15,11 @@
 #include "MPU_Motion.h"
 #include "MPU_D1_mini.h"
 
-#define MIP_CONTINUOUS_DRIVE_DELAY 50
-
 // Implement the constructor to store the MiP reference.
 MiP_Motion::MiP_Motion(MiP& mip) : m_mip(mip) {
   m_lastContinuousDriveTime =
-      millis() - 50;  // MIP_CONTINUOUS_DRIVE_DELAY; // (50)
+      millis() - MIP_CONTINUOUS_DRIVE_DELAY;
 }
-
-// MiP Protocol Commands related to motion.
-// These command codes are placed in the first byte of requests sent to the MiP
-// and responses sent back from the MiP. See
-// https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md
-// for the complete list.
-#define MIP_CMD_CONTINUOUS_DRIVE 0x78
-#define MIP_CMD_DISTANCE_DRIVE 0x70
-#define MIP_CMD_TURN_LEFT 0x73
-#define MIP_CMD_TURN_RIGHT 0x74
-#define MIP_CMD_DRIVE_FORWARD 0x71
-#define MIP_CMD_DRIVE_BACKWARD 0x72
-#define MIP_CMD_STOP 0x77
-#define MIP_CMD_SET_POSITION 0x08
-#define MIP_CMD_GET_UP 0x23
 
 void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
   uint8_t command[1 + 2];
@@ -117,7 +100,7 @@ void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
@@ -135,7 +118,7 @@ void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
@@ -162,17 +145,17 @@ void MiP_Motion::stop() {
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::fallForward() {
   fallDown(MIP_FALL_FACE_DOWN);
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::fallBackward() {
   fallDown(MIP_FALL_ON_BACK);
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
@@ -183,7 +166,7 @@ void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
   // Send this command blindly with no error checking since there is no easy
   // way to determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 // ==========================================================================
