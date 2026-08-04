@@ -5,7 +5,7 @@
  * @details This sketch shows how to use the MiP library to set and read the
  * chest LED color and blink timing. It demonstrates the verified write APIs,
  * chestLED.read() and chestLED.write(), and the unverified write APIs,
- * chestLED.unverifiedWrite() which may not always be accepted by the robot.
+ * chestLED.unverifiedWrite(), which may not always be accepted by the robot.
  * This sketch exhaustively tests the MiP_ChestLED class.
  *
  * The example exercises these API calls:
@@ -27,7 +27,7 @@
  * @brief Global MiP instance used to communicate with the robot.
  *
  * This object is used throughout the sketch to call MiP API functions such as
- * begin(), readChestLED(), writeChestLED(), and unverifiedWriteChestLED().
+ * begin(), chestLED.read(), chestLED.write(), and chestLED.unverifiedWrite().
  */
 MiP mip;
 
@@ -85,7 +85,7 @@ void setup() {
   delay(1000);
 
   // Attempt to run through the same sequence of chest LED changes using the
-  // chestLED.unverifiedWrite() functions which don't always get accepted by
+  // chestLED.unverifiedWrite() functions, which don't always get accepted by
   // MiP.
   Serial1.println(F(" Trying to set chest LED to magenta, no time specified."));
   red = 0xff;
