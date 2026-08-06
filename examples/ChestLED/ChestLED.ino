@@ -34,7 +34,7 @@ MiP mip;
 /**
  * @brief Arduino setup function.
  *
- * Initializes communication with the MiP robot and demonstrates several
+ * Initializes communication with MiP and demonstrates several
  * chest LED operations:
  *  - Set a static color (magenta) with no timing specified.
  *  - Set a blinking color with explicit on/off times.
@@ -127,7 +127,7 @@ void loop() {}
 /**
  * @brief Print the current chest LED setting to Serial1.
  *
- * Reads the current chest LED state from the MiP robot using readChestLED()
+ * Reads the current chest LED state from MiP using chestLED.read()
  * and prints the red, green, blue, onTime, and offTime values in a human
  * readable format.
  *
