@@ -6,7 +6,7 @@
  * functions to enable and disable clap event reporting, configure the clap
  * detection delay, and read detected clap events. The sketch performs the
  * following sequence in setup():
- *   - Initializes communication MiP.
+ *   - Initializes communication with MiP.
  *   - Disables clap events and verifies the disabled state using
  *     clap.areEventsEnabled().
  *   - Writes a clap delay value using clap.writeDelay() and reads it back with
