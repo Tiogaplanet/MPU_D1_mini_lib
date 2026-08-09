@@ -70,7 +70,6 @@ bool MiP::begin() {
 
   // Sometimes the init fails. It seems to happen when the MiP is busy at
   // power-up doing other things like attempting to balance.
-  int8_t retry;
   for (int8_t retry = 0; retry < MIP_MAX_BEGIN_RETRIES; retry++) {
     // Try to connect at 115200 baud, the rate used by some MiPs.
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 115200"));
