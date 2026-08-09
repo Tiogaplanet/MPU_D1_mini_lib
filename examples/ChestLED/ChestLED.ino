@@ -112,7 +112,14 @@ void setup() {
   mip.chestLED.unverifiedWrite(chestLED);
   delay(1000);
 
-  Serial1.println();
+  Serial1.println(F(" Set chest LED back to solid green."));
+  chestLED.red = 0x00;
+  chestLED.green = 0xff;
+  chestLED.blue = 0x00;
+  chestLED.onTime = 0;
+  chestLED.offTime = 0;
+  mip.chestLED.write(chestLED);
+
   Serial1.println(F("ChestLED.ino: Done."));
 }
 
@@ -150,5 +157,4 @@ static void printCurrentChestLEDSetting() {
   Serial1.print(F("    off time: "));
   Serial1.print(chestLED.offTime);
   Serial1.println(F(" milliseconds"));
-  Serial1.println();
 }

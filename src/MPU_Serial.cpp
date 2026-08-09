@@ -182,7 +182,7 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
       break;
 
     default: {
-      discardUnexpectedSerialData();
+      uint8_t discarded = discardUnexpectedSerialData();
       MIP_DEBUG_ERROR_PRINTF(
           "MiP: Bad OOB command byte: 0x%02x (discarded %d bytes)\r\n",
           commandByte,
@@ -218,7 +218,7 @@ bool MiP_Serial::readIrLength(size_t& length) {
   length = (parseHexDigit(nibbles[0]) << 4) | parseHexDigit(nibbles[1]);
 
   if (length < 2 || length > 4) {
-    discardUnexpectedSerialData();
+    uint8_t discarded = discardUnexpectedSerialData();
     MIP_DEBUG_ERROR_PRINTF(
         "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\r\n",
         static_cast<unsigned>(length),
@@ -230,13 +230,16 @@ bool MiP_Serial::readIrLength(size_t& length) {
 
 uint8_t MiP_Serial::discardUnexpectedSerialData() {
   uint8_t discarded = 0;
-
-  // Throw away everything currently in the UART RX buffer.
-  // A short inter-byte delay accounts for data still arriving at 115200 baud.
   while (Serial.available() > 0) {
     discarded++;
     Serial.read();
-    delayMicroseconds(100);
+    delayMicroseconds(200);  // was 100; safer across 9600 and 115200
+  }
+  // Brief idle so a mid-byte framing error can finish.
+  delay(2);
+  while (Serial.available() > 0) {
+    discarded++;
+    Serial.read();
   }
   return discarded;
 }
