@@ -87,13 +87,6 @@ class MiP_Clap {
   static constexpr uint8_t MIP_CMD_GET_CLAP_SETTINGS = 0x1F;
 
   /**
-   * @brief Constructs the clap system manager.
-   *
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_Clap(MiP& mip);
-
-  /**
    * @brief Enables MiP's clap event reporting. This verified method sends the
    * enable command and reads back settings to confirm success. It retries on
    * failure.
@@ -152,6 +145,13 @@ class MiP_Clap {
   void clear();
 
  private:
+  /**
+   * @brief Constructs the clap system manager.
+   *
+   * @param mip A reference to the main MiP object to access core services.
+   */
+  MiP_Clap(MiP& mip);
+
   void checkedEnableEvents(MiPClapEnabled enabled);
   int8_t readSettings(MiPClapSettings& settings);
   void rawEnable(MiPClapEnabled enabled);
