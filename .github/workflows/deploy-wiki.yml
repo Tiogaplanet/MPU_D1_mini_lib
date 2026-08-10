@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - minor-edits
 
 jobs:
   deploy-wiki:
