@@ -23,12 +23,27 @@ class MiP;
 
 /**
  * @brief Chest LED color and flash timing configuration.
+ *
+ * @details Encapsulates the 8-bit RGB color intensities (Red, Green, Blue) and 
+ * flash timing intervals (onTime and offTime in milliseconds) for MiP's chest LED.
  */
 class MiPChestLED {
  public:
+  /**
+   * @brief Constructs a new MiPChestLED configuration object.
+   *
+   * @details Automatically calls clear() to set all color intensity values and 
+   * flash timing durations to zero (LED off).
+   */
   MiPChestLED() {
     clear();
   }
+
+  /**
+   * @brief Resets all RGB channel intensities and flash timing durations to zero.
+   *
+   * @details Sets red, green, blue, onTime, and offTime variables back to 0.
+   */
   void clear() {
     onTime = 0;
     offTime = 0;
@@ -36,10 +51,29 @@ class MiPChestLED {
     green = 0;
     blue = 0;
   }
+
+  /**
+   * @brief Duration in milliseconds the chest LED remains illuminated during flashing.
+   */
   uint16_t onTime;
+
+ /**
+  * @brief Duration in milliseconds the chest LED remains extinguished during flashing. 
+  */
   uint16_t offTime;
+
+ /**
+ * @brief Red channel intensity (0-255).
+ /*
   uint8_t red;
+
+  /**
+  * @brief Green channel intensity (0-255).
   uint8_t green;
+
+ /**
+ * @brief Blue channel intensity (0-255; hardware truncates lower 2 bits).
+ /*  
   uint8_t blue;
 };
 
