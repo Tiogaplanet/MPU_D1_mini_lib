@@ -131,7 +131,7 @@ class MiP_Gesture {
   int8_t rawGet(MiPGestureMode& mode);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
-  CircularQueue<MiPGesture, 8> m_gestureEvents;
+  mip_detail::CircularQueue<MiPGesture, 8> m_gestureEvents;
 
   friend class MiP;
 };
