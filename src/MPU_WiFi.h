@@ -86,6 +86,8 @@ class MiP_Wifi {
    */
   explicit MiP_Wifi(MiP& mip);
 
+  void clear();
+ 
   MiP& m_mip;        // Stores a reference to the main MiP class.
   bool m_isConnected; // Track active WiFi connection state.
 
