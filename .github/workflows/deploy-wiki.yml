@@ -105,15 +105,21 @@ jobs:
                           m_kind = member.get('kind')
                           m_name_el = member.find('name')
                           m_name = m_name_el.text if m_name_el is not None else ""
+
                           m_type_el = member.find('type')
                           m_type = "".join(m_type_el.itertext()).strip() if m_type_el is not None else ""
-                          args_el = member.find('argsstring')
-                          args = args_el.text if args_el is not None else ""
-                          
+
+                          # Fixed: never leave a real None value
+                          args = member.findtext('argsstring') or ""
+
                           b_el = member.find('briefdescription')
                           b_txt = "".join(b_el.itertext()).strip() if b_el is not None else ""
 
-                          sig = f"`{m_type} {m_name}{args}`" if m_type else f"`{m_name}{args}`"
+                          if m_type:
+                              sig = f"`{m_type} {m_name}{args}`".strip()
+                          else:
+                              sig = f"`{m_name}{args}`"
+
                           page.append(f"| `{m_kind}` | {sig} | {b_txt} |\n")
 
                   with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
@@ -129,17 +135,17 @@ jobs:
 
                       file_defines = []
                       for member in comp_def.findall('.//memberdef'):
-                          m_kind = member.get('kind') # define, enum, variable, typedef
+                          m_kind = member.get('kind')  # define, enum, variable, typedef
                           if m_kind in ['define', 'enum', 'typedef', 'variable']:
                               m_name_el = member.find('name')
                               m_name = m_name_el.text if m_name_el is not None else ""
-                              
+
                               val_el = member.find('initializer')
                               val = "".join(val_el.itertext()).strip() if val_el is not None else ""
-                              
+
                               b_el = member.find('briefdescription')
                               b_txt = "".join(b_el.itertext()).strip() if b_el is not None else ""
-                              
+
                               file_defines.append((m_kind, m_name, val, b_txt))
 
                       if file_defines:
@@ -155,7 +161,7 @@ jobs:
                       val_str = f"`{val}`" if val else ""
                       const_page.append(f"| `{m_kind}` | `{m_name}` | {val_str} | {b_txt} |\n")
                   const_page.append("\n")
-              
+
               with open(os.path.join(out_dir, 'Constants-and-Defines.md'), 'w', encoding='utf-8') as f:
                   f.write("".join(const_page))
 
