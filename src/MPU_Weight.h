@@ -1,9 +1,9 @@
 /**
  * @file MPU_Weight.h
+ * @brief Defines the public interface for reporting MiP's weight.
  *
- * @brief Declares the one and only function for reporting MiP's weight - read().
- *
- * @details This header declares the API used to report MiP's payload weight.
+ * @details This header declares the API used to query payload weight measured
+ * by MiP.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -22,36 +22,37 @@
 class MiP;
 
 /**
- * @brief Manages reading the MiP robot's weight sensor.
+ * @brief Manages reading weight data measured by MiP.
  */
 class MiP_Weight {
  public:
   /**
-   * @brief MiP protocol command bytes used by the weight detection subsystem.
+   * @brief MiP protocol command byte used to request the current payload weight.
    *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * @details This value is placed in the first byte of requests sent to MiP
+   * (and appears in corresponding responses). See the official
+   * [MiP BLE Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
    * for the complete list.
    */
   static constexpr uint8_t MIP_CMD_GET_WEIGHT = 0x81;
 
   /**
-   * @brief Constructs the Weight manager.
-   * @param mip A reference to the main MiP object for core services.
+   * @brief Handles an incoming weight event notification from the transport layer.
+   *
+   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_WEIGHT notification
+   * arrives over UART. Caches the weight value and marks the weight data as valid.
+   *
+   * @param weightValue Raw payload weight value in grams reported by MiP.
    */
-  MiP_Weight(MiP& mip);
-
   void processEvent(int8_t weightValue);
 
   /**
-   * @brief Reads the current weight on the MiP's weight sensor.
+   * @brief Reads the current weight on MiP's weight sensor.
    *
-   * Uses cached data from recent OOB events if available; otherwise performs
-   * a verified read with automatic retries.
+   * @details Uses cached weight data from a recent Out-Of-Band status event if available;
+   * otherwise performs a direct query with automatic retries on communication error.
    *
-   * @return Current weight in grams (signed), or 0 on error.
+   * @return int8_t Current payload weight in grams (signed), or 0 on error.
    */
   int8_t read();
 
@@ -59,12 +60,22 @@ class MiP_Weight {
   void clear();
 
  private:
+  /**
+   * @brief Constructs the Weight manager.
+   *
+   * @param mip Reference to the main MiP object for core communication services.
+   */
+  explicit MiP_Weight(MiP& mip);
+
   int8_t rawGet(int8_t& weight);
   int8_t parse(int8_t& weight, const uint8_t response[], size_t responseLength);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   int8_t m_lastWeight;
 
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
   friend class MiP;
 };
 
