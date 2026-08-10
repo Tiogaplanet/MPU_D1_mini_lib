@@ -32,6 +32,11 @@ jobs:
           sed -i 's/GENERATE_HTML          = YES/GENERATE_HTML          = NO/' Doxyfile
           sed -i 's/GENERATE_LATEX         = YES/GENERATE_LATEX         = NO/' Doxyfile
           sed -i 's/RECURSIVE              = NO/RECURSIVE              = YES/' Doxyfile
+          sed -i 's/EXCLUDE_PATTERNS       =/EXCLUDE_PATTERNS       = *.md/' Doxyfile
+          
+          # Point Doxygen to your Arduino examples directory and include .ino files
+          sed -i 's|EXAMPLE_PATH           =|EXAMPLE_PATH           = examples|' Doxyfile
+          sed -i 's|FILE_PATTERNS          =|FILE_PATTERNS          = *.h *.cpp *.ino|' Doxyfile
           
           # Run doxygen
           doxygen Doxyfile
@@ -54,17 +59,23 @@ jobs:
           tree = ET.parse(index_path)
           root = tree.getroot()
 
-          pages = []
+          class_pages = []
+          header_defines = []
 
           for compound in root.findall('compound'):
               kind = compound.get('kind')
               name = compound.find('name').text
               refid = compound.get('refid')
 
-              if kind in ['class', 'struct', 'header', 'file']:
+              # Ignore .md, .cpp, and internal doxygen pages
+              if name.endswith('.md') or name.endswith('.cpp') or kind in ['page', 'dir']:
+                  continue
+
+              # 1. Process Classes and Structs into dedicated pages
+              if kind in ['class', 'struct']:
                   clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
                   doc_filename = f"{clean_name}.md"
-                  pages.append((name, clean_name, kind))
+                  class_pages.append((name, clean_name, kind))
 
                   page = [f"# {kind.capitalize()} `{name}`\n\n"]
                   detail_path = os.path.join(xml_dir, f"{refid}.xml")
@@ -107,22 +118,69 @@ jobs:
                   with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
                       f.write("".join(page))
 
-          # Generate API-Reference.md (Auto-generated list of all classes)
+              # 2. Extract #defines, enums, and global constants from .h headers
+              elif kind == 'file' and name.endswith('.h'):
+                  detail_path = os.path.join(xml_dir, f"{refid}.xml")
+                  if os.path.exists(detail_path):
+                      d_tree = ET.parse(detail_path)
+                      d_root = d_tree.getroot()
+                      comp_def = d_root.find('compounddef')
+
+                      file_defines = []
+                      for member in comp_def.findall('.//memberdef'):
+                          m_kind = member.get('kind') # define, enum, variable, typedef
+                          if m_kind in ['define', 'enum', 'typedef', 'variable']:
+                              m_name_el = member.find('name')
+                              m_name = m_name_el.text if m_name_el is not None else ""
+                              
+                              val_el = member.find('initializer')
+                              val = "".join(val_el.itertext()).strip() if val_el is not None else ""
+                              
+                              b_el = member.find('briefdescription')
+                              b_txt = "".join(b_el.itertext()).strip() if b_el is not None else ""
+                              
+                              file_defines.append((m_kind, m_name, val, b_txt))
+
+                      if file_defines:
+                          header_defines.append((name, file_defines))
+
+          # Generate Constants-and-Defines.md
+          if header_defines:
+              const_page = ["# Constants & Defines\n\nGlobal macros, constants, and enumerations across header files.\n\n"]
+              for header_name, defs in header_defines:
+                  const_page.append(f"## Header `{header_name}`\n\n")
+                  const_page.append("| Kind | Name | Value / Initializer | Description |\n|:---|:---|:---|:---|\n")
+                  for m_kind, m_name, val, b_txt in defs:
+                      val_str = f"`{val}`" if val else ""
+                      const_page.append(f"| `{m_kind}` | `{m_name}` | {val_str} | {b_txt} |\n")
+                  const_page.append("\n")
+              
+              with open(os.path.join(out_dir, 'Constants-and-Defines.md'), 'w', encoding='utf-8') as f:
+                  f.write("".join(const_page))
+
+          # Generate API-Reference.md
           with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
-              f.write("# API Reference Index\n\nAutomated list of library classes and modules:\n\n")
-              for orig_name, clean_name, kind in pages:
+              f.write("# API Reference Index\n\nAutomated list of library classes and configuration constants:\n\n")
+              f.write("### Classes & Structs\n\n")
+              for orig_name, clean_name, kind in class_pages:
                   f.write(f"- **[{orig_name}]({clean_name})** ({kind})\n")
+              if header_defines:
+                  f.write("\n### Global Definitions\n\n")
+                  f.write("- **[Constants and Defines](Constants-and-Defines)**\n")
 
           # Generate _Sidebar.md
           with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
               f.write("### Navigation\n\n")
               f.write("- [Home](Home)\n")
               f.write("- [API Reference](API-Reference)\n\n")
-              f.write("#### Classes & Modules\n\n")
-              for orig_name, clean_name, _ in pages:
+              f.write("#### Classes & Structs\n\n")
+              for orig_name, clean_name, _ in class_pages:
                   f.write(f"- [{orig_name}]({clean_name})\n")
+              if header_defines:
+                  f.write("\n#### Configuration\n\n")
+                  f.write("- [Constants and Defines](Constants-and-Defines)\n")
 
-          print("Generated API pages, API-Reference.md, and _Sidebar.md")
+          print("Successfully generated clean class pages, Constants-and-Defines.md, and _Sidebar.md")
           EOF
 
       - name: Checkout Wiki Repository
@@ -144,29 +202,6 @@ jobs:
           fi
           
           cd wiki_repo
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add .
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "Auto-update API documentation from Doxygen"
-            git push
-          else
-            echo "No changes to commit to Wiki."
-          fi
-
-      - name: Checkout Wiki Repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}.wiki
-          path: wiki_repo
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit and Push to Wiki
-        run: |
-          cp -r wiki_markdown/* wiki_repo/
-          cd wiki_repo
-          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
