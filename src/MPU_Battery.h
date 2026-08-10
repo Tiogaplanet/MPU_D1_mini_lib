@@ -18,7 +18,7 @@
 #define MPU_BATTERY_H
 
 /**
- * brief A forward declaration of the main MiP class to avoid circular include
+ * @brief A forward declaration of the main MiP class to avoid circular include
  * dependencies.
  */
 class MiP;
