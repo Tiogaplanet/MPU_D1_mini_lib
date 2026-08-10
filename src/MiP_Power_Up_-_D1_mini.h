@@ -53,7 +53,7 @@
 #define MPU_D1_MINI_VERSION "2.0.1"
 
 // Combined numerical value for preprocessor version checks (2.0.1 -> 20001)
-#define MPU_D1_MINI_VERSION_NUMBER \
+#define MPU_D1_MINI_VERSION_NUMBER                                       \
   (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + \
    MPU_D1_MINI_VERSION_PATCH)
 
@@ -139,8 +139,8 @@ class MiPStatus {
     position = MIP_POSITION_ON_BACK_WITH_KICKSTAND;
   }
 
-  float battery;        ///< Cached battery voltage in Volts (4.0V - 6.4V).
-  MiPPosition position; ///< Cached physical orientation stance.
+  float battery;         ///< Cached battery voltage in Volts (4.0V - 6.4V).
+  MiPPosition position;  ///< Cached physical orientation stance.
 };
 
 /**
@@ -167,16 +167,21 @@ class MiP {
   /**
    * @brief Integer error codes that can be encountered by the MiP library.
    */
-  static constexpr uint8_t MIP_ERROR_NONE = 0;        ///< Success.
-  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;     ///< Timed out waiting for response.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;    ///< No event has arrived from MiP yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;///< Unexpected response from MiP.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;  ///< Exceeded maximum retries.
+  static constexpr uint8_t MIP_ERROR_NONE = 0;  ///< Success.
+  static constexpr uint8_t MIP_ERROR_TIMEOUT =
+      1;  ///< Timed out waiting for response.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT =
+      2;  ///< No event has arrived from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
+      3;  ///< Unexpected response from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
+      4;  ///< Exceeded maximum retries.
 
   // Core lifecycle functions.
 
   /**
-   * @brief Constructs the core MiP orchestrator object and binds subsystem references.
+   * @brief Constructs the core MiP orchestrator object and binds subsystem
+   * references.
    *
    * @details Initializes internal flags and resets error tracking states.
    */
@@ -185,7 +190,8 @@ class MiP {
   /**
    * @brief Destructs the MiP orchestrator object and terminates connections.
    *
-   * @details Calls end() to restore robot defaults and close transport services.
+   * @details Calls end() to restore robot defaults and close transport
+   * services.
    */
   ~MiP();
 
@@ -277,24 +283,41 @@ class MiP {
    */
   void printLastCallResult();
 
-  MiP_Battery battery;   ///< Interface for battery voltage queries (see MPU_Battery.h).
-  MiP_ChestLED chestLED; ///< Interface for chest LED RGB/flash control (see MPU_ChestLED.h).
-  MiP_Clap clap;         ///< Interface for clap detection and delay configuration (see MPU_Clap.h).
-  MiP_EEPROM eeprom;     ///< Interface for reading/writing non-volatile EEPROM (see MPU_EEPROM.h).
-  MiP_Gesture gesture;   ///< Interface for gesture detection mode and events (see MPU_Gesture.h).
-  MiP_HeadLEDs headLEDs; ///< Interface for controlling head/eye LED patterns (see MPU_HeadLEDs.h).
-  MiP_Infrared infrared; ///< Interface for IR remote control and MiP detection (see MPU_Infrared.h).
-  MiP_Mode mode;         ///< Interface for game and app mode selection (see MPU_Mode.h).
-  MiP_Motion motion;     ///< Interface for drive, turn, and posture control (see MPU_Motion.h).
-  MiP_Odometer odometer; ///< Interface for reading and resetting distance odometer (see MPU_Odometer.h).
-  MiP_Position position; ///< Interface for position and orientation state checks (see MPU_Position.h).
-  MiP_Radar radar;       ///< Interface for IR radar proximity tracking (see MPU_Radar.h).
-  MiP_Serial serial;     ///< Interface for low-level UART transport and event parsing (see MPU_Serial.h).
-  MiP_Shake shake;       ///< Interface for shake event detection (see MPU_Shake.h).
-  MiP_Sound sound;       ///< Interface for sound effects and volume control (see MPU_Sound.h).
-  MiP_Version version;   ///< Interface for querying hardware/software versions (see MPU_Version.h).
-  MiP_Weight weight;     ///< Interface for payload weight sensor queries (see MPU_Weight.h).
-  MiP_Wifi wifi;         ///< Interface for WiFi, OTA, and network management (see MPU_WiFi.h).
+  MiP_Battery
+      battery;  ///< Interface for battery voltage queries (see MPU_Battery.h).
+  MiP_ChestLED chestLED;  ///< Interface for chest LED RGB/flash control (see
+                          ///< MPU_ChestLED.h).
+  MiP_Clap clap;  ///< Interface for clap detection and delay configuration (see
+                  ///< MPU_Clap.h).
+  MiP_EEPROM eeprom;      ///< Interface for reading/writing non-volatile EEPROM
+                          ///< (see MPU_EEPROM.h).
+  MiP_Gesture gesture;    ///< Interface for gesture detection mode and events
+                          ///< (see MPU_Gesture.h).
+  MiP_HeadLEDs headLEDs;  ///< Interface for controlling head/eye LED patterns
+                          ///< (see MPU_HeadLEDs.h).
+  MiP_Infrared infrared;  ///< Interface for IR remote control and MiP detection
+                          ///< (see MPU_Infrared.h).
+  MiP_Mode
+      mode;  ///< Interface for game and app mode selection (see MPU_Mode.h).
+  MiP_Motion motion;  ///< Interface for drive, turn, and posture control (see
+                      ///< MPU_Motion.h).
+  MiP_Odometer odometer;  ///< Interface for reading and resetting distance
+                          ///< odometer (see MPU_Odometer.h).
+  MiP_Position position;  ///< Interface for position and orientation state
+                          ///< checks (see MPU_Position.h).
+  MiP_Radar
+      radar;  ///< Interface for IR radar proximity tracking (see MPU_Radar.h).
+  MiP_Serial serial;  ///< Interface for low-level UART transport and event
+                      ///< parsing (see MPU_Serial.h).
+  MiP_Shake shake;  ///< Interface for shake event detection (see MPU_Shake.h).
+  MiP_Sound sound;  ///< Interface for sound effects and volume control (see
+                    ///< MPU_Sound.h).
+  MiP_Version version;  ///< Interface for querying hardware/software versions
+                        ///< (see MPU_Version.h).
+  MiP_Weight weight;    ///< Interface for payload weight sensor queries (see
+                        ///< MPU_Weight.h).
+  MiP_WiFi wifi;  ///< Interface for WiFi, OTA, and network management (see
+                  ///< MPU_WiFi.h).
 
  protected:
   void clear();
@@ -327,7 +350,7 @@ class MiP {
   friend class MiP_Infrared;
   friend class MiP_Mode;
   friend class MiP_Motion;
-  friend class MiP_Wifi;
+  friend class MiP_WiFi;
   friend class MiP_Odometer;
   friend class MiP_Position;
   friend class MiP_Radar;

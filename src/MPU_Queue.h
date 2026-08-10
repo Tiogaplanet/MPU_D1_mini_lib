@@ -23,10 +23,11 @@
 namespace mip_detail {
 
 /**
- * @brief A lightweight circular queue (ring buffer) template for internal library use.
+ * @brief A lightweight circular queue (ring buffer) template for internal
+ * library use.
  *
- * @details Overwrites oldest data when the queue is full. Primarily used to buffer
- * asynchronous events from the MiP robot.
+ * @details Overwrites oldest data when the queue is full. Primarily used to
+ * buffer asynchronous events from MiP.
  *
  * @tparam ElementType Type of elements stored in the queue.
  * @tparam Size        Maximum number of elements the queue can hold.
@@ -35,7 +36,8 @@ template <class ElementType, uint8_t Size>
 class CircularQueue {
  public:
   /**
-   * @brief Constructs a new CircularQueue object and initializes internal state.
+   * @brief Constructs a new CircularQueue object and initializes internal
+   * state.
    */
   CircularQueue() {
     clear();
@@ -88,8 +90,10 @@ class CircularQueue {
   /**
    * @brief Pops and retrieves the oldest element from the front of the queue.
    *
-   * @param[out] element Reference to a variable where the popped element value will be stored.
-   * @return true if an element was successfully popped, false if the queue was empty.
+   * @param[out] element Reference to a variable where the popped element value
+   * will be stored.
+   * @return true if an element was successfully popped, false if the queue was
+   * empty.
    */
   bool pop(ElementType& element) {
     if (isEmpty()) {

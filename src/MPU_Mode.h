@@ -25,14 +25,21 @@ class MiP;
  * @brief Game and App operating modes for MiP.
  */
 enum MiPGameMode : uint8_t {
-  MIP_APP_MODE = 0x01,      ///< App Mode (default for external control via UART/Bluetooth).
-  MIP_CAGE_MODE = 0x02,     ///< Cage Game Mode (robot stays inside an enclosed virtual cage).
-  MIP_TRACKING_MODE = 0x03, ///< Tracking Mode (robot tracks and follows objects/hands).
-  MIP_DANCE_MODE = 0x04,    ///< Dance Mode (robot performs built-in dance routines).
+  MIP_APP_MODE =
+      0x01,  ///< App Mode (default for external control via UART/Bluetooth).
+  MIP_CAGE_MODE =
+      0x02,  ///< Cage Game Mode (robot stays inside an enclosed virtual cage).
+  MIP_TRACKING_MODE =
+      0x03,  ///< Tracking Mode (robot tracks and follows objects/hands).
+  MIP_DANCE_MODE =
+      0x04,  ///< Dance Mode (robot performs built-in dance routines).
   MIP_DEFAULT_MODE = 0x05,  ///< Default Operating Mode.
-  MIP_STACK_MODE = 0x06,    ///< Stack Game Mode (balancing objects on MiP's tray).
-  MIP_TRICK_MODE = 0x07,    ///< Trick Programming Mode (executing learned gesture sequences).
-  MIP_ROAM_MODE = 0x08,     ///< Roam Mode (autonomous obstacle avoidance navigation).
+  MIP_STACK_MODE =
+      0x06,  ///< Stack Game Mode (balancing objects on MiP's tray).
+  MIP_TRICK_MODE =
+      0x07,  ///< Trick Programming Mode (executing learned gesture sequences).
+  MIP_ROAM_MODE =
+      0x08,  ///< Roam Mode (autonomous obstacle avoidance navigation).
 };
 
 /**
@@ -41,54 +48,62 @@ enum MiPGameMode : uint8_t {
 class MiP_Mode {
  public:
   /**
-   * @brief MiP protocol command byte to configure MiP's active game/app operating mode.
+   * @brief MiP protocol command byte to configure MiP's active game/app
+   * operating mode.
    */
   static constexpr uint8_t MIP_CMD_SET_GAME_MODE = 0x76;
 
   /**
-   * @brief MiP protocol command byte to query MiP's active game/app operating mode.
+   * @brief MiP protocol command byte to query MiP's active game/app operating
+   * mode.
    */
   static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
 
   /**
    * @brief Switches MiP into App Mode.
    *
-   * @details Verified operation: sends the set game mode command and reads back state with retry.
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableApp();
 
   /**
    * @brief Switches MiP into Cage Mode.
    *
-   * @details Verified operation: sends the set game mode command and reads back state with retry.
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableCage();
 
   /**
    * @brief Switches MiP into Dance Mode.
    *
-   * @details Verified operation: sends the set game mode command and reads back state with retry.
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableDance();
 
   /**
    * @brief Switches MiP into Stack Mode.
    *
-   * @details Verified operation: sends the set game mode command and reads back state with retry.
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableStack();
 
   /**
    * @brief Switches MiP into Trick Mode.
    *
-   * @details Verified operation: sends the set game mode command and reads back state with retry.
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableTrick();
 
   /**
    * @brief Switches MiP into Roam Mode.
    *
-   * @details Verified operation: sends the set game mode command and reads back state with retry.
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableRoam();
 
@@ -138,7 +153,8 @@ class MiP_Mode {
   /**
    * @brief Constructs the mode manager.
    *
-   * @param mip A reference to the main MiP object to access core communication services.
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
    */
   MiP_Mode(MiP& mip);
 

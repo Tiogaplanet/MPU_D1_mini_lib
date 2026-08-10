@@ -24,24 +24,25 @@ class MiP;
 /**
  * @brief Manages MiP's shake event detection system.
  *
- * @details Monitors physical shake events detected by MiP's internal accelerometers
- * and maintains internal state flags for one-shot event reading.
+ * @details Monitors physical shake events detected by MiP's internal
+ * accelerometers and maintains internal state flags for one-shot event reading.
  */
 class MiP_Shake {
  public:
   /**
-   * @brief MiP protocol notification byte received when a physical shake event occurs.
+   * @brief MiP protocol notification byte received when a physical shake event
+   * occurs.
    *
-   * @details Dispatched asynchronously by MiP over UART as an Out-Of-Band (OOB) notification
-   * when the robot experiences a physical shake motion.
+   * @details Dispatched asynchronously by MiP over UART as an Out-Of-Band (OOB)
+   * notification when the robot experiences a physical shake motion.
    */
   static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
 
   /**
-   * @brief Checks whether the MiP has been shaken since the last call.
+   * @brief Checks whether MiP has been shaken since the last call.
    *
-   * @details Flushes pending serial transport data, inspects the internal shake flag,
-   * and clears the flag after returning true (one-shot detection).
+   * @details Flushes pending serial transport data, inspects the internal shake
+   * flag, and clears the flag after returning true (one-shot detection).
    *
    * @return true if a shake was detected since the last call, false otherwise.
    */
@@ -51,7 +52,8 @@ class MiP_Shake {
   /**
    * @brief Constructs the shake manager.
    *
-   * @param mip A reference to the main MiP object to access core services and status flags.
+   * @param mip A reference to the main MiP object to access core services and
+   * status flags.
    */
   MiP_Shake(MiP& mip);
 

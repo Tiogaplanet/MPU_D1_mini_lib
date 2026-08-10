@@ -28,7 +28,7 @@ class MiP_Battery {
  public:
   /**
    * @brief Reads MiP's cached battery voltage.
-   * 
+   *
    * The voltage is read from MiP's periodic status updates and is
    * never more than 30 seconds old.
    *

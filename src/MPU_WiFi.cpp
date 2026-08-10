@@ -1,7 +1,7 @@
 /**
  * @file MPU_WiFi.cpp
  *
- * @brief Implements Wi-Fi management for the MiP library.
+ * @brief Implements WiFi management for the MiP library.
  *
  * @details This source file implements Wi-Fi setup, connection handling, and
  * cleanup.
@@ -18,11 +18,11 @@
 #include "MiP_Power_Up_-_D1_mini.h"
 
 // Implement the constructor to store the MiP reference.
-MiP_Wifi::MiP_Wifi(MiP& mip) : m_mip(mip) {
+MiP_WiFi::MiP_WiFi(MiP& mip) : m_mip(mip) {
   clear();
 }
 
-uint8_t MiP_Wifi::begin(const char* ssid,
+uint8_t MiP_WiFi::begin(const char* ssid,
                         const char* password,
                         const char* hostname) {
   // Memory-safe string copy operations to address bug:
@@ -41,7 +41,7 @@ uint8_t MiP_Wifi::begin(const char* ssid,
   return connect();
 }
 
-void MiP_Wifi::enableAirplaneMode() {
+void MiP_WiFi::enableAirplaneMode() {
   WiFi.disconnect();       // Disconnect from current network.
   WiFi.mode(WIFI_OFF);     // Turn off WiFi radio.
   WiFi.forceSleepBegin();  // Put the WiFi modem to sleep
@@ -52,12 +52,12 @@ void MiP_Wifi::enableAirplaneMode() {
     m_mip.gesture.enable();
 }
 
-uint8_t MiP_Wifi::disableAirplaneMode() {
+uint8_t MiP_WiFi::disableAirplaneMode() {
   WiFi.mode(WIFI_STA);
   return connect();
 }
 
-uint8_t MiP_Wifi::connect() {
+uint8_t MiP_WiFi::connect() {
   // Safety check: ensure we have a valid SSID
   if (m_ssid[0] == '\0' || strlen(m_ssid) == 0) {
     MIP_DEBUG_ERROR_PRINTLN(
@@ -167,7 +167,7 @@ uint8_t MiP_Wifi::connect() {
   }
 }
 
-void MiP_Wifi::clear() {
+void MiP_WiFi::clear() {
   memset(m_ssid, 0, sizeof(m_ssid));
   memset(m_password, 0, sizeof(m_password));
   memset(m_hostname, 0, sizeof(m_hostname));

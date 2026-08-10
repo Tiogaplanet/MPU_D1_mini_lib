@@ -15,7 +15,7 @@
  */
 #include "MiP_Power_Up_-_D1_mini.h"
 
-// Number of times that begin() method should try to initialize the MiP.
+// Number of times that begin() method should try to initialize MiP.
 #define MIP_MAX_BEGIN_RETRIES 5
 
 // Number of milliseconds to wait between retries in begin().
@@ -68,7 +68,7 @@ bool MiP::begin() {
   // the calls to rawSend() and rawGetStatus() below would fail.
   m_flags |= MIP_FLAG_INITIALIZED;
 
-  // Sometimes the init fails. It seems to happen when the MiP is busy at
+  // Sometimes the init fails. It seems to happen when MiP is busy at
   // power-up doing other things like attempting to balance.
   for (int8_t retry = 0; retry < MIP_MAX_BEGIN_RETRIES; retry++) {
     // Try to connect at 115200 baud, the rate used by some MiPs.
@@ -105,8 +105,8 @@ void MiP::end() {
 }
 
 void MiP::sleep() {
-  // Put the MiP to sleep.
-  // The MiP will need to be reset before another begin() will succeed.
+  // Put  MiP to sleep.
+  // MiP will need to be reset before another begin() will succeed.
   const uint8_t command[] = {MIP_CMD_SLEEP};
   serial.rawSend(command, sizeof(command));
 }

@@ -3,9 +3,9 @@
  * @brief Defines the functions for reporting MiP's software and hardware
  *        versions and library version numbers.
  *
- * @details This header declares the API used to query MiP's firmware release date,
- * hardware revision, and voice sound chip version. It also provides methods for
- * querying the version of this Arduino library.
+ * @details This header declares the API used to query MiP's firmware release
+ * date, hardware revision, and voice sound chip version. It also provides
+ * methods for querying the version of this Arduino library.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -27,7 +27,8 @@ class MiP;
  * @brief Stores MiP's firmware build release date and unique version numbers.
  *
  * @details Encapsulates the 4-digit build year, 2-digit month, 2-digit day,
- * and internal unique version identifier returned by MiP's software version query.
+ * and internal unique version identifier returned by MiP's software version
+ * query.
  */
 class MiPSoftwareVersion {
  public:
@@ -86,7 +87,8 @@ class MiPHardwareInfo {
 };
 
 /**
- * @brief Manages reading the MiP robot's hardware/software versions and library versioning.
+ * @brief Manages reading MiP's hardware and software versions and library
+ * versioning.
  */
 class MiP_Version {
  public:
@@ -96,7 +98,8 @@ class MiP_Version {
   static constexpr uint8_t MIP_CMD_GET_SOFTWARE_VERSION = 0x14;
 
   /**
-   * @brief Protocol command byte to query MiP's hardware and voice chip revisions.
+   * @brief Protocol command byte to query MiP's hardware and voice chip
+   * revisions.
    */
   static constexpr uint8_t MIP_CMD_GET_HARDWARE_INFO = 0x19;
 
@@ -125,15 +128,16 @@ class MiP_Version {
   /**
    * @brief Returns the Semantic Version string of this Arduino library.
    *
-   * @return const char* Static C-string representation of the library version (e.g. "2.0.1").
+   * @return const char* Static C-string representation of the library version
+   * (e.g. "2.0.1").
    */
   const char* readMPUString() const;
 
   /**
    * @brief Returns the encoded integer version number of this Arduino library.
    *
-   * @details Encodes major, minor, and patch numbers into a single integer suitable for
-   * preprocessor checks (e.g., version 2.0.1 is encoded as 20001).
+   * @details Encodes major, minor, and patch numbers into a single integer
+   * suitable for preprocessor checks (e.g., version 2.0.1 is encoded as 20001).
    *
    * @return uint32_t Encoded library version number.
    */
@@ -143,7 +147,8 @@ class MiP_Version {
   /**
    * @brief Constructs the Version manager.
    *
-   * @param mip Reference to the main MiP object for core communication services.
+   * @param mip Reference to the main MiP object for core communication
+   * services.
    */
   MiP_Version(MiP& mip);
 

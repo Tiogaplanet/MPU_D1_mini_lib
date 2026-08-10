@@ -143,7 +143,7 @@ void MiP_Serial::transportSendRequest(const uint8_t* pRequest,
   m_expectedResponseSize = 0;
   m_responseBuffer[0] = 0;
 
-  // Transmit the raw bytes (the MiP expects plain binary on the wire,
+  // Transmit the raw bytes (MiP expects plain binary on the wire,
   // but higher layers already supply the correct binary command bytes).
   while (requestLength-- > 0) {
     Serial.write(*pRequest++);

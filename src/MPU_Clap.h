@@ -27,8 +27,8 @@ class MiP;
  * @brief Clap event reporting state.
  */
 enum MiPClapEnabled : uint8_t {
-  MIP_CLAP_DISABLED = 0x00, ///< Clap event detection is disabled.
-  MIP_CLAP_ENABLED = 0x01,  ///< Clap event detection is enabled.
+  MIP_CLAP_DISABLED = 0x00,  ///< Clap event detection is disabled.
+  MIP_CLAP_ENABLED = 0x01,   ///< Clap event detection is enabled.
 };
 
 /**
@@ -40,7 +40,8 @@ enum MiPClapEnabled : uint8_t {
 class MiPClapSettings {
  public:
   /**
-   * @brief Constructs a new MiPClapSettings object and initializes default values.
+   * @brief Constructs a new MiPClapSettings object and initializes default
+   * values.
    *
    * @details Automatically invokes clear() to reset state.
    */
@@ -56,8 +57,8 @@ class MiPClapSettings {
     delay = 0;
   }
 
-  MiPClapEnabled enabled; ///< Current clap detection status.
-  uint16_t delay;         ///< Minimum delay in milliseconds between clap reports.
+  MiPClapEnabled enabled;  ///< Current clap detection status.
+  uint16_t delay;  ///< Minimum delay in milliseconds between clap reports.
 };
 
 /**
@@ -77,7 +78,8 @@ class MiP_Clap {
   static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;
 
   /**
-   * @brief The MiP protocol command to set the minimum delay time between claps.
+   * @brief The MiP protocol command to set the minimum delay time between
+   * claps.
    */
   static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;
 
@@ -159,9 +161,10 @@ class MiP_Clap {
   int8_t rawGetSettings(MiPClapSettings& settings);
 
   /**
-   * @brief Handles an incoming clap event notification from the transport layer.
+   * @brief Handles an incoming clap event notification from the transport
+   * layer.
    *
-   * @param clapCode Raw clap count/code received from the MiP robot.
+   * @param clapCode Raw clap count/code received from MiP.
    */
   void processEvent(uint8_t clapCode);
 

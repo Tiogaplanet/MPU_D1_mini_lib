@@ -27,8 +27,8 @@ class MiP;
 /**
  * @brief Represents a 2-, 3-, or 4-byte IR dongle code.
  *
- * @details Encapsulates up to a 32-bit integer IR code payload alongside the number
- * of valid bytes (2, 3, or 4) contained within the code.
+ * @details Encapsulates up to a 32-bit integer IR code payload alongside the
+ * number of valid bytes (2, 3, or 4) contained within the code.
  */
 struct MiPIRDongleCode {
   uint32_t code;   ///< Up to 32-bit IR code value.
@@ -42,7 +42,8 @@ struct MiPIRDongleCode {
   MiPIRDongleCode() : code(0xFFFFFFFF), length(0) {}
 
   /**
-   * @brief Constructs a MiPIRDongleCode instance with a specified code value and length.
+   * @brief Constructs a MiPIRDongleCode instance with a specified code value
+   * and length.
    *
    * @param c The raw numerical IR code value (up to 32 bits).
    * @param l The number of valid payload bytes (2, 3, or 4).
@@ -60,7 +61,8 @@ struct MiPIRDongleCode {
 };
 
 /**
- * @brief Manages MiP's infrared subsystem for robot detection and remote control.
+ * @brief Manages MiP's infrared subsystem for robot detection and remote
+ * control.
  */
 class MiP_Infrared {
  public:
@@ -75,7 +77,8 @@ class MiP_Infrared {
   static constexpr uint8_t MIP_CMD_GET_DETECTED_MIP = 0x04;
 
   /**
-   * @brief Protocol command byte to configure MiP detection transmission and power.
+   * @brief Protocol command byte to configure MiP detection transmission and
+   * power.
    */
   static constexpr uint8_t MIP_CMD_SET_DETECTION_MODE = 0x0E;
 
@@ -112,10 +115,11 @@ class MiP_Infrared {
   /**
    * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
    *
-   * @details Configures the robot to broadcast its unique ID over IR and listen for
-   * other nearby MiP robots.
+   * @details Configures the robot to broadcast its unique ID over IR and listen
+   * for other nearby MiP robots.
    *
-   * @param id       Unique ID for this MiP (used in detection events broadcast to others).
+   * @param id       Unique ID for this MiP (used in detection events broadcast
+   * to others).
    * @param txPower  Transmit power level (1-120).
    */
   void enableMiPDetectionMode(uint8_t id, uint8_t txPower);
@@ -130,15 +134,16 @@ class MiP_Infrared {
   /**
    * @brief Checks if MiP detection mode is currently enabled.
    *
-   * @return true if detection mode is active (broadcast ID > 0), false otherwise.
+   * @return true if detection mode is active (broadcast ID > 0), false
+   * otherwise.
    */
   bool isMiPDetectionModeEnabled();
 
   /**
    * @brief Reads the next detected MiP event from the queue.
    *
-   * @details Processes pending serial data first. Pops the oldest detected MiP ID
-   * from the internal queue.
+   * @details Processes pending serial data first. Pops the oldest detected MiP
+   * ID from the internal queue.
    *
    * @return ID of the detected MiP (1-255), or 0 if no event is available.
    */
@@ -147,7 +152,8 @@ class MiP_Infrared {
   /**
    * @brief Returns the number of unread detected MiP events in the queue.
    *
-   * @details Processes pending serial data first to update the queue before checking.
+   * @details Processes pending serial data first to update the queue before
+   * checking.
    *
    * @return Number of available MiP detection events in the queue.
    */
@@ -156,14 +162,16 @@ class MiP_Infrared {
   /**
    * @brief Enables IR remote control mode.
    *
-   * @details Verified operation: sends the enable command and reads back state with retry.
+   * @details Verified operation: sends the enable command and reads back state
+   * with retry.
    */
   void enableRemoteControl();
 
   /**
    * @brief Disables IR remote control mode.
    *
-   * @details Verified operation: sends the disable command and reads back state with retry.
+   * @details Verified operation: sends the disable command and reads back state
+   * with retry.
    */
   void disableRemoteControl();
 
@@ -175,21 +183,26 @@ class MiP_Infrared {
   bool isRemoteControlEnabled();
 
   /**
-   * @brief Transmits a 2-, 3-, or 4-byte IR dongle code using a struct (fire and forget).
+   * @brief Transmits a 2-, 3-, or 4-byte IR dongle code using a struct (fire
+   * and forget).
    *
-   * @details Transmits the IR payload stored in @p irCode at the specified transmit power.
-   * No read-back verification is performed as there is no feedback mechanism over IR.
+   * @details Transmits the IR payload stored in @p irCode at the specified
+   * transmit power. No read-back verification is performed as there is no
+   * feedback mechanism over IR.
    *
-   * @param irCode        Struct containing code value and byte length (2, 3, or 4).
+   * @param irCode        Struct containing code value and byte length (2, 3, or
+   * 4).
    * @param transmitPower Transmit power level (1-120).
    */
   void sendDongleCode(const MiPIRDongleCode& irCode, uint8_t transmitPower);
 
   /**
-   * @brief Transmits a variable-length IR dongle code using direct values (fire and forget).
+   * @brief Transmits a variable-length IR dongle code using direct values (fire
+   * and forget).
    *
-   * @details Transmits the specified numerical @p code value at the given @p length and @p transmitPower.
-   * No read-back verification is performed as there is no feedback mechanism over IR.
+   * @details Transmits the specified numerical @p code value at the given @p
+   * length and @p transmitPower. No read-back verification is performed as
+   * there is no feedback mechanism over IR.
    *
    * @param code          Up to 32-bit numerical IR code value.
    * @param length        Code length in bytes (2, 3, or 4).
@@ -200,27 +213,32 @@ class MiP_Infrared {
   /**
    * @brief Reads the next received IR dongle code from the queue.
    *
-   * @details Processes pending serial data first. Pops the oldest IR dongle code from the queue.
+   * @details Processes pending serial data first. Pops the oldest IR dongle
+   * code from the queue.
    *
-   * @return MiPIRDongleCode struct containing the code value and its byte length.
-   *         Returns an empty/invalid struct (length = 0, code = 0xFFFFFFFF) if no event is available.
+   * @return MiPIRDongleCode struct containing the code value and its byte
+   * length. Returns an empty/invalid struct (length = 0, code = 0xFFFFFFFF) if
+   * no event is available.
    */
   MiPIRDongleCode readDongleCode();
 
   /**
    * @brief Returns the number of unread IR dongle code events in the queue.
    *
-   * @details Processes pending serial data first to update the queue before checking.
+   * @details Processes pending serial data first to update the queue before
+   * checking.
    *
    * @return Number of available IR code events in the queue.
    */
   uint8_t availableCodeEvents();
 
   /**
-   * @brief Handles incoming infrared OOB event notifications from the transport layer.
+   * @brief Handles incoming infrared OOB event notifications from the transport
+   * layer.
    *
-   * @details Called by MiP::dispatchEvent() when an IR detection or received dongle code
-   * event arrives over UART. Parses the payload and pushes the event into the appropriate queue.
+   * @details Called by MiP::dispatchEvent() when an IR detection or received
+   * dongle code event arrives over UART. Parses the payload and pushes the
+   * event into the appropriate queue.
    *
    * @param command Command byte indicating the specific IR notification type.
    * @param payload Pointer to the raw response buffer.
@@ -235,7 +253,8 @@ class MiP_Infrared {
   /**
    * @brief Constructs the infrared manager.
    *
-   * @param mip A reference to the main MiP object to access core communication services.
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
    */
   MiP_Infrared(MiP& mip);
 

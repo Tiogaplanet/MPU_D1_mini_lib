@@ -1,8 +1,8 @@
 /**
  * @file MPU_Debug.cpp
- * @brief Implements the debug functionality for the MPU: D1 mini.
+ * @brief Implements the debug functionality for the MPU-D1 mini.
  *
- * @details This source file implements the MiP debugging functionality.
+ * @details This source file implements MiP's debugging functionality.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)

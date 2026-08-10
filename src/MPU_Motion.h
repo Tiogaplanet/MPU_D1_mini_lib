@@ -25,8 +25,8 @@ class MiP;
  * @brief Drive direction for distanceDrive().
  */
 enum MiPDriveDirection : uint8_t {
-  MIP_DRIVE_FORWARD = 0x00,  ///< Drive in the forward direction.
-  MIP_DRIVE_BACKWARD = 0x01, ///< Drive in the backward direction.
+  MIP_DRIVE_FORWARD = 0x00,   ///< Drive in the forward direction.
+  MIP_DRIVE_BACKWARD = 0x01,  ///< Drive in the backward direction.
 };
 
 /**
@@ -41,17 +41,20 @@ enum MiPTurnDirection : uint8_t {
  * @brief Fall direction for internal fall commands.
  */
 enum MiPFallDirection : uint8_t {
-  MIP_FALL_ON_BACK = 0x00,  ///< Command MiP to fall onto its back.
-  MIP_FALL_FACE_DOWN = 0x01 ///< Command MiP to fall face down.
+  MIP_FALL_ON_BACK = 0x00,   ///< Command MiP to fall onto its back.
+  MIP_FALL_FACE_DOWN = 0x01  ///< Command MiP to fall face down.
 };
 
 /**
  * @brief Get-up direction options.
  */
 enum MiPGetUp : uint8_t {
-  MIP_GETUP_FROM_FRONT = 0x00,  ///< Attempt self-righting stand from face-down position.
-  MIP_GETUP_FROM_BACK = 0x01,   ///< Attempt self-righting stand from back position.
-  MIP_GETUP_FROM_EITHER = 0x02  ///< Automatically detect orientation and attempt stand from either side.
+  MIP_GETUP_FROM_FRONT =
+      0x00,  ///< Attempt self-righting stand from face-down position.
+  MIP_GETUP_FROM_BACK =
+      0x01,  ///< Attempt self-righting stand from back position.
+  MIP_GETUP_FROM_EITHER = 0x02  ///< Automatically detect orientation and
+                                ///< attempt stand from either side.
 };
 
 /**
@@ -60,7 +63,8 @@ enum MiPGetUp : uint8_t {
 class MiP_Motion {
  public:
   /**
-   * @brief MiP protocol command byte for continuous drive (velocity + turn rate).
+   * @brief MiP protocol command byte for continuous drive (velocity + turn
+   * rate).
    */
   static constexpr uint8_t MIP_CMD_CONTINUOUS_DRIVE = 0x78;
 
@@ -70,12 +74,14 @@ class MiP_Motion {
   static constexpr uint8_t MIP_CMD_DISTANCE_DRIVE = 0x70;
 
   /**
-   * @brief MiP protocol command byte to turn left by a specific angle and speed.
+   * @brief MiP protocol command byte to turn left by a specific angle and
+   * speed.
    */
   static constexpr uint8_t MIP_CMD_TURN_LEFT = 0x73;
 
   /**
-   * @brief MiP protocol command byte to turn right by a specific angle and speed.
+   * @brief MiP protocol command byte to turn right by a specific angle and
+   * speed.
    */
   static constexpr uint8_t MIP_CMD_TURN_RIGHT = 0x74;
 
@@ -95,28 +101,34 @@ class MiP_Motion {
   static constexpr uint8_t MIP_CMD_STOP = 0x77;
 
   /**
-   * @brief MiP protocol command byte to force MiP to fall down in a specified direction.
+   * @brief MiP protocol command byte to force MiP to fall down in a specified
+   * direction.
    */
   static constexpr uint8_t MIP_CMD_SET_POSITION = 0x08;
 
   /**
-   * @brief MiP protocol command byte to command MiP to stand up from a fallen position.
+   * @brief MiP protocol command byte to command MiP to stand up from a fallen
+   * position.
    */
   static constexpr uint8_t MIP_CMD_GET_UP = 0x23;
 
   /**
-   * @brief Minimum inter-command delay in milliseconds for continuous drive commands (~20 Hz).
+   * @brief Minimum inter-command delay in milliseconds for continuous drive
+   * commands (~20 Hz).
    */
   static constexpr uint8_t MIP_CONTINUOUS_DRIVE_DELAY = 50;
 
   /**
    * @brief Sends continuous drive command (velocity + turn rate).
    *
-   * @details Rate-limited internally to avoid overwhelming the MiP UART interface (~20 Hz max).
-   * Fire-and-forget command (no read-back verification possible).
+   * @details Rate-limited internally to avoid overwhelming MiP's UART
+   * interface (~20 Hz max). Fire-and-forget command (no read-back verification
+   * possible).
    *
-   * @param velocity  Speed/direction (-32 to +32; negative = backward, positive = forward).
-   * @param turnRate  Turn rate/direction (-32 to +32; negative = left, positive = right).
+   * @param velocity  Speed/direction (-32 to +32; negative = backward, positive
+   * = forward).
+   * @param turnRate  Turn rate/direction (-32 to +32; negative = left, positive
+   * = right).
    */
   void continuousDrive(int8_t velocity, int8_t turnRate);
 
@@ -125,9 +137,11 @@ class MiP_Motion {
    *
    * @details Fire-and-forget command.
    *
-   * @param driveDirection Direction to drive (MIP_DRIVE_FORWARD or MIP_DRIVE_BACKWARD).
+   * @param driveDirection Direction to drive (MIP_DRIVE_FORWARD or
+   * MIP_DRIVE_BACKWARD).
    * @param cm             Distance to travel in centimeters (0-255 cm).
-   * @param turnDirection  Turn direction after driving (MIP_TURN_LEFT or MIP_TURN_RIGHT).
+   * @param turnDirection  Turn direction after driving (MIP_TURN_LEFT or
+   * MIP_TURN_RIGHT).
    * @param degrees        Turn angle in degrees (0-360 degrees).
    */
   void distanceDrive(MiPDriveDirection driveDirection,
@@ -138,8 +152,8 @@ class MiP_Motion {
   /**
    * @brief Drives forward for a limited time at given speed.
    *
-   * @details Fire-and-forget command. Duration parameter is internally converted
-   * to 7ms hardware ticks (max duration ~1.78 seconds / 1785 ms).
+   * @details Fire-and-forget command. Duration parameter is internally
+   * converted to 7ms hardware ticks (max duration ~1.78 seconds / 1785 ms).
    *
    * @param speed Drive speed (0-30).
    * @param time  Duration in milliseconds (max 1785 ms).
@@ -149,8 +163,8 @@ class MiP_Motion {
   /**
    * @brief Drives backward for a limited time at given speed.
    *
-   * @details Fire-and-forget command. Duration parameter is internally converted
-   * to 7ms hardware ticks (max duration ~1.78 seconds / 1785 ms).
+   * @details Fire-and-forget command. Duration parameter is internally
+   * converted to 7ms hardware ticks (max duration ~1.78 seconds / 1785 ms).
    *
    * @param speed Drive speed (0-30).
    * @param time  Duration in milliseconds (max 1785 ms).
@@ -199,7 +213,8 @@ class MiP_Motion {
   /**
    * @brief Commands MiP to stand up from a fallen position.
    *
-   * @param getup Which direction/side to attempt getting up from (default = MIP_GETUP_FROM_EITHER).
+   * @param getup Which direction/side to attempt getting up from (default =
+   * MIP_GETUP_FROM_EITHER).
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
@@ -207,7 +222,8 @@ class MiP_Motion {
   /**
    * @brief Constructs the drive system manager.
    *
-   * @param mip A reference to the main MiP object to access core communication services.
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
    */
   MiP_Motion(MiP& mip);
 

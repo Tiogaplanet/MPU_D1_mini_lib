@@ -25,10 +25,10 @@ class MiP;
  * @brief Individual head LED lighting and blinking patterns.
  */
 enum MiPHeadLED : uint8_t {
-  MIP_HEAD_LED_OFF = 0,        ///< Head LED is turned off.
-  MIP_HEAD_LED_ON = 1,         ///< Head LED is continuously turned on.
-  MIP_HEAD_LED_BLINK_SLOW = 2, ///< Head LED blinks at a slow rate.
-  MIP_HEAD_LED_BLINK_FAST = 3, ///< Head LED blinks at a fast rate.
+  MIP_HEAD_LED_OFF = 0,         ///< Head LED is turned off.
+  MIP_HEAD_LED_ON = 1,          ///< Head LED is continuously turned on.
+  MIP_HEAD_LED_BLINK_SLOW = 2,  ///< Head LED blinks at a slow rate.
+  MIP_HEAD_LED_BLINK_FAST = 3,  ///< Head LED blinks at a fast rate.
 };
 
 /**
@@ -40,9 +40,11 @@ enum MiPHeadLED : uint8_t {
 class MiPHeadLEDs {
  public:
   /**
-   * @brief Constructs a new MiPHeadLEDs container and initializes all LEDs to off.
+   * @brief Constructs a new MiPHeadLEDs container and initializes all LEDs to
+   * off.
    *
-   * @details Automatically calls clear() to set led1, led2, led3, and led4 to MIP_HEAD_LED_OFF.
+   * @details Automatically calls clear() to set led1, led2, led3, and led4 to
+   * MIP_HEAD_LED_OFF.
    */
   MiPHeadLEDs() {
     clear();
@@ -58,10 +60,10 @@ class MiPHeadLEDs {
     led4 = MIP_HEAD_LED_OFF;
   }
 
-  MiPHeadLED led1; ///< Pattern state for Head LED 1.
-  MiPHeadLED led2; ///< Pattern state for Head LED 2.
-  MiPHeadLED led3; ///< Pattern state for Head LED 3.
-  MiPHeadLED led4; ///< Pattern state for Head LED 4.
+  MiPHeadLED led1;  ///< Pattern state for Head LED 1.
+  MiPHeadLED led2;  ///< Pattern state for Head LED 2.
+  MiPHeadLED led3;  ///< Pattern state for Head LED 3.
+  MiPHeadLED led4;  ///< Pattern state for Head LED 4.
 };
 
 /**
@@ -75,26 +77,28 @@ class MiP_HeadLEDs {
   static constexpr uint8_t MIP_CMD_SET_HEAD_LEDS = 0x8A;
 
   /**
-   * @brief MiP protocol command byte to query the current patterns of all four head LEDs.
+   * @brief MiP protocol command byte to query the current patterns of all four
+   * head LEDs.
    */
   static constexpr uint8_t MIP_CMD_GET_HEAD_LEDS = 0x8B;
 
   /**
    * @brief Reads the current state of all four head LEDs.
    *
-   * @details Sends the get head LEDs request over UART and populates @p headLEDs
-   * with the active lighting pattern of each LED. Performs retries automatically
-   * on communication failure.
+   * @details Sends the get head LEDs request over UART and populates @p
+   * headLEDs with the active lighting pattern of each LED. Performs retries
+   * automatically on communication failure.
    *
-   * @param[out] headLEDs Reference to a MiPHeadLEDs struct to populate with retrieved states.
+   * @param[out] headLEDs Reference to a MiPHeadLEDs struct to populate with
+   * retrieved states.
    */
   void read(MiPHeadLEDs& headLEDs);
 
   /**
    * @brief Sets all four head LEDs and verifies the change.
    *
-   * @details Sends the set command and immediately reads back the state to confirm success.
-   * Retries automatically on mismatch or communication error.
+   * @details Sends the set command and immediately reads back the state to
+   * confirm success. Retries automatically on mismatch or communication error.
    *
    * @param led1 Head LED 1 pattern.
    * @param led2 Head LED 2 pattern.
@@ -109,8 +113,8 @@ class MiP_HeadLEDs {
   /**
    * @brief Sets all four head LEDs using a struct and verifies the change.
    *
-   * @details Sends the set command and immediately reads back the state to confirm success.
-   * Retries automatically on mismatch or communication error.
+   * @details Sends the set command and immediately reads back the state to
+   * confirm success. Retries automatically on mismatch or communication error.
    *
    * @param headLEDs Struct containing the four LED patterns.
    */
@@ -119,8 +123,9 @@ class MiP_HeadLEDs {
   /**
    * @brief Sets all four head LEDs without verification (fire-and-forget).
    *
-   * @details Faster than the verified version because it does not perform a read-back check,
-   * but provides no confirmation that the command succeeded on hardware.
+   * @details Faster than the verified version because it does not perform a
+   * read-back check, but provides no confirmation that the command succeeded on
+   * hardware.
    *
    * @param led1 Head LED 1 pattern.
    * @param led2 Head LED 2 pattern.
@@ -133,10 +138,12 @@ class MiP_HeadLEDs {
                        MiPHeadLED led4);
 
   /**
-   * @brief Sets all four head LEDs using a struct without verification (fire-and-forget).
+   * @brief Sets all four head LEDs using a struct without verification
+   * (fire-and-forget).
    *
-   * @details Faster than the verified version because it does not perform a read-back check,
-   * but provides no confirmation that the command succeeded on hardware.
+   * @details Faster than the verified version because it does not perform a
+   * read-back check, but provides no confirmation that the command succeeded on
+   * hardware.
    *
    * @param headLEDs Struct containing the four LED patterns.
    */
@@ -146,7 +153,8 @@ class MiP_HeadLEDs {
   /**
    * @brief Constructs the eye LED manager.
    *
-   * @param mip A reference to the main MiP object to access core communication services.
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
    */
   MiP_HeadLEDs(MiP& mip);
 

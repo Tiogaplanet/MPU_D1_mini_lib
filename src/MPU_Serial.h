@@ -22,45 +22,54 @@
 class MiP;
 
 /**
- * @brief Manages low-level UART transport and Out-Of-Band (OOB) event demultiplexing.
+ * @brief Manages low-level UART transport and Out-Of-Band (OOB) event
+ * demultiplexing.
  *
- * @details Handles serial transmission delays, command-response pairing, hex-ASCII parsing,
- * and dispatching asynchronous event notifications received from the MiP robot.
+ * @details Handles serial transmission delays, command-response pairing,
+ * hex-ASCII parsing, and dispatching asynchronous event notifications received
+ * from MiP.
  */
 class MiP_Serial {
  public:
   /**
-   * @brief Minimum inter-command delay in milliseconds required between consecutive UART transmissions.
+   * @brief Minimum inter-command delay in milliseconds required between
+   * consecutive UART transmissions.
    */
   static constexpr uint8_t MIP_REQUEST_DELAY = 8;
 
   /**
-   * @brief Maximum duration in milliseconds to wait for a synchronous command response from MiP.
+   * @brief Maximum duration in milliseconds to wait for a synchronous command
+   * response from MiP.
    */
   static constexpr uint8_t MIP_RESPONSE_TIMEOUT = 100;
 
   /**
-   * @brief Flag passed to transportSendRequest() indicating no response is expected (fire-and-forget).
+   * @brief Flag passed to transportSendRequest() indicating no response is
+   * expected (fire-and-forget).
    */
   static constexpr uint8_t MIP_EXPECT_NO_RESPONSE = 0;
 
   /**
-   * @brief Flag passed to transportSendRequest() indicating a synchronous response is expected.
+   * @brief Flag passed to transportSendRequest() indicating a synchronous
+   * response is expected.
    */
   static constexpr uint8_t MIP_EXPECT_RESPONSE = 1;
 
   /**
-   * @brief Maximum buffer size in bytes required to store the longest MiP protocol request.
+   * @brief Maximum buffer size in bytes required to store the longest MiP
+   * protocol request.
    */
   static constexpr size_t MIP_REQUEST_MAX_LEN = 17 + 1;
 
   /**
-   * @brief Maximum buffer size in bytes required to store the longest MiP protocol response.
+   * @brief Maximum buffer size in bytes required to store the longest MiP
+   * protocol response.
    */
   static constexpr size_t MIP_RESPONSE_MAX_LEN = 5 + 1;
 
   /**
-   * @brief Maximum number of retry attempts for verified read and write operations.
+   * @brief Maximum number of retry attempts for verified read and write
+   * operations.
    */
   static constexpr uint8_t MIP_MAX_RETRIES = 2;
 
@@ -70,10 +79,12 @@ class MiP_Serial {
   static constexpr uint16_t MIP_RETRY_WAIT = 50;
 
   /**
-   * @brief Sends a raw command buffer to MiP without waiting for a response (fire-and-forget).
+   * @brief Sends a raw command buffer to MiP without waiting for a response
+   * (fire-and-forget).
    *
-   * @details Used internally by non-verified commands and higher-level driver methods. Enforces
-   * the minimum MIP_REQUEST_DELAY before writing data to the hardware serial port.
+   * @details Used internally by non-verified commands and higher-level driver
+   * methods. Enforces the minimum MIP_REQUEST_DELAY before writing data to the
+   * hardware serial port.
    *
    * @param request       Pointer to the array of command bytes to transmit.
    * @param requestLength Number of bytes in the request array.
@@ -81,18 +92,25 @@ class MiP_Serial {
   void rawSend(const uint8_t request[], size_t requestLength);
 
   /**
-   * @brief Sends a raw command and blocks until the expected response is received or times out.
+   * @brief Sends a raw command and blocks until the expected response is
+   * received or times out.
    *
-   * @details Transmits the request buffer over UART, waits for the corresponding command response byte,
-   * converts incoming hex-ASCII payload characters to binary, and populates the response buffer.
+   * @details Transmits the request buffer over UART, waits for the
+   * corresponding command response byte, converts incoming hex-ASCII payload
+   * characters to binary, and populates the response buffer.
    *
-   * @param[in]  request          Pointer to the array of command bytes to transmit.
+   * @param[in]  request          Pointer to the array of command bytes to
+   * transmit.
    * @param[in]  requestLength    Number of bytes in the request array.
-   * @param[out] responseBuffer   Pointer to the buffer where the received response will be stored.
-   * @param[in]  responseBufferSize Maximum capacity of the response buffer in bytes.
-   * @param[out] responseLength   Receives the actual number of bytes written into responseBuffer.
+   * @param[out] responseBuffer   Pointer to the buffer where the received
+   * response will be stored.
+   * @param[in]  responseBufferSize Maximum capacity of the response buffer in
+   * bytes.
+   * @param[out] responseLength   Receives the actual number of bytes written
+   * into responseBuffer.
    *
-   * @return uint8_t MIP_ERROR_NONE on success, or MIP_ERROR_TIMEOUT on response timeout.
+   * @return uint8_t MIP_ERROR_NONE on success, or MIP_ERROR_TIMEOUT on response
+   * timeout.
    */
   uint8_t rawReceive(const uint8_t request[],
                      size_t requestLength,
@@ -101,13 +119,16 @@ class MiP_Serial {
                      size_t& responseLength);
 
   /**
-   * @brief Reads and processes all incoming data available in the hardware serial receive buffer.
+   * @brief Reads and processes all incoming data available in the hardware
+   * serial receive buffer.
    *
-   * @details Decodes incoming hex-ASCII command pairs. If the command byte matches an expected
-   * synchronous response, it populates the response buffer. Otherwise, it treats the data as an
-   * Out-Of-Band (OOB) notification and dispatches it to MiP::dispatchEvent().
+   * @details Decodes incoming hex-ASCII command pairs. If the command byte
+   * matches an expected synchronous response, it populates the response buffer.
+   * Otherwise, it treats the data as an Out-Of-Band (OOB) notification and
+   * dispatches it to MiP::dispatchEvent().
    *
-   * @return true if the expected synchronous response was found during buffer processing, false otherwise.
+   * @return true if the expected synchronous response was found during buffer
+   * processing, false otherwise.
    */
   bool processAllResponseData();
 
@@ -118,7 +139,8 @@ class MiP_Serial {
   /**
    * @brief Constructs the serial port transport manager.
    *
-   * @param mip A reference to the main MiP object to access core communication services.
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
    */
   MiP_Serial(MiP& mip);
 

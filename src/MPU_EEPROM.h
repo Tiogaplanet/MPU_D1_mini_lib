@@ -45,7 +45,7 @@ class MiP_EEPROM {
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
   /**
-   * @brief Reads a byte from the MiP's user EEPROM area.
+   * @brief Reads a byte from MiP's EEPROM.
    *
    * Performs a verified read with retries on communication errors.
    *
@@ -55,7 +55,7 @@ class MiP_EEPROM {
   uint8_t read(uint8_t addressOffset);
 
   /**
-   * @brief Writes a byte to the MiP's user EEPROM area and verifies it.
+   * @brief Writes a byte to MiP's EEPROM area and verifies it.
    *
    * This function performs a verified write: it sends the data, reads it back,
    * and retries (up to MIP_MAX_RETRIES) if the value doesn't match or an error

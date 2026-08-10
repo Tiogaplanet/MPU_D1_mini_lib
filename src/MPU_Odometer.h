@@ -27,29 +27,34 @@ class MiP;
 class MiP_Odometer {
  public:
   /**
-   * @brief MiP protocol command byte to read the accumulated wheel tick odometer count.
+   * @brief MiP protocol command byte to read the accumulated wheel tick
+   * odometer count.
    */
   static constexpr uint8_t MIP_CMD_READ_ODOMETER = 0x85;
 
   /**
-   * @brief MiP protocol command byte to reset the odometer wheel tick counter to zero.
+   * @brief MiP protocol command byte to reset the odometer wheel tick counter
+   * to zero.
    */
   static constexpr uint8_t MIP_CMD_RESET_ODOMETER = 0x86;
 
   /**
-   * @brief Reads the total distance travelled by the MiP.
+   * @brief Reads MiP's total distance travelled.
    *
-   * @details Queries MiP's wheel encoder ticks and converts the result to centimeters
-   * (at 48.5 ticks per centimeter). Performs a verified read with automatic retries on error.
+   * @details Queries MiP's wheel encoder ticks and converts the result to
+   * centimeters (at 48.5 ticks per centimeter). Performs a verified read with
+   * automatic retries on error.
    *
-   * @return float Accumulated distance in centimeters. Returns 0.0f on communication failure.
+   * @return float Accumulated distance in centimeters. Returns 0.0f on
+   * communication failure.
    */
   float read();
 
   /**
    * @brief Resets the odometer distance counter back to zero.
    *
-   * @details Sends the reset command to the MiP robot to zero out internal wheel tick registers.
+   * @details Sends the reset command to MiP to zero out its internal
+   * wheel tick registers.
    */
   void reset();
 
@@ -57,7 +62,8 @@ class MiP_Odometer {
   /**
    * @brief Constructs the odometer manager.
    *
-   * @param mip A reference to the main MiP object to access core communication services.
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
    */
   MiP_Odometer(MiP& mip);
 

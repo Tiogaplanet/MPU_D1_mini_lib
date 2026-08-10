@@ -44,7 +44,7 @@ void MiP_ChestLED::write(uint8_t red, uint8_t green, uint8_t blue) {
   int8_t result;
 
   // The blue channel is actually only 6-bit and not a full 8-bit so zero out
-  // lower 2 bits (the MiP does this too).
+  // lower 2 bits (MiP does this too).
   blue &= ~3;
 
   // Send the set command and then issue the corresponding get command. Retry if
@@ -91,7 +91,7 @@ void MiP_ChestLED::write(uint8_t red,
   offTime = (offTime + 10) / 20;
 
   // The blue channel is actually only 6-bit and not a full 8-bit so zero out
-  // lower 2 bits (the MiP does this too).
+  // lower 2 bits (MiP does this too).
   blue &= ~3;
 
   // Send the set command and then issue the corresponding get command. Retry if
