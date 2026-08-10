@@ -65,12 +65,6 @@ class MiP_ChestLED {
   static constexpr uint8_t MIP_CMD_FLASH_CHEST_LED = 0x89;
 
   /**
-   * @brief Constructs the chest LED manager.
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_ChestLED(MiP& mip);
-
-  /**
    * @brief Reads the current RGB state and flash timings of the chest LED.
    * * @param chestLED A reference to a MiPChestLED object where the retrieved
    * data will be stored.
@@ -155,6 +149,11 @@ class MiP_ChestLED {
   void unverifiedWrite(const MiPChestLED& chestLED);
 
  private:
+  /**
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
+   */
+  explicit MiP_ChestLED(MiP& mip);
+
   int8_t rawGet(MiPChestLED& chestLED);
   void rawSet(uint8_t red, uint8_t green, uint8_t blue);
   void rawFlash(uint8_t red,
