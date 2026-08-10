@@ -22,8 +22,7 @@ class MiP;
 
 /**
  * @brief MiP_Battery provides one function only, to report MiP's cached battery
- * voltage. The voltage is read from MiP's periodic status updates and is never
- * more than 30 seconds old.
+ * voltage.
  */
 class MiP_Battery {
  public:
@@ -34,7 +33,8 @@ class MiP_Battery {
   MiP_Battery(MiP& mip);
 
   /**
-   * @brief Reads MiP's cached battery voltage.
+   * @brief Reads MiP's cached battery voltage. The voltage is read from MiP's
+   * periodic status updates and is never more than 30 seconds old.
    * @return Battery voltage, typically 4.0V (low) to 6.4V (full).
    */
   float readVoltage();

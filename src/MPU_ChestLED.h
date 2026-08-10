@@ -44,21 +44,24 @@ class MiPChestLED {
 };
 
 /**
- * @brief Manages MiP's chest LED.
+ * @brief MiP_ChestLED provides functions to read from and write to MiP's chest
+ * LED, allowing the setting of color and flash time.
  */
 class MiP_ChestLED {
  public:
   /**
-   * @brief MiP protocol command bytes used by the chest LED subsystem.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
+   * @brief The MiP protocol command to read the chest LED color.
    */
   static constexpr uint8_t MIP_CMD_GET_CHEST_LED = 0x83;
+
+  /**
+   * @brief The MiP protocol command to set the chest LED color.
+   */
   static constexpr uint8_t MIP_CMD_SET_CHEST_LED = 0x84;
+
+  /**
+   * @brief The MiP protocol command to flash the chest LED.
+   */
   static constexpr uint8_t MIP_CMD_FLASH_CHEST_LED = 0x89;
 
   /**
@@ -163,7 +166,7 @@ class MiP_ChestLED {
   /**
    * @brief A private variable that stores a reference to the main MiP class.
    */
-  MiP& m_mip;  // Stores a reference to the main MiP class.
+  MiP& m_mip;
 };
 
 #endif  // MPU_CHESTLED_H
