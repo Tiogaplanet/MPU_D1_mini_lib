@@ -37,16 +37,6 @@ class MiP_Weight {
   static constexpr uint8_t MIP_CMD_GET_WEIGHT = 0x81;
 
   /**
-   * @brief Handles an incoming weight event notification from the transport layer.
-   *
-   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_WEIGHT notification
-   * arrives over UART. Caches the weight value and marks the weight data as valid.
-   *
-   * @param weightValue Raw payload weight value in grams reported by MiP.
-   */
-  void processEvent(int8_t weightValue);
-
-  /**
    * @brief Reads the current weight on MiP's weight sensor.
    *
    * @details Uses cached weight data from a recent Out-Of-Band status event if available;
@@ -69,6 +59,16 @@ class MiP_Weight {
 
   int8_t rawGet(int8_t& weight);
   int8_t parse(int8_t& weight, const uint8_t response[], size_t responseLength);
+
+  /**
+   * @brief Handles an incoming weight event notification from the transport layer.
+   *
+   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_WEIGHT notification
+   * arrives over UART. Caches the weight value and marks the weight data as valid.
+   *
+   * @param weightValue Raw payload weight value in grams reported by MiP.
+   */
+  void processEvent(int8_t weightValue);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   int8_t m_lastWeight;
