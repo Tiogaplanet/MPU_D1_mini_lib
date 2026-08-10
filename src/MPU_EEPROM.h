@@ -45,12 +45,6 @@ class MiP_EEPROM {
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
   /**
-   * @brief Constructs the EEPROM manager.
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_EEPROM(MiP& mip);
-
-  /**
    * @brief Reads a byte from the MiP's user EEPROM area.
    *
    * Performs a verified read with retries on communication errors.
@@ -73,10 +67,21 @@ class MiP_EEPROM {
   void write(uint8_t addressOffset, uint8_t userData);
 
  private:
+  /**
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
+   * @param mip A reference to the main MiP object to access core services.
+   */
+  MiP_EEPROM(MiP& mip);
+
   int8_t rawRead(uint8_t address, uint8_t& userData);
   void rawWrite(uint8_t address, uint8_t userData);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
+
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
+  friend class MiP;
 };
 
 #endif  // MPU_EEPROM_H
