@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - minor-edits
 
 jobs:
   deploy-wiki:
@@ -24,31 +23,22 @@ jobs:
 
       - name: Generate Doxygen XML
         run: |
-          # Generate default Doxyfile
-          doxygen -g
+          # Generate default Doxyfile if not present
+          if [ ! -f Doxyfile ]; then
+            doxygen -g
+          fi
           
-          # Enable XML generation and point to source headers/files
+          # Configure Doxyfile settings for XML generation
           sed -i 's/GENERATE_XML           = NO/GENERATE_XML           = YES/' Doxyfile
           sed -i 's/XML_OUTPUT             = xml/XML_OUTPUT             = xml/' Doxyfile
           sed -i 's/GENERATE_HTML          = YES/GENERATE_HTML          = NO/' Doxyfile
           sed -i 's/GENERATE_LATEX         = YES/GENERATE_LATEX         = NO/' Doxyfile
           sed -i 's/RECURSIVE              = NO/RECURSIVE              = YES/' Doxyfile
-          sed -i 's/EXCLUDE_PATTERNS       =/EXCLUDE_PATTERNS       = *.md/' Doxyfile
           
-          # Explicitly exclude private and protected members from the docs
-          # (Note: XML output may still include them; Python filters below as a safety net)
-          sed -i 's/^EXTRACT_PRIVATE.*/EXTRACT_PRIVATE        = NO/' Doxyfile
-          sed -i 's/^EXTRACT_PROTECTED.*/EXTRACT_PROTECTED      = NO/' Doxyfile
-          sed -i 's/^EXTRACT_STATIC.*/EXTRACT_STATIC         = NO/' Doxyfile
-          
-          # Point Doxygen to your Arduino examples directory and include .ino files
-          sed -i 's|EXAMPLE_PATH           =|EXAMPLE_PATH           = examples|' Doxyfile
-          sed -i 's|FILE_PATTERNS          =|FILE_PATTERNS          = *.h *.cpp *.ino|' Doxyfile
-          
-          # Run doxygen
+          # Run Doxygen
           doxygen Doxyfile
 
-      - name: Convert Doxygen XML to Multi-Page Markdown & Sidebar
+      - name: Convert Doxygen XML to Markdown
         run: |
           mkdir -p wiki_markdown
           python3 - << 'EOF'
@@ -63,28 +53,29 @@ jobs:
               print("No index.xml found.")
               exit(0)
 
+          def get_text(element):
+              """ Recursively extracts clean text from XML elements """
+              if element is None:
+                  return ""
+              return "".join(element.itertext()).strip()
+
           tree = ET.parse(index_path)
           root = tree.getroot()
 
           class_pages = []
-          header_defines = []
 
           for compound in root.findall('compound'):
               kind = compound.get('kind')
               name = compound.find('name').text
               refid = compound.get('refid')
 
-              # Ignore .md, .cpp, and internal doxygen pages
-              if name.endswith('.md') or name.endswith('.cpp') or kind in ['page', 'dir']:
-                  continue
-
-              # 1. Process Classes and Structs into dedicated pages
+              # STRICT FILTER: Only process C++ Classes and Structs (exclude files/headers)
               if kind in ['class', 'struct']:
                   clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
                   doc_filename = f"{clean_name}.md"
-                  class_pages.append((name, clean_name, kind))
+                  class_pages.append((name, clean_name))
 
-                  page = [f"# {kind.capitalize()} `{name}`\n\n"]
+                  page = [f"# Class `{name}`\n\n"]
                   detail_path = os.path.join(xml_dir, f"{refid}.xml")
 
                   if os.path.exists(detail_path):
@@ -92,117 +83,88 @@ jobs:
                       d_root = d_tree.getroot()
                       comp_def = d_root.find('compounddef')
 
-                      brief = comp_def.find('briefdescription')
-                      if brief is not None:
-                          brief_txt = "".join(brief.itertext()).strip()
-                          if brief_txt:
-                              page.append(f"{brief_txt}\n\n")
+                      # --- Class @brief Description ---
+                      brief = get_text(comp_def.find('briefdescription'))
+                      if brief:
+                          page.append(f"{brief}\n\n")
 
-                      deta = comp_def.find('detaileddescription')
-                      if deta is not None:
-                          deta_txt = "".join(deta.itertext()).strip()
-                          if deta_txt:
-                              page.append(f"## Detailed Description\n\n{deta_txt}\n\n")
+                      # --- Class @details Description ---
+                      deta = get_text(comp_def.find('detaileddescription'))
+                      if deta:
+                          page.append(f"## Detailed Description\n\n{deta}\n\n")
 
-                      page.append("## Members & Functions\n\n")
-                      page.append("| Type | Signature | Description |\n|:---|:---|:---|\n")
+                      # --- Public Members and Functions ---
+                      members = comp_def.findall('.//memberdef')
+                      public_members = [m for m in members if m.get('prot') == 'public']
 
-                      for member in comp_def.findall('.//memberdef'):
-                          # Skip private / protected — Doxygen XML often still
-                          # contains them even when EXTRACT_PRIVATE = NO
-                          if member.get('prot', 'public') != 'public':
-                              continue
+                      if public_members:
+                          page.append("## Public Elements\n\n")
 
-                          m_kind = member.get('kind')
-                          m_name_el = member.find('name')
-                          m_name = m_name_el.text if m_name_el is not None else ""
+                          for member in public_members:
+                              m_name = get_text(member.find('name'))
+                              m_type = get_text(member.find('type'))
+                              m_args = get_text(member.find('argsstring'))
+                              m_brief = get_text(member.find('briefdescription'))
+                              m_deta_el = member.find('detaileddescription')
 
-                          m_type_el = member.find('type')
-                          m_type = "".join(m_type_el.itertext()).strip() if m_type_el is not None else ""
+                              # Signature Title
+                              sig = f"`{m_type} {m_name}{m_args}`" if m_type else f"`{m_name}{m_args}`"
+                              page.append(f"### `{m_name}`\n\n")
+                              page.append(f"**Signature:** {sig}\n\n")
 
-                          # Fixed: never leave a real None value
-                          args = member.findtext('argsstring') or ""
+                              # @brief tag
+                              if m_brief:
+                                  page.append(f"**Summary:** {m_brief}\n\n")
 
-                          b_el = member.find('briefdescription')
-                          b_txt = "".join(b_el.itertext()).strip() if b_el is not None else ""
+                              # @details tag
+                              if m_deta_el is not None:
+                                  para_text = []
+                                  for para in m_deta_el.findall('para'):
+                                      p_txt = get_text(para)
+                                      if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
+                                          para_text.append(p_txt)
+                                  if para_text:
+                                      page.append("**Details:**\n\n" + "\n\n".join(para_text) + "\n\n")
 
-                          if m_type:
-                              sig = f"`{m_type} {m_name}{args}`".strip()
-                          else:
-                              sig = f"`{m_name}{args}`"
+                              # @param tags
+                              param_items = member.findall('.//parameteritem')
+                              if param_items:
+                                  page.append("**Parameters:**\n\n")
+                                  page.append("| Parameter | Description |\n|:---|:---|\n")
+                                  for p_item in param_items:
+                                      p_name = get_text(p_item.find('.//parametername'))
+                                      p_desc = get_text(p_item.find('.//parameterdescription'))
+                                      page.append(f"| `{p_name}` | {p_desc} |\n")
+                                  page.append("\n")
 
-                          page.append(f"| `{m_kind}` | {sig} | {b_txt} |\n")
+                              # @return tag
+                              returns = member.findall(".//simplesect[@kind='return']")
+                              if returns:
+                                  ret_desc = get_text(returns[0])
+                                  if ret_desc:
+                                      page.append(f"**Returns:** {ret_desc}\n\n")
+
+                              page.append("---\n\n")
 
                   with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
                       f.write("".join(page))
 
-              # 2. Extract #defines, enums, and global constants from .h headers
-              elif kind == 'file' and name.endswith('.h'):
-                  detail_path = os.path.join(xml_dir, f"{refid}.xml")
-                  if os.path.exists(detail_path):
-                      d_tree = ET.parse(detail_path)
-                      d_root = d_tree.getroot()
-                      comp_def = d_root.find('compounddef')
-
-                      file_defines = []
-                      for member in comp_def.findall('.//memberdef'):
-                          # Only public items for the constants page as well
-                          if member.get('prot', 'public') != 'public':
-                              continue
-
-                          m_kind = member.get('kind')  # define, enum, variable, typedef
-                          if m_kind in ['define', 'enum', 'typedef', 'variable']:
-                              m_name_el = member.find('name')
-                              m_name = m_name_el.text if m_name_el is not None else ""
-
-                              val_el = member.find('initializer')
-                              val = "".join(val_el.itertext()).strip() if val_el is not None else ""
-
-                              b_el = member.find('briefdescription')
-                              b_txt = "".join(b_el.itertext()).strip() if b_el is not None else ""
-
-                              file_defines.append((m_kind, m_name, val, b_txt))
-
-                      if file_defines:
-                          header_defines.append((name, file_defines))
-
-          # Generate Constants-and-Defines.md
-          if header_defines:
-              const_page = ["# Constants & Defines\n\nGlobal macros, constants, and enumerations across header files.\n\n"]
-              for header_name, defs in header_defines:
-                  const_page.append(f"## Header `{header_name}`\n\n")
-                  const_page.append("| Kind | Name | Value / Initializer | Description |\n|:---|:---|:---|:---|\n")
-                  for m_kind, m_name, val, b_txt in defs:
-                      val_str = f"`{val}`" if val else ""
-                      const_page.append(f"| `{m_kind}` | `{m_name}` | {val_str} | {b_txt} |\n")
-                  const_page.append("\n")
-
-              with open(os.path.join(out_dir, 'Constants-and-Defines.md'), 'w', encoding='utf-8') as f:
-                  f.write("".join(const_page))
-
-          # Generate API-Reference.md
+          # Generate API-Reference.md (Classes Only)
           with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
-              f.write("# API Reference Index\n\nAutomated list of library classes and configuration constants:\n\n")
-              f.write("### Classes & Structs\n\n")
-              for orig_name, clean_name, kind in class_pages:
-                  f.write(f"- **[{orig_name}]({clean_name})** ({kind})\n")
-              if header_defines:
-                  f.write("\n### Global Definitions\n\n")
-                  f.write("- **[Constants and Defines](Constants-and-Defines)**\n")
+              f.write("# API Reference Index\n\nList of all library classes:\n\n")
+              for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
+                  f.write(f"- **[{orig_name}]({clean_name})**\n")
 
-          # Generate _Sidebar.md
+          # Generate _Sidebar.md Navigation (Classes Only - No Files)
           with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
               f.write("### Navigation\n\n")
               f.write("- [Home](Home)\n")
               f.write("- [API Reference](API-Reference)\n\n")
-              f.write("#### Classes & Structs\n\n")
-              for orig_name, clean_name, _ in class_pages:
+              f.write("#### Classes\n\n")
+              for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- [{orig_name}]({clean_name})\n")
-              if header_defines:
-                  f.write("\n#### Configuration\n\n")
-                  f.write("- [Constants and Defines](Constants-and-Defines)\n")
 
-          print("Successfully generated clean class pages, Constants-and-Defines.md, and _Sidebar.md")
+          print("Generated detailed Class Markdown pages, API-Reference.md, and _Sidebar.md")
           EOF
 
       - name: Checkout Wiki Repository
@@ -214,10 +176,10 @@ jobs:
 
       - name: Commit and Push to Wiki
         run: |
-          # Copy generated markdown files into wiki_repo WITHOUT overwriting an existing Home.md
+          # Copy generated markdown files into wiki_repo without overwriting custom Home.md
           rsync -av --exclude='Home.md' wiki_markdown/ wiki_repo/
           
-          # If Home.md does not exist yet in the wiki, create an initial placeholder Home.md
+          # Initialize Home.md if it does not exist in the wiki
           if [ ! -f wiki_repo/Home.md ]; then
             echo "# Welcome to the Library Wiki" > wiki_repo/Home.md
             echo "See the [API Reference](API-Reference) for detailed class documentation." >> wiki_repo/Home.md
@@ -229,7 +191,7 @@ jobs:
           
           git add .
           if ! git diff-index --quiet HEAD; then
-            git commit -m "Auto-update API documentation from Doxygen"
+            git commit -m "Auto-update API class documentation from Doxygen"
             git push
           else
             echo "No changes to commit to Wiki."
