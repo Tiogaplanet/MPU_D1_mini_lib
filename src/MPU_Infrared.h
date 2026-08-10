@@ -182,8 +182,8 @@ class MiP_Infrared {
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   uint8_t m_irId;
-  CircularQueue<MiPIRDongleCode, 8> m_irCodeEvents;
-  CircularQueue<uint8_t, 8> m_detectedMiPEvents;
+  mip_detail::CircularQueue<MiPIRDongleCode, 8> m_irCodeEvents;
+  mip_detail::CircularQueue<uint8_t, 8> m_detectedMiPEvents;
 
   friend class MiP;
 };
