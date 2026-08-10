@@ -20,11 +20,13 @@
 
 #include <stdint.h>
 
+namespace mip_detail {
+
 /**
- * @brief A lightweight circular queue (ring buffer) template.
+ * @brief A lightweight circular queue (ring buffer) template for internal library use.
  *
- * Overwrites oldest data when the queue is full. Primarily used to buffer
- * asynchronous events from MiP.
+ * @details Overwrites oldest data when the queue is full. Primarily used to buffer
+ * asynchronous events from the MiP robot.
  *
  * @tparam ElementType Type of elements stored in the queue.
  * @tparam Size        Maximum number of elements the queue can hold.
@@ -34,8 +36,6 @@ class CircularQueue {
  public:
   /**
    * @brief Constructs a new CircularQueue object and initializes internal state.
-   *
-   * @details Calls clear() to reset read/write indices and set element count to zero.
    */
   CircularQueue() {
     clear();
@@ -43,9 +43,6 @@ class CircularQueue {
 
   /**
    * @brief Clears all elements from the queue.
-   *
-   * @details Resets the element count and read/write indices to zero. Existing
-   * data in the internal array is logically invalidated but not overwritten.
    */
   void clear() {
     m_count = 0;
@@ -58,7 +55,7 @@ class CircularQueue {
    *
    * @return true if the queue is empty (count is 0), false otherwise.
    */
-  bool isEmpty() {
+  bool isEmpty() const {
     return m_count == 0;
   }
 
@@ -67,15 +64,12 @@ class CircularQueue {
    *
    * @return uint8_t Number of available elements (0 to Size).
    */
-  uint8_t available() {
+  uint8_t available() const {
     return m_count;
   }
 
   /**
    * @brief Pushes a new element into the back of the queue.
-   *
-   * @details If the queue is full (count equals Size), the oldest element at the
-   * front of the queue is overwritten, and the read index is advanced to discard it.
    *
    * @param element Reference to the element value to store in the queue.
    */
@@ -93,9 +87,6 @@ class CircularQueue {
 
   /**
    * @brief Pops and retrieves the oldest element from the front of the queue.
-   *
-   * @details Removes the oldest element if available, copies it into @p element,
-   * advances the read index, and decrements the internal element count.
    *
    * @param[out] element Reference to a variable where the popped element value will be stored.
    * @return true if an element was successfully popped, false if the queue was empty.
@@ -136,5 +127,7 @@ class CircularQueue {
   uint8_t m_readIndex;
   uint8_t m_writeIndex;
 };
+
+}  // namespace mip_detail
 
 #endif  // MPU_QUEUE_H
