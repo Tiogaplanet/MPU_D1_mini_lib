@@ -27,12 +27,6 @@ class MiP;
 class MiP_Battery {
  public:
   /**
-   * @brief Constructs the battery manager.
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_Battery(MiP& mip);
-
-  /**
    * @brief Reads MiP's cached battery voltage.
    * 
    * The voltage is read from MiP's periodic status updates and is
@@ -44,9 +38,20 @@ class MiP_Battery {
 
  private:
   /**
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
+   * @param mip A reference to the main MiP object to access core services.
+   */
+  MiP_Battery(MiP& mip);
+
+  /**
    * @brief A private variable that stores a reference to the main MiP class.
    */
   MiP& m_mip;
+
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
+  friend class MiP;
 };
 
 #endif  // MPU_BATTERY_H
