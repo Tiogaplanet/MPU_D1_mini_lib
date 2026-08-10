@@ -17,10 +17,7 @@
 #ifndef MPU_BATTERY_H
 #define MPU_BATTERY_H
 
-/**
- * @brief A forward declaration of the main MiP class to avoid circular include
- * dependencies.
- */
+// Forward-declare the main MiP class to avoid circular include dependencies.
 class MiP;
 
 /**
@@ -41,7 +38,10 @@ class MiP_Battery {
   float readVoltage();
 
  private:
-  MiP& m_mip;  // Stores a reference to the main MiP class.
+  /**
+   * @brief Stores a reference to the main MiP class.
+   */
+  MiP& m_mip;
 };
 
 #endif  // MPU_BATTERY_H
