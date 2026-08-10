@@ -24,106 +24,117 @@
 class MiP;
 
 /**
- * @brief Gesture or Radar operating mode.
+ * @brief Gesture or Radar operating mode states.
  */
 enum MiPGestureMode : uint8_t {
-  MIP_GESTURE_RADAR_DISABLED = 0x00,
-  MIP_GESTURE = 0x02
+  MIP_GESTURE_RADAR_DISABLED = 0x00, ///< Both gesture detection and radar tracking modes are disabled.
+  MIP_GESTURE = 0x02                 ///< Gesture detection mode is active.
 };
 
 /**
- * @brief Recognized gesture directions.
+ * @brief Recognized hand gesture motion directions detected by MiP's front IR sensors.
  */
 enum MiPGesture : uint8_t {
-  MIP_GESTURE_LEFT = 0x0A,
-  MIP_GESTURE_RIGHT = 0x0B,
-  MIP_GESTURE_CENTER_SWEEP_LEFT = 0x0C,
-  MIP_GESTURE_CENTER_SWEEP_RIGHT = 0x0D,
-  MIP_GESTURE_CENTER_HOLD = 0x0E,
-  MIP_GESTURE_FORWARD = 0x0F,
-  MIP_GESTURE_BACKWARD = 0x10,
-  MIP_GESTURE_INVALID =
-      0xFF  // Is set to this value when there are no current gesture events.
+  MIP_GESTURE_LEFT = 0x0A,               ///< Hand swiped from right to left in front of MiP.
+  MIP_GESTURE_RIGHT = 0x0B,              ///< Hand swiped from left to right in front of MiP.
+  MIP_GESTURE_CENTER_SWEEP_LEFT = 0x0C,  ///< Center sweep gesture toward the left.
+  MIP_GESTURE_CENTER_SWEEP_RIGHT = 0x0D, ///< Center sweep gesture toward the right.
+  MIP_GESTURE_CENTER_HOLD = 0x0E,        ///< Hand held steady in front of MiP's center IR sensor.
+  MIP_GESTURE_FORWARD = 0x0F,            ///< Hand moved closer toward MiP (forward gesture).
+  MIP_GESTURE_BACKWARD = 0x10,           ///< Hand pulled away from MiP (backward gesture).
+  MIP_GESTURE_INVALID = 0xFF             ///< Value returned when no valid gesture event is available.
 };
 
 /**
- * @brief Manages MiP's gesture subsystem.
+ * @brief Manages MiP's gesture detection subsystem and event queue.
  */
 class MiP_Gesture {
  public:
   /**
-   * @brief MiP protocol command bytes used by the gesture subsystem.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
+   * @brief MiP protocol command byte to query the current gesture/radar operating mode.
    */
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
-  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
-  static constexpr uint8_t MIP_CMD_GET_GESTURE_RESPONSE = 0x0A;
 
   /**
-   * @brief Constructs the gesture subsystem manager.
-   * @param mip A reference to the main MiP object to access core services.
+   * @brief MiP protocol command byte to configure the gesture/radar operating mode.
    */
-  MiP_Gesture(MiP& mip);
+  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
+
+  /**
+   * @brief MiP protocol notification byte received when a gesture is recognized.
+   */
+  static constexpr uint8_t MIP_CMD_GET_GESTURE_RESPONSE = 0x0A;
 
   /**
    * @brief Enables gesture detection mode on the MiP.
    *
-   * Uses verified mode switching (command + read-back confirmation with retry).
+   * @details Uses verified mode switching (sends mode command + read-back confirmation
+   * with automatic retry on failure).
    */
   void enable();
 
   /**
    * @brief Disables gesture detection mode.
    *
-   * Uses verified mode switching (command + read-back confirmation with retry).
+   * @details Uses verified mode switching (sends disable command + read-back confirmation
+   * with automatic retry on failure).
    */
   void disable();
 
   /**
-   * @brief Checks whether gesture detection mode is currently active.
+   * @brief Checks whether gesture detection mode is currently active on MiP.
    *
-   * @return true if gesture mode is enabled.
+   * @return true if gesture mode is enabled (mode equals MIP_GESTURE), false otherwise.
    */
   bool isEnabled();
 
   /**
-   * @brief Returns the number of unread gesture events in the queue.
+   * @brief Returns the number of unread gesture events currently in the queue.
    *
-   * Processes any pending serial data first to update the internal queue.
+   * @details Processes any pending serial data first to ensure the internal queue is up to date.
    *
-   * @return Number of available gesture events.
+   * @return uint8_t Number of available gesture events in the queue.
    */
   uint8_t availableEvents();
 
   /**
    * @brief Reads the next available gesture event from the queue.
    *
-   * Processes pending serial data first. Returns MIP_GESTURE_INVALID and sets
-   * last error to MIP_ERROR_NO_EVENT if the queue is empty.
+   * @details Processes pending serial data first. Pops the oldest gesture event from the queue.
+   * Returns MIP_GESTURE_INVALID and sets last error to MIP_ERROR_NO_EVENT if the queue is empty.
    *
-   * @return The gesture event code.
+   * @return MiPGesture The gesture event direction code, or MIP_GESTURE_INVALID if none available.
    */
   MiPGesture readEvent();
 
   /**
-   * @brief Checks whether both gesture and radar modes are disabled.
+   * @brief Checks whether both gesture detection and radar tracking modes are disabled.
    *
-   * @return true if both modes are off (i.e., in MIP_GESTURE_RADAR_DISABLED
-   * state).
+   * @return true if both modes are off (in MIP_GESTURE_RADAR_DISABLED state), false otherwise.
    */
   bool areGestureAndRadarModesDisabled();
 
+  /**
+   * @brief Handles an incoming gesture OOB event notification from the transport layer.
+   *
+   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_GESTURE_RESPONSE notification
+   * arrives. Pushes valid gesture direction codes into the internal event queue.
+   *
+   * @param gestureCode Raw gesture direction byte received from the MiP robot.
+   */
   void processEvent(uint8_t gestureCode);
 
  protected:
   void clear();
 
  private:
+  /**
+   * @brief Constructs the gesture subsystem manager.
+   *
+   * @param mip A reference to the main MiP object to access core communication services.
+   */
+  MiP_Gesture(MiP& mip);
+
   // Helper utilities for sub-functions
   void verifiedSet(MiPGestureMode desiredMode);
   bool check(MiPGestureMode expectedMode);
@@ -133,6 +144,9 @@ class MiP_Gesture {
   MiP& m_mip;  // Stores a reference to the main MiP class.
   mip_detail::CircularQueue<MiPGesture, 8> m_gestureEvents;
 
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
   friend class MiP;
 };
 
