@@ -65,13 +65,18 @@ jobs:
           root = tree.getroot()
 
           class_pages = []
+          enum_pages = []
+          seen_enums = set()
 
+          # ---------------------------------------------------------------------------
+          # 1. Parse Classes, Structs, and Header Files for Enums
+          # ---------------------------------------------------------------------------
           for compound in root.findall('compound'):
               kind = compound.get('kind')
               name = compound.find('name').text
               refid = compound.get('refid')
 
-              # Filter: Only process C++ Classes and Structs, ignoring internal 'mip_detail' namespace
+              # Classes & Structs
               if kind in ['class', 'struct'] and not name.startswith('mip_detail::'):
                   clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
                   doc_filename = f"{clean_name}.md"
@@ -114,6 +119,9 @@ jobs:
                                   functions.append(m)
                           elif m_kind == 'variable':
                               variables.append(m)
+                          elif m_kind == 'enum' and not m_name.startswith('mip_detail::') and m_name not in seen_enums:
+                              seen_enums.add(m_name)
+                              enum_pages.append((m_name, m_name, m))
 
                       # --- Table of Contents / Section Jump Links ---
                       toc = ["## Table of Contents\n\n"]
@@ -190,13 +198,74 @@ jobs:
                   with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
                       f.write("".join(page))
 
-          # Generate API-Reference.md Index
+              # Header File Compounds (contain global enums like MiPSoundIndex, MiPVolume, etc.)
+              elif kind == 'file':
+                  detail_path = os.path.join(xml_dir, f"{refid}.xml")
+                  if os.path.exists(detail_path):
+                      f_tree = ET.parse(detail_path)
+                      f_root = f_tree.getroot()
+                      for enum_def in f_root.findall('.//memberdef[@kind="enum"]'):
+                          e_name = get_text(enum_def.find('name'))
+                          if e_name and not e_name.startswith('mip_detail::') and e_name not in seen_enums:
+                              seen_enums.add(e_name)
+                              enum_pages.append((e_name, e_name, enum_def))
+
+          # ---------------------------------------------------------------------------
+          # 2. Format & Write Dedicated Enum Pages
+          # ---------------------------------------------------------------------------
+          for orig_name, clean_name, enum_def in enum_pages:
+              doc_filename = f"{clean_name}.md"
+              brief = get_text(enum_def.find('briefdescription'))
+              deta_el = enum_def.find('detaileddescription')
+
+              page = [f"# Enum `{orig_name}`\n\n"]
+              if brief:
+                  page.append(f"{brief}\n\n")
+
+              if deta_el is not None:
+                  para_text = []
+                  for para in deta_el.findall('para'):
+                      p_txt = get_text(para)
+                      if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
+                          para_text.append(p_txt)
+                  if para_text:
+                      page.append("## Detailed Description\n\n" + "\n\n".join(para_text) + "\n\n")
+
+              enum_values = enum_def.findall('enumvalue')
+              if enum_values:
+                  page.append("## Enumerator Values\n\n")
+                  page.append("| Enumerator | Value | Description |\n|:---|:---|:---|\n")
+                  for ev in enum_values:
+                      ev_name = get_text(ev.find('name'))
+                      ev_init = get_text(ev.find('initializer'))
+                      ev_brief = get_text(ev.find('briefdescription'))
+                      ev_deta = get_text(ev.find('detaileddescription'))
+
+                      desc = ev_brief if ev_brief else ev_deta
+                      val_str = f"`{ev_init}`" if ev_init else ""
+                      page.append(f"| `{ev_name}` | {val_str} | {desc} |\n")
+                  page.append("\n")
+
+              with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
+                  f.write("".join(page))
+
+          # ---------------------------------------------------------------------------
+          # 3. Generate API-Reference.md Index
+          # ---------------------------------------------------------------------------
           with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
-              f.write("# API Reference Index\n\nList of all public library classes:\n\n")
+              f.write("# API Reference Index\n\nList of all public library classes and enumerations:\n\n")
+              f.write("## Classes\n\n")
               for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- **[{orig_name}]({clean_name})**\n")
+              
+              if enum_pages:
+                  f.write("\n## Enumerations\n\n")
+                  for orig_name, clean_name, _ in sorted(enum_pages, key=lambda x: x[0]):
+                      f.write(f"- **[{orig_name}]({clean_name})**\n")
 
-          # Generate _Sidebar.md Navigation
+          # ---------------------------------------------------------------------------
+          # 4. Generate _Sidebar.md Navigation
+          # ---------------------------------------------------------------------------
           with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
               f.write("### Navigation\n\n")
               f.write("- [Home](Home)\n")
@@ -204,8 +273,13 @@ jobs:
               f.write("#### Classes\n\n")
               for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- [{orig_name}]({clean_name})\n")
+              
+              if enum_pages:
+                  f.write("\n#### Enumerations\n\n")
+                  for orig_name, clean_name, _ in sorted(enum_pages, key=lambda x: x[0]):
+                      f.write(f"- [{orig_name}]({clean_name})\n")
 
-          print("Generated sectioned Class Markdown pages, API-Reference.md, and _Sidebar.md")
+          print("Generated sectioned Class & Enum Markdown pages, API-Reference.md, and _Sidebar.md")
           EOF
 
       - name: Checkout Wiki Repository
@@ -235,7 +309,7 @@ jobs:
           
           git add .
           if ! git diff-index --quiet HEAD; then
-            git commit -m "Auto-update API class documentation from Doxygen (excluding internal namespaces)"
+            git commit -m "Auto-update API class & enum documentation from Doxygen"
             git push
           else
             echo "No changes to commit to Wiki."
