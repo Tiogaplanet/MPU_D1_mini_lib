@@ -36,9 +36,10 @@ jobs:
           sed -i 's/EXCLUDE_PATTERNS       =/EXCLUDE_PATTERNS       = *.md/' Doxyfile
           
           # Explicitly exclude private and protected members from the docs
-          sed -i 's/EXTRACT_PRIVATE        = NO/EXTRACT_PRIVATE        = NO/' Doxyfile
-          sed -i 's/EXTRACT_PROTECTED      = NO/EXTRACT_PROTECTED      = NO/' Doxyfile
-          sed -i 's/EXTRACT_STATIC         = NO/EXTRACT_STATIC         = NO/' Doxyfile
+          # (Note: XML output may still include them; Python filters below as a safety net)
+          sed -i 's/^EXTRACT_PRIVATE.*/EXTRACT_PRIVATE        = NO/' Doxyfile
+          sed -i 's/^EXTRACT_PROTECTED.*/EXTRACT_PROTECTED      = NO/' Doxyfile
+          sed -i 's/^EXTRACT_STATIC.*/EXTRACT_STATIC         = NO/' Doxyfile
           
           # Point Doxygen to your Arduino examples directory and include .ino files
           sed -i 's|EXAMPLE_PATH           =|EXAMPLE_PATH           = examples|' Doxyfile
@@ -107,6 +108,11 @@ jobs:
                       page.append("| Type | Signature | Description |\n|:---|:---|:---|\n")
 
                       for member in comp_def.findall('.//memberdef'):
+                          # Skip private / protected — Doxygen XML often still
+                          # contains them even when EXTRACT_PRIVATE = NO
+                          if member.get('prot', 'public') != 'public':
+                              continue
+
                           m_kind = member.get('kind')
                           m_name_el = member.find('name')
                           m_name = m_name_el.text if m_name_el is not None else ""
@@ -140,6 +146,10 @@ jobs:
 
                       file_defines = []
                       for member in comp_def.findall('.//memberdef'):
+                          # Only public items for the constants page as well
+                          if member.get('prot', 'public') != 'public':
+                              continue
+
                           m_kind = member.get('kind')  # define, enum, variable, typedef
                           if m_kind in ['define', 'enum', 'typedef', 'variable']:
                               m_name_el = member.find('name')
