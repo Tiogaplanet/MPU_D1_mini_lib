@@ -17,7 +17,7 @@
 #include <Arduino.h>
 
 // Show the library version number in the home debug screen.
-#define VERSION "2.0.0"
+#define VERSION "2.0.1"
 
 // The Telnet server instance.
 WiFiServer telnetServer(TELNET_PORT);

@@ -153,7 +153,7 @@ MiPIRDongleCode MiP_Infrared::readDongleCode() {
 }
 
 uint8_t MiP_Infrared::availableCodeEvents() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Infrared->availableIRCodeEvents()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->Infrared->availableCodeEvents()");
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   m_mip.serial.processAllResponseData();
