@@ -135,7 +135,7 @@ void MiP_ChestLED::write(const MiPChestLED& chestLED) {
 }
 
 void MiP_ChestLED::unverifiedWrite(uint8_t red, uint8_t green, uint8_t blue) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->unverifiedWriteChestLED()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->unverifiedWrite()");
   rawSet(red, green, blue);
 }
 
@@ -153,7 +153,7 @@ void MiP_ChestLED::unverifiedWrite(uint8_t red,
 }
 
 void MiP_ChestLED::unverifiedWrite(const MiPChestLED& chestLED) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->unverifiedWriteChestLED()");
+  MIP_DEBUG_INFO_PRINTLN("MiP->ChestLED->unverifiedWrite()");
   unverifiedWrite(chestLED.red,
                   chestLED.green,
                   chestLED.blue,

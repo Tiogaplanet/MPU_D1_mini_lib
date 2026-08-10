@@ -1,6 +1,6 @@
 /**
  * @file MPU_Infrared.h
- * @brief Defines the public interface for infrared communication in the MPU
+ * @brief Defines the public interface for infrared communication in the MiP
  * library.
  *
  * @details This header declares the infrared API used for MiP detection and
@@ -23,6 +23,21 @@
 
 // Forward-declare the main MiP class to avoid circular include dependencies.
 class MiP;
+
+/**
+ * @brief Represents a 2-, 3-, or 4-byte IR dongle code.
+ */
+struct MiPIRDongleCode {
+  uint32_t code;   ///< Up to 32-bit IR code value
+  uint8_t length;  ///< Number of code bytes (2, 3, or 4)
+
+  MiPIRDongleCode() : code(0xFFFFFFFF), length(0) {}
+  MiPIRDongleCode(uint32_t c, uint8_t l) : code(c), length(l) {}
+
+  bool isValid() const {
+    return length >= 2 && length <= 4;
+  }
+};
 
 /**
  * @brief Manages MiP's infrared system.
@@ -118,23 +133,32 @@ class MiP_Infrared {
   bool isRemoteControlEnabled();
 
   /**
-   * @brief Sends an IR dongle code (fire-and-forget).
+   * @brief Transmits a 2-, 3-, or 4-byte IR dongle code (fire and forget).
    *
    * No verification is performed as there is no reliable feedback mechanism.
    *
-   * @param sendCode      16-bit IR code to transmit.
-   * @param transmitPower Transmit power level.
+   * @param irCode        Struct containing code value and byte length (2, 3, or
+   * 4).
+   * @param transmitPower Transmit power level (1-120).
    */
-  void sendDongleCode(uint16_t sendCode, uint8_t transmitPower);
+  void sendDongleCode(const MiPIRDongleCode& irCode, uint8_t transmitPower);
 
   /**
-   * @brief Reads the next received IR dongle code event.
+   * @brief Transmits a variable-length IR dongle code using direct values.
    *
-   * Processes pending serial data first.
-   *
-   * @return The 32-bit IR code, or 0xFFFFFFFF if none available.
+   * @param code          Up to 32-bit IR code value.
+   * @param length        Code length in bytes (2, 3, or 4).
+   * @param transmitPower Transmit power level (1-120).
    */
-  uint32_t readDongleCode();
+  void sendDongleCode(uint32_t code, uint8_t length, uint8_t transmitPower);
+
+  /**
+   * @brief Reads the next received IR dongle code from the queue.
+   *
+   * @return MiPIRDongleCode struct containing the code and its byte length.
+   *         Returns an empty struct (length = 0) if no event is available.
+   */
+  MiPIRDongleCode readDongleCode();
 
   /**
    * @brief Returns the number of unread IR dongle code events.
@@ -158,7 +182,7 @@ class MiP_Infrared {
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   uint8_t m_irId;
-  CircularQueue<uint32_t, 8> m_irCodeEvents;
+  CircularQueue<MiPIRDongleCode, 8> m_irCodeEvents;
   CircularQueue<uint8_t, 8> m_detectedMiPEvents;
 
   friend class MiP;

@@ -1,0 +1,179 @@
+name: Deploy Doxygen API Docs to GitHub Wiki
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-wiki:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      - name: Generate Doxygen XML
+        run: |
+          # Generate default Doxyfile
+          doxygen -g
+          
+          # Enable XML generation and point to source headers/files
+          sed -i 's/GENERATE_XML           = NO/GENERATE_XML           = YES/' Doxyfile
+          sed -i 's/XML_OUTPUT             = xml/XML_OUTPUT             = xml/' Doxyfile
+          sed -i 's/GENERATE_HTML          = YES/GENERATE_HTML          = NO/' Doxyfile
+          sed -i 's/GENERATE_LATEX         = YES/GENERATE_LATEX         = NO/' Doxyfile
+          sed -i 's/RECURSIVE              = NO/RECURSIVE              = YES/' Doxyfile
+          
+          # Run doxygen
+          doxygen Doxyfile
+
+      - name: Convert Doxygen XML to Multi-Page Markdown & Sidebar
+        run: |
+          mkdir -p wiki_markdown
+          python3 - << 'EOF'
+          import xml.etree.ElementTree as ET
+          import os
+
+          xml_dir = 'xml'
+          out_dir = 'wiki_markdown'
+          index_path = os.path.join(xml_dir, 'index.xml')
+
+          if not os.path.exists(index_path):
+              print("No index.xml found.")
+              exit(0)
+
+          tree = ET.parse(index_path)
+          root = tree.getroot()
+
+          pages = []
+
+          for compound in root.findall('compound'):
+              kind = compound.get('kind')
+              name = compound.find('name').text
+              refid = compound.get('refid')
+
+              if kind in ['class', 'struct', 'header', 'file']:
+                  clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
+                  doc_filename = f"{clean_name}.md"
+                  pages.append((name, clean_name, kind))
+
+                  page = [f"# {kind.capitalize()} `{name}`\n\n"]
+                  detail_path = os.path.join(xml_dir, f"{refid}.xml")
+
+                  if os.path.exists(detail_path):
+                      d_tree = ET.parse(detail_path)
+                      d_root = d_tree.getroot()
+                      comp_def = d_root.find('compounddef')
+
+                      brief = comp_def.find('briefdescription')
+                      if brief is not None:
+                          brief_txt = "".join(brief.itertext()).strip()
+                          if brief_txt:
+                              page.append(f"{brief_txt}\n\n")
+
+                      deta = comp_def.find('detaileddescription')
+                      if deta is not None:
+                          deta_txt = "".join(deta.itertext()).strip()
+                          if deta_txt:
+                              page.append(f"## Detailed Description\n\n{deta_txt}\n\n")
+
+                      page.append("## Members & Functions\n\n")
+                      page.append("| Type | Signature | Description |\n|:---|:---|:---|\n")
+
+                      for member in comp_def.findall('.//memberdef'):
+                          m_kind = member.get('kind')
+                          m_name_el = member.find('name')
+                          m_name = m_name_el.text if m_name_el is not None else ""
+                          m_type_el = member.find('type')
+                          m_type = "".join(m_type_el.itertext()).strip() if m_type_el is not None else ""
+                          args_el = member.find('argsstring')
+                          args = args_el.text if args_el is not None else ""
+                          
+                          b_el = member.find('briefdescription')
+                          b_txt = "".join(b_el.itertext()).strip() if b_el is not None else ""
+
+                          sig = f"`{m_type} {m_name}{args}`" if m_type else f"`{m_name}{args}`"
+                          page.append(f"| `{m_kind}` | {sig} | {b_txt} |\n")
+
+                  with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
+                      f.write("".join(page))
+
+          # Generate API-Reference.md (Auto-generated list of all classes)
+          with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
+              f.write("# API Reference Index\n\nAutomated list of library classes and modules:\n\n")
+              for orig_name, clean_name, kind in pages:
+                  f.write(f"- **[{orig_name}]({clean_name})** ({kind})\n")
+
+          # Generate _Sidebar.md
+          with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
+              f.write("### Navigation\n\n")
+              f.write("- [Home](Home)\n")
+              f.write("- [API Reference](API-Reference)\n\n")
+              f.write("#### Classes & Modules\n\n")
+              for orig_name, clean_name, _ in pages:
+                  f.write(f"- [{orig_name}]({clean_name})\n")
+
+          print("Generated API pages, API-Reference.md, and _Sidebar.md")
+          EOF
+
+      - name: Checkout Wiki Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki_repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and Push to Wiki
+        run: |
+          # Copy generated markdown files into wiki_repo WITHOUT overwriting an existing Home.md
+          rsync -av --exclude='Home.md' wiki_markdown/ wiki_repo/
+          
+          # If Home.md does not exist yet in the wiki, create an initial placeholder Home.md
+          if [ ! -f wiki_repo/Home.md ]; then
+            echo "# Welcome to the Library Wiki" > wiki_repo/Home.md
+            echo "See the [API Reference](API-Reference) for detailed class documentation." >> wiki_repo/Home.md
+          fi
+          
+          cd wiki_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Auto-update API documentation from Doxygen"
+            git push
+          else
+            echo "No changes to commit to Wiki."
+          fi
+
+      - name: Checkout Wiki Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki_repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and Push to Wiki
+        run: |
+          cp -r wiki_markdown/* wiki_repo/
+          cd wiki_repo
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Auto-update API documentation from Doxygen"
+            git push
+          else
+            echo "No changes to commit to Wiki."
+          fi

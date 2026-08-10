@@ -47,12 +47,12 @@
 // MiP Power Up - D1 mini library versioning
 #define MPU_D1_MINI_VERSION_MAJOR 2
 #define MPU_D1_MINI_VERSION_MINOR 0
-#define MPU_D1_MINI_VERSION_PATCH 0
+#define MPU_D1_MINI_VERSION_PATCH 1
 
 // Combined string representation matching library.properties
-#define MPU_D1_MINI_VERSION "2.0.0"
+#define MPU_D1_MINI_VERSION "2.0.1"
 
-// Combined numerical value for preprocessor version checks (2.0.0 -> 20000)
+// Combined numerical value for preprocessor version checks (2.0.1 -> 20001)
 #define MPU_D1_MINI_VERSION_NUMBER \
   (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + \
    MPU_D1_MINI_VERSION_PATCH)

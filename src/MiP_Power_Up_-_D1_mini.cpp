@@ -70,16 +70,14 @@ bool MiP::begin() {
 
   // Sometimes the init fails. It seems to happen when the MiP is busy at
   // power-up doing other things like attempting to balance.
-  int8_t retry;
-  for (retry = 0; retry < MIP_MAX_BEGIN_RETRIES; retry++) {
+  for (int8_t retry = 0; retry < MIP_MAX_BEGIN_RETRIES; retry++) {
     // Try to connect at 115200 baud, the rate used by some MiPs.
-    int8_t result = attemptMiPConnection(MIP_FAST_BAUD_RATE);
-    if (result == MIP_ERROR_NONE)
+    MIP_DEBUG_INFO_PRINTLN(F("Attempting 115200"));
+    if (attemptMiPConnection(MIP_FAST_BAUD_RATE) == MIP_ERROR_NONE)
       return true;
-
     // Try to connect at 9600 baud if the fast attempt failed.
-    result = attemptMiPConnection(MIP_SLOW_BAUD_RATE);
-    if (result == MIP_ERROR_NONE)
+    MIP_DEBUG_INFO_PRINTLN(F("Attempting 9600"));
+    if (attemptMiPConnection(MIP_SLOW_BAUD_RATE) == MIP_ERROR_NONE)
       return true;
   }
 
@@ -91,22 +89,18 @@ bool MiP::begin() {
 
 void MiP::end() {
   if (isInitialized()) {
-    // Restore MiP's default volume in case it was changed by the user.
     sound.end();
-
-    // Send the disconnect command.  If it is successful the app will be
-    // disconnected, indicated by a blue chest LED.
     const uint8_t command[] = {MIP_CMD_DISCONNECT_APP};
     serial.rawSend(command, sizeof(command));
+    Serial.flush();
   }
 
   clear();
 
-  // Swap the UART on the D1 mini back to the default RX/TX pair.
+  // If we were connected, we are on alternate pins — restore default, then
+  // stop.
   Serial.swap();
   Serial.end();
-
-  // Shutdown the debugging channel.
   Serial1.end();
 }
 
@@ -228,35 +222,39 @@ void MiP::clear() {
 // This internal protected method provides the common code for connection
 // attempts at baud rates of 115200 or 9600.
 int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
-  // Set baud rate to specified rate.
-  Serial.begin(baudRate);
+  Serial.end();
+  delay(20);
 
-  // Swap the UART of the D1 mini to the alternate pins.
-  Serial.swap();
+  // Fresh start on default pins (GPIO1/3), then move to MiP pins once.
+  Serial.begin(baudRate, SERIAL_8N1);
+  Serial.swap();  // → GPIO15 TX / GPIO13 RX
+  Serial.flush();
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
 
-  // Send 0xFF to the MiP via UART to enable the UART communication channel in
-  // the MiP.
+  // Enable MiP UART channel.
   const uint8_t initMipCommand[] = {0xFF};
   serial.rawSend(initMipCommand, sizeof(initMipCommand));
+  Serial.flush();
 
-  // The MiP UART documentation indicates that this delay is required after
-  // sending 0xFF.
-  delay(30);
+  // Spec delay after 0xFF; give 9600 a little extra settle time.
+  delay(baudRate <= 9600 ? 50 : 30);
 
-  // Flush any outstanding junk data in receive buffer.
   serial.discardUnexpectedSerialData();
 
-  // Attempt to get MiP's latest status to see if the connection was successful
-  // or not.
   int8_t result = rawGetStatus(m_lastStatus);
   if (result == MIP_ERROR_NONE) {
-    // Let the user know at which baud rate the connection to MiP was made.
-    MIP_DEBUG_INFO_PRINTF("MiP: Connected at %d baud\n\r", baudRate);
-  } else {
-    // Sleep a bit before returning to code which will retry connection at
-    // alternate baud rate.
-    delay(MIP_BEGIN_RETRY_WAIT);
+    MIP_DEBUG_INFO_PRINTF("MiP: Connected at %lu baud\r\n",
+                          (unsigned long)baudRate);
+    // Leave UART open on alternate pins.
+    return result;
   }
+
+  // Failed: return to default pins so the next attempt is clean.
+  Serial.swap();  // alternate → default
+  Serial.end();
+  delay(MIP_BEGIN_RETRY_WAIT);
   return result;
 }
 

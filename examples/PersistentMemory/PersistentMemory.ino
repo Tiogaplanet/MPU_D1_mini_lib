@@ -1,6 +1,6 @@
 /**
- * @file LittleFS.ino
- * @brief Robust LittleFS read/write example with MiP chest-LED verification.
+ * @file PersistentMemory.ino
+ * @brief Robust memory read/write example with MiP chest-LED verification.
  *
  * @details
  * This sketch is a LittleFS-based rewrite of the original SPIFFS example.
@@ -41,7 +41,7 @@
 #include <LittleFS.h>
 
 /**
- * @brief Global MiP instance used to communicate with the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(), etc.
  */
@@ -52,33 +52,36 @@ MiP mip;
  *
  * @details
  * - Initializes Serial1 for diagnostics.
- * - Attempts to initialize the MiP connection via mip.begin() and sets the
+ * - Attempts to initialize MiP's connection via mip.begin() and sets the
  *   global `connectResult` flag.
  * - Mounts LittleFS and verifies success.
  * - Writes a password to /f.txt, reads it back, trims whitespace, compares
- *   to the original, and sets the chest LED to violet on match or red on mismatch.
- * - Deletes the temporary file and restores the chest LED to green after a delay.
+ *   to the original, and sets the chest LED to violet on match or red on
+ *   mismatch.
+ * - Deletes the temporary file and restores the chest LED to green after a
+ *   delay.
  *
- * If MiP connection or LittleFS mount fails, the function halts in a safe loop
- * after printing an error so loop() will not run and cause further errors.
+ * If MiP's connection or the LittleFS mount fails, the function halts in a 
+ * safe loop after printing an error so loop() will not run and cause further
+ * errors.
  */
 void setup() {
   // Initialize MiP and record result in global flag.
   bool connectResult = mip.begin();
 
   if (!connectResult) {
-    Serial1.println(F("LittleFS.ino: Failed connecting to MiP!"));
+    Serial1.println(F("PersistentMemory.ino: Failed connecting to MiP!"));
     return;
   }
 
   const String password = "1234secret";
 
-  Serial1.println(F("LittleFS.ino: Read and write the LittleFS flash file system."));
+  Serial1.println(F("PersistentMemory.ino: Read and write the LittleFS flash file system."));
   Serial1.println(F("Chest turns violet if the read matches the write, else red."));
 
   // Mount the LittleFS filesystem and verify success.
   if (!LittleFS.begin()) {
-    Serial1.println(F("LittleFS.ino: LittleFS failed to mount."));
+    Serial1.println(F("PersistentMemory.ino: LittleFS failed to mount."));
     // Indicate error on chest LED (red) and stop.
     mip.chestLED.write(0xFF, 0x00, 0x00);
     while (true) {
@@ -91,11 +94,11 @@ void setup() {
   {
     File f = LittleFS.open("/f.txt", "w");
     if (!f) {
-      Serial1.println(F("LittleFS.ino: File creation failed."));
+      Serial1.println(F("PersistentMemory.ino: File creation failed."));
     } else {
       f.println(password);
       f.close();
-      Serial1.println(F("LittleFS.ino: Wrote password to /f.txt"));
+      Serial1.println(F("PersistentMemory.ino: Wrote password to /f.txt"));
     }
   }
 
@@ -104,7 +107,7 @@ void setup() {
   {
     File f = LittleFS.open("/f.txt", "r");
     if (!f) {
-      Serial1.println(F("LittleFS.ino: Failed to open /f.txt for reading."));
+      Serial1.println(F("PersistentMemory.ino: Failed to open /f.txt for reading."));
       // Indicate error on chest LED (red).
       mip.chestLED.write(0xFF, 0x00, 0x00);
     } else {
@@ -122,11 +125,11 @@ void setup() {
       if (line == password) {
         // Violet: R=0xB6, G=0x00, B=0xFF
         mip.chestLED.write(0xB6, 0x00, 0xFF);
-        Serial1.println(F(" LittleFS.ino: Read matches write. Chest set to violet."));
+        Serial1.println(F(" PersistentMemory.ino: Read matches write. Chest set to violet."));
       } else {
         // Red: R=0xFF, G=0x00, B=0x00
         mip.chestLED.write(0xFF, 0x00, 0x00);
-        Serial1.println(F(" LittleFS.ino: Read does NOT match write. Chest set to red."));
+        Serial1.println(F(" PersistentMemory.ino: Read does NOT match write. Chest set to red."));
       }
     }
   }
@@ -141,7 +144,7 @@ void setup() {
   // Allow the user to observe the chest LED color, then restore to green.
   delay(5000);
   mip.chestLED.write(0x00, 0xFF, 0x00);
-  Serial1.println(F("LittleFS.ino: Done."));
+  Serial1.println(F("PersistentMemory.ino: Done."));
 }
 
 /**
@@ -153,4 +156,3 @@ void setup() {
  */
 void loop() {
 }
-

@@ -42,13 +42,13 @@
  * @brief Global MiP instance used to communicate with the robot.
  * @details
  * This object is used throughout the sketch to call MiP API functions such as
- * begin(), enableClapEvents(), disableClapEvents(), writeClapDelay(),
- * readClapDelay(), availableClapEvents(), and readClapEvent().
+ * begin(), clap.enableEvents(), clap.disableEvents(), clap.writeDelay(),
+ * clap.readDelay(), clap.availableEvents(), and clap.readEvent().
  */
 MiP mip;
 
 /**
- * @brief Tracks whether the initial connection to the MiP succeeded.
+ * @brief Tracks whether the initial connection to MiP succeeded.
  *
  * @details Stored so other parts of the sketch could check connection state
  * if extended.
@@ -110,9 +110,9 @@ void setup() {
 /**
  * @brief Arduino loop function.
  * @details
- * Called repeatedly after setup() completes. This implementation polls the
- * MiP device for pending clap events. While availableClapEvents() reports
- * one or more events, readClapEvent() is called to retrieve the clap count
+ * Called repeatedly after setup() completes. This implementation polls 
+ * MiP for pending clap events. While clap.availableEvents() reports
+ * one or more events, clap.readEvent() is called to retrieve the clap count
  * for each event and the result is printed to Serial1.
  *
  * The loop is non-blocking except for the time taken to process available
@@ -129,4 +129,3 @@ void loop() {
     Serial1.println(F(" claps"));
   }
 }
-
