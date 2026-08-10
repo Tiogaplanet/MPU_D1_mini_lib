@@ -24,7 +24,7 @@
  * @brief A lightweight circular queue (ring buffer) template.
  *
  * Overwrites oldest data when the queue is full. Primarily used to buffer
- * asynchronous events from the MiP robot.
+ * asynchronous events from MiP.
  *
  * @tparam ElementType Type of elements stored in the queue.
  * @tparam Size        Maximum number of elements the queue can hold.
@@ -32,24 +32,53 @@
 template <class ElementType, uint8_t Size>
 class CircularQueue {
  public:
+  /**
+   * @brief Constructs a new CircularQueue object and initializes internal state.
+   *
+   * @details Calls clear() to reset read/write indices and set element count to zero.
+   */
   CircularQueue() {
     clear();
   }
 
+  /**
+   * @brief Clears all elements from the queue.
+   *
+   * @details Resets the element count and read/write indices to zero. Existing
+   * data in the internal array is logically invalidated but not overwritten.
+   */
   void clear() {
     m_count = 0;
     m_readIndex = 0;
     m_writeIndex = 0;
   }
 
+  /**
+   * @brief Checks whether the queue contains no elements.
+   *
+   * @return true if the queue is empty (count is 0), false otherwise.
+   */
   bool isEmpty() {
     return m_count == 0;
   }
 
+  /**
+   * @brief Returns the number of unread elements currently stored in the queue.
+   *
+   * @return uint8_t Number of available elements (0 to Size).
+   */
   uint8_t available() {
     return m_count;
   }
 
+  /**
+   * @brief Pushes a new element into the back of the queue.
+   *
+   * @details If the queue is full (count equals Size), the oldest element at the
+   * front of the queue is overwritten, and the read index is advanced to discard it.
+   *
+   * @param element Reference to the element value to store in the queue.
+   */
   void push(const ElementType& element) {
     m_elements[m_writeIndex] = element;
     advanceWriteIndex();
@@ -62,6 +91,15 @@ class CircularQueue {
     }
   }
 
+  /**
+   * @brief Pops and retrieves the oldest element from the front of the queue.
+   *
+   * @details Removes the oldest element if available, copies it into @p element,
+   * advances the read index, and decrements the internal element count.
+   *
+   * @param[out] element Reference to a variable where the popped element value will be stored.
+   * @return true if an element was successfully popped, false if the queue was empty.
+   */
   bool pop(ElementType& element) {
     if (isEmpty()) {
       return false;
