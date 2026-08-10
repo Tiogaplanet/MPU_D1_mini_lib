@@ -39,7 +39,7 @@ jobs:
           # Run Doxygen
           doxygen Doxyfile
 
-      - name: Convert Doxygen XML to Markdown
+      - name: Convert Doxygen XML to Sectioned Markdown
         run: |
           mkdir -p wiki_markdown
           python3 - << 'EOF'
@@ -70,7 +70,7 @@ jobs:
               name = compound.find('name').text
               refid = compound.get('refid')
 
-              # STRICT FILTER: Only process C++ Classes and Structs (exclude files/headers)
+              # Filter: Only process C++ Classes and Structs
               if kind in ['class', 'struct']:
                   clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
                   doc_filename = f"{clean_name}.md"
@@ -94,69 +94,108 @@ jobs:
                       if deta:
                           page.append(f"## Detailed Description\n\n{deta}\n\n")
 
-                      # --- Public Members and Functions ---
+                      # --- Categorize Public Members ---
                       members = comp_def.findall('.//memberdef')
                       public_members = [m for m in members if m.get('prot') == 'public']
 
-                      if public_members:
-                          page.append("## Public Elements\n\n")
+                      constructors = []
+                      functions = []
+                      variables = []
 
-                          for member in public_members:
-                              m_name = get_text(member.find('name'))
-                              m_type = get_text(member.find('type'))
-                              m_args = get_text(member.find('argsstring'))
-                              m_brief = get_text(member.find('briefdescription'))
-                              m_deta_el = member.find('detaileddescription')
+                      for m in public_members:
+                          m_kind = m.get('kind')
+                          m_name = get_text(m.find('name'))
 
-                              # Signature Title
-                              sig = f"`{m_type} {m_name}{m_args}`" if m_type else f"`{m_name}{m_args}`"
-                              page.append(f"### `{m_name}`\n\n")
-                              page.append(f"**Signature:** {sig}\n\n")
+                          if m_kind == 'function':
+                              if m_name == name or m_name == f"~{name}":
+                                  constructors.append(m)
+                              else:
+                                  functions.append(m)
+                          elif m_kind == 'variable':
+                              variables.append(m)
 
-                              # @brief tag
-                              if m_brief:
-                                  page.append(f"**Summary:** {m_brief}\n\n")
+                      # --- Table of Contents / Section Jump Links ---
+                      toc = ["## Table of Contents\n\n"]
+                      if constructors:
+                          toc.append("- [Constructors & Destructors](#constructors--destructors)\n")
+                      if functions:
+                          toc.append("- [Public Functions](#public-functions)\n")
+                      if variables:
+                          toc.append("- [Public Variables & Constants](#public-variables)\n")
+                      
+                      if constructors or functions or variables:
+                          page.append("".join(toc) + "\n---\n\n")
 
-                              # @details tag
-                              if m_deta_el is not None:
-                                  para_text = []
-                                  for para in m_deta_el.findall('para'):
-                                      p_txt = get_text(para)
-                                      if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
-                                          para_text.append(p_txt)
-                                  if para_text:
-                                      page.append("**Details:**\n\n" + "\n\n".join(para_text) + "\n\n")
+                      # Helper function to format member elements
+                      def format_member(member):
+                          m_name = get_text(member.find('name'))
+                          m_type = get_text(member.find('type'))
+                          m_args = get_text(member.find('argsstring'))
+                          m_brief = get_text(member.find('briefdescription'))
+                          m_deta_el = member.find('detaileddescription')
 
-                              # @param tags
-                              param_items = member.findall('.//parameteritem')
-                              if param_items:
-                                  page.append("**Parameters:**\n\n")
-                                  page.append("| Parameter | Description |\n|:---|:---|\n")
-                                  for p_item in param_items:
-                                      p_name = get_text(p_item.find('.//parametername'))
-                                      p_desc = get_text(p_item.find('.//parameterdescription'))
-                                      page.append(f"| `{p_name}` | {p_desc} |\n")
-                                  page.append("\n")
+                          sig = f"`{m_type} {m_name}{m_args}`" if m_type else f"`{m_name}{m_args}`"
+                          m_block = [f"### `{m_name}`\n\n", f"**Signature:** {sig}\n\n"]
 
-                              # @return tag
-                              returns = member.findall(".//simplesect[@kind='return']")
-                              if returns:
-                                  ret_desc = get_text(returns[0])
-                                  if ret_desc:
-                                      page.append(f"**Returns:** {ret_desc}\n\n")
+                          if m_brief:
+                              m_block.append(f"**Summary:** {m_brief}\n\n")
 
-                              page.append("---\n\n")
+                          if m_deta_el is not None:
+                              para_text = []
+                              for para in m_deta_el.findall('para'):
+                                  p_txt = get_text(para)
+                                  if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
+                                      para_text.append(p_txt)
+                              if para_text:
+                                  m_block.append("**Details:**\n\n" + "\n\n".join(para_text) + "\n\n")
+
+                          param_items = member.findall('.//parameteritem')
+                          if param_items:
+                              m_block.append("**Parameters:**\n\n")
+                              m_block.append("| Parameter | Description |\n|:---|:---|\n")
+                              for p_item in param_items:
+                                  p_name = get_text(p_item.find('.//parametername'))
+                                  p_desc = get_text(p_item.find('.//parameterdescription'))
+                                  m_block.append(f"| `{p_name}` | {p_desc} |\n")
+                              m_block.append("\n")
+
+                          returns = member.findall(".//simplesect[@kind='return']")
+                          if returns:
+                              ret_desc = get_text(returns[0])
+                              if ret_desc:
+                                  m_block.append(f"**Returns:** {ret_desc}\n\n")
+
+                          m_block.append("---\n\n")
+                          return "".join(m_block)
+
+                      # --- Section 1: Constructors & Destructors ---
+                      if constructors:
+                          page.append("## Constructors & Destructors\n\n")
+                          for c in constructors:
+                              page.append(format_member(c))
+
+                      # --- Section 2: Public Functions ---
+                      if functions:
+                          page.append("## Public Functions\n\n")
+                          for f in functions:
+                              page.append(format_member(f))
+
+                      # --- Section 3: Public Variables & Constants ---
+                      if variables:
+                          page.append("## Public Variables\n\n")
+                          for v in variables:
+                              page.append(format_member(v))
 
                   with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
                       f.write("".join(page))
 
-          # Generate API-Reference.md (Classes Only)
+          # Generate API-Reference.md Index
           with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
               f.write("# API Reference Index\n\nList of all library classes:\n\n")
               for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- **[{orig_name}]({clean_name})**\n")
 
-          # Generate _Sidebar.md Navigation (Classes Only - No Files)
+          # Generate _Sidebar.md Navigation
           with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
               f.write("### Navigation\n\n")
               f.write("- [Home](Home)\n")
@@ -165,7 +204,7 @@ jobs:
               for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- [{orig_name}]({clean_name})\n")
 
-          print("Generated detailed Class Markdown pages, API-Reference.md, and _Sidebar.md")
+          print("Generated sectioned Class Markdown pages, API-Reference.md, and _Sidebar.md")
           EOF
 
       - name: Checkout Wiki Repository
