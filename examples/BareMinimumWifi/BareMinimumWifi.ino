@@ -61,7 +61,9 @@ void setup() {
   Serial1.println(
     F("BareMinimumWifi.ino: Connect to a wireless access point."));
 
-  if (mip.wifi.begin(ssid, password, hostname) == WL_CONNECTED) {
+  mip.wifi.begin(ssid, password, hostname);
+
+  if (WiFi.status() == WL_CONNECTED) {
     // You could delete this chunk of code.
     // It's here only to show your IP address.
     Serial1.print(F(" IP address: "));
