@@ -1,6 +1,6 @@
 /**
  * @file MPU_Clap.h
- * @brief Defines the public interface for clap event handling in the MPU
+ * @brief Defines the public interface for clap event handling in the MiP
  * library.
  *
  * @details This header declares the clap-detection API used by the MiP library.
@@ -49,7 +49,7 @@ class MiPClapSettings {
 
 /**
  * @brief MiP_Clap manages MiP's clap detection system, from enabling to
- * disabling and reporting on detected clap events.
+ * disabling, configuring, and reporting on detected clap events.
  */
 class MiP_Clap {
  public:
@@ -59,12 +59,12 @@ class MiP_Clap {
   static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;
 
   /**
-   * @brief The MiP protocol command to, I don't know. Figure it out tomorrow.
+   * @brief The MiP protocol response reporting the number of claps detected.
    */
   static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;
 
   /**
-   * @brief The MiP protocol command to set the minimum delay between claps.
+   * @brief The MiP protocol command to set the minimum delay time between claps.
    */
   static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;
 
@@ -87,7 +87,7 @@ class MiP_Clap {
   void enableEvents();
 
   /**
-   * @brief Disables clap event reporting from the MiP robot. This verified
+   * @brief Disables clap event reporting from MiP. This verified
    * method sends the disable command and reads back settings to confirm
    * success. It retries on failure.
    */
