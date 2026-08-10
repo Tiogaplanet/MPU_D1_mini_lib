@@ -146,7 +146,7 @@ class MiP_Clap {
   void processEvent(uint8_t clapCode);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
-  CircularQueue<uint8_t, 8> m_clapEvents;
+  mip_detail::CircularQueue<uint8_t, 8> m_clapEvents;
 
   friend class MiP;
 };
