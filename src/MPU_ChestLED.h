@@ -64,11 +64,12 @@ class MiPChestLED {
 
  /**
  * @brief Red channel intensity (0-255).
- /*
+ */
   uint8_t red;
 
   /**
   * @brief Green channel intensity (0-255).
+  */
   uint8_t green;
 
  /**
