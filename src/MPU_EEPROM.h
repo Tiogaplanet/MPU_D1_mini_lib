@@ -27,15 +27,13 @@ class MiP;
 class MiP_EEPROM {
  public:
   /**
-   * @brief MiP protocol command bytes used by the EEPROM subsystem.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
+   * @brief MiP protocol command to write to EEPROM.
    */
   static constexpr uint8_t MIP_CMD_SET_USER_DATA = 0x12;
+
+  /**
+   * @brief MiP protocol command to read from EEPROM.
+   */
   static constexpr uint8_t MIP_CMD_GET_USER_DATA = 0x13;
 
   /**
