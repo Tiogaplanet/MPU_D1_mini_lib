@@ -73,7 +73,7 @@ class MiPChestLED {
 
  /**
  * @brief Blue channel intensity (0-255; hardware truncates lower 2 bits).
- /*  
+ */
   uint8_t blue;
 };
 
