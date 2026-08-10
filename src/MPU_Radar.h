@@ -97,16 +97,6 @@ class MiP_Radar {
    */
   MiPRadar read();
 
-  /**
-   * @brief Handles an incoming radar OOB event from the transport layer.
-   *
-   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_RADAR_RESPONSE
-   * notification is received. Updates the cached distance and marks the radar data as valid.
-   *
-   * @param radarCode Raw distance code from the MiP (MIP_RADAR_NONE .. MIP_RADAR_0CM_10CM).
-   */
-  void processEvent(uint8_t radarCode);
-
  private:
   /**
    * @brief Constructs the radar manager.
@@ -119,6 +109,16 @@ class MiP_Radar {
   bool check(MiPRadarMode expectedMode);
   int8_t rawGet(MiPRadarMode& mode);
   void rawSet(MiPRadarMode mode);
+
+  /**
+   * @brief Handles an incoming radar OOB event from the transport layer.
+   *
+   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_RADAR_RESPONSE
+   * notification is received. Updates the cached distance and marks the radar data as valid.
+   *
+   * @param radarCode Raw distance code from the MiP (MIP_RADAR_NONE .. MIP_RADAR_0CM_10CM).
+   */
+  void processEvent(uint8_t radarCode);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   MiPRadar m_lastRadar;
