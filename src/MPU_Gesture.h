@@ -114,16 +114,6 @@ class MiP_Gesture {
    */
   bool areGestureAndRadarModesDisabled();
 
-  /**
-   * @brief Handles an incoming gesture OOB event notification from the transport layer.
-   *
-   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_GESTURE_RESPONSE notification
-   * arrives. Pushes valid gesture direction codes into the internal event queue.
-   *
-   * @param gestureCode Raw gesture direction byte received from the MiP robot.
-   */
-  void processEvent(uint8_t gestureCode);
-
  protected:
   void clear();
 
@@ -140,6 +130,16 @@ class MiP_Gesture {
   bool check(MiPGestureMode expectedMode);
   void rawSet(MiPGestureMode mode);
   int8_t rawGet(MiPGestureMode& mode);
+
+  /**
+   * @brief Handles an incoming gesture OOB event notification from the transport layer.
+   *
+   * @details Called by MiP::dispatchEvent() when a MIP_CMD_GET_GESTURE_RESPONSE notification
+   * arrives. Pushes valid gesture direction codes into the internal event queue.
+   *
+   * @param gestureCode Raw gesture direction byte received from the MiP robot.
+   */
+  void processEvent(uint8_t gestureCode);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
   mip_detail::CircularQueue<MiPGesture, 8> m_gestureEvents;
