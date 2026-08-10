@@ -166,6 +166,11 @@ class MiP_ChestLED {
    * @brief A private variable that stores a reference to the main MiP class.
    */
   MiP& m_mip;
+
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
+  friend class MiP;
 };
 
 #endif  // MPU_CHESTLED_H
