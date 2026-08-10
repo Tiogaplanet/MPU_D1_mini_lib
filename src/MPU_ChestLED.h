@@ -160,6 +160,9 @@ class MiP_ChestLED {
                 uint8_t onTime,
                 uint8_t offTime);
 
+  /**
+   * @brief A private variable that stores a reference to the main MiP class.
+   */
   MiP& m_mip;  // Stores a reference to the main MiP class.
 };
 

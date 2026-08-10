@@ -21,7 +21,9 @@
 class MiP;
 
 /**
- * @brief Manages MiP's battery monitoring.
+ * @brief MiP_Battery provides one function only, to report MiP's cached battery
+ * voltage. The voltage is read from MiP's periodic status updates and is never
+ * more than 30 seconds old.
  */
 class MiP_Battery {
  public:
@@ -39,7 +41,7 @@ class MiP_Battery {
 
  private:
   /**
-   * @brief Stores a reference to the main MiP class.
+   * @brief A private variable that stores a reference to the main MiP class.
    */
   MiP& m_mip;
 };
