@@ -29,12 +29,13 @@ jobs:
             doxygen -g
           fi
           
-          # Configure Doxyfile settings for XML generation
+          # Configure Doxyfile settings for XML generation and exclude internal namespaces
           sed -i 's/GENERATE_XML           = NO/GENERATE_XML           = YES/' Doxyfile
           sed -i 's/XML_OUTPUT             = xml/XML_OUTPUT             = xml/' Doxyfile
           sed -i 's/GENERATE_HTML          = YES/GENERATE_HTML          = NO/' Doxyfile
           sed -i 's/GENERATE_LATEX         = YES/GENERATE_LATEX         = NO/' Doxyfile
           sed -i 's/RECURSIVE              = NO/RECURSIVE              = YES/' Doxyfile
+          sed -i 's/EXCLUDE_SYMBOLS        =/EXCLUDE_SYMBOLS        = mip_detail::*/' Doxyfile
           
           # Run Doxygen
           doxygen Doxyfile
@@ -70,8 +71,8 @@ jobs:
               name = compound.find('name').text
               refid = compound.get('refid')
 
-              # Filter: Only process C++ Classes and Structs
-              if kind in ['class', 'struct']:
+              # Filter: Only process C++ Classes and Structs, ignoring internal 'mip_detail' namespace
+              if kind in ['class', 'struct'] and not name.startswith('mip_detail::'):
                   clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
                   doc_filename = f"{clean_name}.md"
                   class_pages.append((name, clean_name))
@@ -191,7 +192,7 @@ jobs:
 
           # Generate API-Reference.md Index
           with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
-              f.write("# API Reference Index\n\nList of all library classes:\n\n")
+              f.write("# API Reference Index\n\nList of all public library classes:\n\n")
               for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- **[{orig_name}]({clean_name})**\n")
 
@@ -216,6 +217,9 @@ jobs:
 
       - name: Commit and Push to Wiki
         run: |
+          # Remove any previously pushed internal namespace wiki pages
+          rm -f wiki_repo/mip_detail*.md
+          
           # Copy generated markdown files into wiki_repo without overwriting custom Home.md
           rsync -av --exclude='Home.md' wiki_markdown/ wiki_repo/
           
@@ -231,7 +235,7 @@ jobs:
           
           git add .
           if ! git diff-index --quiet HEAD; then
-            git commit -m "Auto-update API class documentation from Doxygen"
+            git commit -m "Auto-update API class documentation from Doxygen (excluding internal namespaces)"
             git push
           else
             echo "No changes to commit to Wiki."
