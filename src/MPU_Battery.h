@@ -17,7 +17,10 @@
 #ifndef MPU_BATTERY_H
 #define MPU_BATTERY_H
 
-// Forward-declare the main MiP class to avoid circular include dependencies.
+/**
+ * brief A forward declaration of the main MiP class to avoid circular include
+ * dependencies.
+ */
 class MiP;
 
 /**
@@ -32,7 +35,7 @@ class MiP_Battery {
   MiP_Battery(MiP& mip);
 
   /**
-   * @brief Reads the current battery voltage of the MiP robot.
+   * @brief Reads MiP's cached battery voltage.
    * @return Battery voltage, typically 4.0V (low) to 6.4V (full).
    */
   float readVoltage();
