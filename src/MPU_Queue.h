@@ -34,6 +34,8 @@ namespace mip_detail {
  */
 template <class ElementType, uint8_t Size>
 class CircularQueue {
+  static_assert(Size > 0, "CircularQueue Size must be greater than 0");
+
  public:
   /**
    * @brief Constructs a new CircularQueue object and initializes internal
@@ -62,6 +64,24 @@ class CircularQueue {
   }
 
   /**
+   * @brief Checks whether the queue has reached maximum capacity.
+   *
+   * @return true if the queue is full (count equals Size), false otherwise.
+   */
+  bool isFull() const {
+    return m_count == Size;
+  }
+
+  /**
+   * @brief Returns the maximum number of elements the queue can store.
+   *
+   * @return constexpr uint8_t Queue capacity (Size).
+   */
+  constexpr uint8_t capacity() const {
+    return Size;
+  }
+
+  /**
    * @brief Returns the number of unread elements currently stored in the queue.
    *
    * @return uint8_t Number of available elements (0 to Size).
@@ -72,6 +92,9 @@ class CircularQueue {
 
   /**
    * @brief Pushes a new element into the back of the queue.
+   *
+   * @details If the queue is full, the oldest element at the front is
+   * overwritten and the read index is advanced to discard it.
    *
    * @param element Reference to the element value to store in the queue.
    */
@@ -107,7 +130,7 @@ class CircularQueue {
     return true;
   }
 
- protected:
+ private:
   void advanceWriteIndex() {
     if (m_writeIndex == Size - 1) {
       // Wrap around to beginning of circular queue.
