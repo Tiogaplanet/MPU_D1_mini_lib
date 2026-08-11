@@ -3,7 +3,7 @@
  * @brief Example sketch demonstrating MiP IR-based detection mode.
  *
  * @details This sketch shows how to enable and disable the MiP detection mode
- * which allows one MiP robot to be discovered by another using infrared. It
+ * which allows one MiP to discover another using infrared. It
  * demonstrates the infrared.enableMiPDetectionMode(),
  * infrared.disableMiPDetectionMode(), infrared.isMiPDetectionModeEnabled(),
  * infrared.availableDetectedMiPEvents(), and infrared.readDetectedMiP() APIs.
@@ -13,6 +13,14 @@
  *   - Enables detection mode with a specified ID and IR transmit power and
  *     verifies it is enabled.
  *   - In loop(), polls for detected MiP events and prints detected MiP IDs.
+ *
+ * Example API methods demonstrated:
+ *   - mip.begin()
+ *   - mip.infrared.disableMiPDetectionMode()
+ *   - mip.infrared.isMiPDetectionModeEnabled()
+ *   - mip.infrared.enableMiPDetectionMode(MIP_ID_NO, MIP_IR_TX_POWER)
+ *   - mip.infrared.availableDetectedMiPEvents()
+ *   - mip.infrared.readDetectedMiP()
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -25,7 +33,7 @@
 #include <MiP_Power_Up_-_D1_mini.h>
 
 /**
- * @brief Global MiP instance used to communicate with the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(),
  * infrared.enableMiPDetectionMode(), infrared.disableMiPDetectionMode(),
@@ -53,17 +61,14 @@ MiP mip;
 #define MIP_IR_TX_POWER 0x78
 
 /**
- * @brief Tracks whether the initial connection to the MiP succeeded.
- *
- * @details Stored so other parts of the sketch could check connection state
- * if extended.
+ * @brief Tracks whether the initial connection to MiP succeeded.
  */
 bool connectResult;
 
 /**
  * @brief Arduino setup function.
  *
- * @details Initializes communication with the MiP robot by calling mip.begin().
+ * @details Initializes communication with MiP by calling mip.begin().
  * If the connection fails, an error message is printed to Serial1 and setup
  * returns early. The function then demonstrates disabling detection mode and
  * verifying the disabled state, followed by enabling detection mode with the
@@ -104,8 +109,8 @@ void setup() {
  * @brief Arduino loop function.
  *
  * @details Polls for detected MiP events using
- * infrared.availableDetectedMiPEvents(). When an event is available,
- * infrared.readDetectedMiP() returns the detected MiP ID, which is printed to
+ * infrared.availableDetectedMiPEvents(). While events are available,
+ * infrared.readDetectedMiP() returns each detected MiP ID, which is printed to
  * Serial1 in hexadecimal format.
  *
  * API usage in this function:
@@ -113,12 +118,21 @@ void setup() {
  *   - mip.infrared.readDetectedMiP()
  */
 void loop() {
-  if (!connectResult)
-    return;  // If connecting to MiP failed in setup(), exit now.
-
-  if (mip.infrared.availableDetectedMiPEvents()) {
-    Serial1.print(F(" I detected MiP with ID number "));
-    Serial1.println(mip.infrared.readDetectedMiP(), HEX);
+  // Exit immediately if connecting to MiP failed during setup()
+  if (!connectResult) {
+    return;
   }
-}
 
+  // Poll for available detected MiP events
+  while (mip.infrared.availableDetectedMiPEvents() > 0) {
+    uint8_t detectedId = mip.infrared.readDetectedMiP();
+    Serial1.print(F(" I detected MiP with ID number 0x"));
+    if (detectedId < 0x10) {
+      Serial1.print(F("0")); // Leading zero padding
+    }
+    Serial1.println(detectedId, HEX);
+  }
+
+  // Yield control briefly to prevent watchdog reset triggers
+  delay(10);
+}
