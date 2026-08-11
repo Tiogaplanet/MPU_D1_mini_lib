@@ -10,10 +10,11 @@
  * list (eating, then burping) with different volumes and repeats the list.
  *
  * The example exercises these API calls:
- *   - sound.play()
- *   - sound.beginList()
- *   - sound.addEntryToList()
- *   - sound.playList()
+ *   - mip.begin()
+ *   - mip.sound.play()
+ *   - mip.sound.beginList()
+ *   - mip.sound.addEntryToList()
+ *   - mip.sound.playList()
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -26,7 +27,7 @@
 #include <MiP_Power_Up_-_D1_mini.h>
 
 /**
- * @brief Global MiP instance used to control the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(),
  * sound.play(), sound.beginList(), sound.addEntryToList(), and
@@ -35,21 +36,26 @@
 MiP mip;
 
 /**
+ * @brief Tracks whether the initial connection to MiP succeeded.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
- * @details Initializes communication with the MiP robot by calling mip.begin().
+ * @details Initializes communication with MiP by calling mip.begin().
  * If the connection fails, an error message is printed to Serial1 and setup
  * returns early. On success, the sketch demonstrates:
- *   - Playing a single sound with playSound().
- *   - Building a sound list using beginSoundList() and addEntryToSoundList().
- *   - Playing the sound list with playSoundList() and repeating it after a
- * delay.
+ *   - Playing a single sound with sound.play().
+ *   - Building a sound list using sound.beginList() and sound.addEntryToList().
+ *   - Playing the sound list with sound.playList() and repeating it after a
+ *     delay.
  *
  * The example uses delays to allow sounds and sound lists to complete before
  * proceeding to the next action.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("PlaySound.ino: Failed connecting to MiP!"));
     return;
@@ -83,8 +89,11 @@ void setup() {
  * @brief Arduino loop function.
  *
  * @details This example performs all actions in setup() and does not require
- * repeated work in loop(). The function is intentionally left empty so the
- * demonstration runs only once during initialization.
+ * repeated work in loop().
  */
-void loop() {}
-
+void loop() {
+  // Exit immediately if connecting to MiP failed during setup()
+  if (!connectResult) {
+    return;
+  }
+}
