@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 
-// Forward-declare the main MiP class to avoid circular includes.
+// Forward-declare the main MiP class to avoid circular include dependencies.
 class MiP;
 
 /**
@@ -93,17 +93,6 @@ class MiPHardwareInfo {
 class MiP_Version {
  public:
   /**
-   * @brief Protocol command byte to query MiP's firmware software version date.
-   */
-  static constexpr uint8_t MIP_CMD_GET_SOFTWARE_VERSION = 0x14;
-
-  /**
-   * @brief Protocol command byte to query MiP's hardware and voice chip
-   * revisions.
-   */
-  static constexpr uint8_t MIP_CMD_GET_HARDWARE_INFO = 0x19;
-
-  /**
    * @brief Reads MiP's software/firmware version details.
    *
    * @details Sends the get software version request over UART and populates
@@ -143,14 +132,26 @@ class MiP_Version {
    */
   uint32_t readMPUNumber() const;
 
+ protected:
+  /**
+   * @brief Protocol command byte to query MiP's firmware software version date.
+   */
+  static constexpr uint8_t MIP_CMD_GET_SOFTWARE_VERSION = 0x14;
+
+  /**
+   * @brief Protocol command byte to query MiP's hardware and voice chip
+   * revisions.
+   */
+  static constexpr uint8_t MIP_CMD_GET_HARDWARE_INFO = 0x19;
+
  private:
   /**
-   * @brief Constructs the Version manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip Reference to the main MiP object for core communication
    * services.
    */
-  MiP_Version(MiP& mip);
+  explicit MiP_Version(MiP& mip);
 
   int8_t rawGetSoftware(MiPSoftwareVersion& software);
   int8_t rawGetHardware(MiPHardwareInfo& hardware);
