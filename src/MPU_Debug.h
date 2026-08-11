@@ -274,6 +274,8 @@ class MiPDebug : public Print {
   uint16_t m_sizeBufferSend = 0;
   uint32_t m_lastTimeSend = 0;
 #endif
+
+  friend class MiP_WiFi;
 };
 
 #endif  // MPU_DEBUG_H
