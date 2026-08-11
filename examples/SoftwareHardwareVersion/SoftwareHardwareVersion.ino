@@ -1,25 +1,28 @@
 /**
  * @file SoftwareHardwareVersion.ino
  * @brief Example sketch that reads MiP's software and hardware version
- * information. It also displays the MPU:D1 mini library version.
+ * information and displays the MPU: D1 mini library version.
  *
  * @details
- * This sketch demonstrates how to query a MiP for its software version and
+ * This sketch demonstrates how to query MiP for software version and
  * hardware information using the MiP library. It:
- *   - Initializes communication with the MiP using mip.begin().
+ *   - Initializes communication with MiP using mip.begin().
+ *   - Displays the library version string via version.readMPUString().
  *   - Reads the software version into a MiPSoftwareVersion struct via
- *     version.readSoftware() and prints a formatted date and unique version.
+ *     version.readSoftware() and prints a formatted ISO date (YYYY-MM-DD)
+ *     and unique version revision.
  *   - Reads hardware information into a MiPHardwareInfo struct via
- *     version.readHardware() and prints voice chip and hardware revision
- * details.
+ *     version.readHardware() and prints voice chip and body hardware revision
+ *     details.
  *
  * The example exercises these API calls:
- *   - version.readSoftware()
- *   - version.readHardware()
+ *   - mip.begin()
+ *   - mip.version.readMPUString()
+ *   - mip.version.readSoftware()
+ *   - mip.version.readHardware()
  *
  * The output is printed to Serial1 in a human-readable format so the user can
- * inspect the device's firmware date and build as well as hardware revision
- * information.
+ * inspect MiP's firmware build date, revision, and hardware details.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -32,12 +35,17 @@
 #include <MiP_Power_Up_-_D1_mini.h>
 
 /**
- * @brief Global MiP instance used to communicate with the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * version.readSoftware(), and version.readHardware().
+ * version.readMPUString(), version.readSoftware(), and version.readHardware().
  */
 MiP mip;
+
+/**
+ * @brief Tracks whether the initial connection to MiP succeeded.
+ */
+bool connectResult;
 
 /**
  * @brief Arduino setup function.
@@ -45,26 +53,28 @@ MiP mip;
  * @details
  * - Attempts to initialize the MiP connection via mip.begin().
  * - If the connection fails, prints an error to Serial1 and returns early.
- * - On success, reads the software version into a MiPSoftwareVersion struct
- *   and prints a formatted version string (year-month-day.uniqueVersion).
+ * - On success, prints the MPU: D1 mini library version string.
+ * - Reads the software version into a MiPSoftwareVersion struct
+ *   and prints a formatted version string (YYYY-MM-DD.uniqueVersion).
  * - Reads hardware information into a MiPHardwareInfo struct and prints the
- *   voice chip and hardware revision values.
+ *   voice chip and body hardware revision values.
  *
  * The function prints progress and completion messages to Serial1 so the
  * user can observe the retrieved version and hardware details.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(
-      F("SoftwareHardwareVersion.ino: Failed connecting to MiP!"));
+      F("SoftwareHardwareVersion.ino: Failed connecting to MiP."));
     return;
   }
 
   Serial1.println(
-    F("SoftwareHardwareVersion.ino: \n\rUse version.readSoftware() and "
+    F("SoftwareHardwareVersion.ino: Use version.readSoftware() and "
       "version.readHardware() functions."));
 
+  // Display the Arduino library version string
   Serial1.print(F(" MiP Power Up - D1 mini library version: "));
   Serial1.println(mip.version.readMPUString());
 
@@ -74,8 +84,10 @@ void setup() {
   Serial1.print(F(" Software version: "));
   Serial1.print(softwareVersion.year);
   Serial1.print('-');
+  if (softwareVersion.month < 10) Serial1.print('0'); // Month zero-padding
   Serial1.print(softwareVersion.month);
   Serial1.print('-');
+  if (softwareVersion.day < 10) Serial1.print('0');   // Day zero-padding
   Serial1.print(softwareVersion.day);
   Serial1.print('.');
   Serial1.println(softwareVersion.uniqueVersion);
@@ -89,6 +101,7 @@ void setup() {
   Serial1.print(F("  Hardware version: "));
   Serial1.println(hardwareInfo.hardware);
 
+  Serial1.println();
   Serial1.println(F("SoftwareHardwareVersion.ino: Done."));
 }
 
@@ -96,7 +109,11 @@ void setup() {
  * @brief Arduino loop function.
  *
  * @details This example performs its demonstration in setup() and does not
- * require repeated work in loop(). The function is intentionally left empty
- * so the sketch completes once during initialization.
+ * require repeated work in loop().
  */
-void loop() {}
+void loop() {
+  // Exit immediately if connecting to MiP failed during setup()
+  if (!connectResult) {
+    return;
+  }
+}
