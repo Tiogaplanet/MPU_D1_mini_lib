@@ -166,21 +166,6 @@ enum MiPVolume : uint8_t {
 class MiP_Sound {
  public:
   /**
-   * @brief MiP protocol command byte to play a sound effect or sound sequence.
-   */
-  static constexpr uint8_t MIP_CMD_PLAY_SOUND = 0x06;
-
-  /**
-   * @brief MiP protocol command byte to set the speaker volume level.
-   */
-  static constexpr uint8_t MIP_CMD_SET_VOLUME = 0x15;
-
-  /**
-   * @brief MiP protocol command byte to query the active speaker volume level.
-   */
-  static constexpr uint8_t MIP_CMD_GET_VOLUME = 0x16;
-
-  /**
    * @brief Starts a new sound list sequence.
    *
    * @details Clears internal sequence indices and prepares the command buffer.
@@ -257,14 +242,30 @@ class MiP_Sound {
    */
   void end();
 
+ protected:
+  /**
+   * @brief MiP protocol command byte to play a sound effect or sound sequence.
+   */
+  static constexpr uint8_t MIP_CMD_PLAY_SOUND = 0x06;
+
+  /**
+   * @brief MiP protocol command byte to set the speaker volume level.
+   */
+  static constexpr uint8_t MIP_CMD_SET_VOLUME = 0x15;
+
+  /**
+   * @brief MiP protocol command byte to query the active speaker volume level.
+   */
+  static constexpr uint8_t MIP_CMD_GET_VOLUME = 0x16;
+
  private:
   /**
-   * @brief Constructs the sound manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core communication
    * services.
    */
-  MiP_Sound(MiP& mip);
+  explicit MiP_Sound(MiP& mip);
 
   int8_t rawGetVolume(uint8_t& volume);
   void rawSetVolume(uint8_t volume);
