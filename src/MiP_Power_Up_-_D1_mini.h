@@ -17,8 +17,6 @@
 #define MPU_D1_MINI_H
 
 #include <Arduino.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 #include "MPU_Battery.h"
 #include "MPU_ChestLED.h"
