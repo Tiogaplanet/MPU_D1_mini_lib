@@ -30,15 +30,6 @@ class MiP;
 class MiP_Shake {
  public:
   /**
-   * @brief MiP protocol notification byte received when a physical shake event
-   * occurs.
-   *
-   * @details Dispatched asynchronously by MiP over UART as an Out-Of-Band (OOB)
-   * notification when the robot experiences a physical shake motion.
-   */
-  static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
-
-  /**
    * @brief Checks whether MiP has been shaken since the last call.
    *
    * @details Flushes pending serial transport data, inspects the internal shake
@@ -48,21 +39,33 @@ class MiP_Shake {
    */
   bool read();
 
+ protected:
+  /**
+   * @brief MiP protocol notification byte received when a physical shake event
+   * occurs.
+   *
+   * @details Dispatched asynchronously by MiP over UART as an Out-Of-Band (OOB)
+   * notification when the robot experiences a physical shake motion.
+   */
+  static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
+
  private:
   /**
-   * @brief Constructs the shake manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core services and
    * status flags.
    */
-  MiP_Shake(MiP& mip);
+  explicit MiP_Shake(MiP& mip);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
 
   /**
-   * @brief Allows MiP to call private constructor.
+   * @brief Allows MiP and transport components to access private constructor and
+   * protected protocol bytes.
    */
   friend class MiP;
+  friend class MiP_Serial;
 };
 
 #endif  // MPU_SHAKE_H
