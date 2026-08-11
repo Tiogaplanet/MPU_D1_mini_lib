@@ -75,7 +75,7 @@ void setup() {
 
   // Display assigned local IP address upon successful connection
   Serial1.print(F(" IP address: "));
-  Serial1.println(mip.wifi.localIP());
+  Serial1.println(WiFi.localIP());
 
   Serial1.println(F("BareMinimumWiFi.ino: Done. Connected and ready."));
 }
