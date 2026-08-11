@@ -73,10 +73,12 @@ jobs:
 
           class_pages = []
           enum_pages = []
+          defines_list = []
           seen_enums = set()
+          seen_defines = set()
 
           # ---------------------------------------------------------------------------
-          # 1. Parse Classes, Structs, and Header Files for Enums
+          # 1. Parse Classes, Structs, Enums, and Preprocessor Defines
           # ---------------------------------------------------------------------------
           for compound in root.findall('compound'):
               kind = compound.get('kind')
@@ -175,109 +177,4 @@ jobs:
                                   m_block.append(f"| `{p_name}` | {p_desc} |\n")
                               m_block.append("\n")
 
-                          returns = member.findall(".//simplesect[@kind='return']")
-                          if returns:
-                              ret_desc = get_text(returns[0])
-                              if ret_desc:
-                                  m_block.append(f"**Returns:** {ret_desc}\n\n")
-
-                          m_block.append("---\n\n")
-                          return "".join(m_block)
-
-                      # --- Section 1: Constructors & Destructors ---
-                      if constructors:
-                          page.append("## Constructors & Destructors\n\n")
-                          for c in constructors:
-                              page.append(format_member(c))
-
-                      # --- Section 2: Public Functions ---
-                      if functions:
-                          page.append("## Public Functions\n\n")
-                          for f in functions:
-                              page.append(format_member(f))
-
-                      # --- Section 3: Public Variables & Constants ---
-                      if variables:
-                          page.append("## Public Variables\n\n")
-                          for v in variables:
-                              page.append(format_member(v))
-
-                  with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
-                      f.write("".join(page))
-
-              # Header File Compounds (contain global enums like MiPSoundIndex, MiPVolume, etc.)
-              elif kind == 'file':
-                  detail_path = os.path.join(xml_dir, f"{refid}.xml")
-                  if os.path.exists(detail_path):
-                      f_tree = ET.parse(detail_path)
-                      f_root = f_tree.getroot()
-                      for enum_def in f_root.findall('.//memberdef[@kind="enum"]'):
-                          e_name = get_text(enum_def.find('name'))
-                          if e_name and not e_name.startswith('mip_detail::') and e_name not in seen_enums:
-                              seen_enums.add(e_name)
-                              enum_pages.append((e_name, e_name, enum_def))
-
-          # ---------------------------------------------------------------------------
-          # 2. Format & Write Dedicated Enum Pages
-          # ---------------------------------------------------------------------------
-          for orig_name, clean_name, enum_def in enum_pages:
-              doc_filename = f"{clean_name}.md"
-              brief = get_text(enum_def.find('briefdescription'))
-              deta_el = enum_def.find('detaileddescription')
-
-              page = [f"# Enum `{orig_name}`\n\n"]
-              if brief:
-                  page.append(f"{brief}\n\n")
-
-              if deta_el is not None:
-                  para_text = []
-                  for para in deta_el.findall('para'):
-                      p_txt = get_text(para)
-                      if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
-                          para_text.append(p_txt)
-                  if para_text:
-                      page.append("## Detailed Description\n\n" + "\n\n".join(para_text) + "\n\n")
-
-              enum_values = enum_def.findall('enumvalue')
-              if enum_values:
-                  page.append("## Enumerator Values\n\n")
-                  page.append("| Enumerator | Value | Description |\n|:---|:---|:---|\n")
-                  for ev in enum_values:
-                      ev_name = sanitize_cell(get_text(ev.find('name')))
-                      ev_init = sanitize_cell(get_text(ev.find('initializer')))
-                      ev_brief = get_text(ev.find('briefdescription'))
-                      ev_deta = get_text(ev.find('detaileddescription'))
-
-                      desc = sanitize_cell(ev_brief if ev_brief else ev_deta)
-                      val_str = f"`{ev_init}`" if ev_init else ""
-                      page.append(f"| `{ev_name}` | {val_str} | {desc} |\n")
-                  page.append("\n")
-
-              with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
-                  f.write("".join(page))
-
-          # ---------------------------------------------------------------------------
-          # 3. Generate API-Reference.md Index
-          # ---------------------------------------------------------------------------
-          with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
-              f.write("# API Reference Index\n\nList of all public library classes and enumerations:\n\n")
-              f.write("## Classes\n\n")
-              for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
-                  f.write(f"- **[{orig_name}]({clean_name})**\n")
-              
-              if enum_pages:
-                  f.write("\n## Enumerations\n\n")
-                  for orig_name, clean_name, _ in sorted(enum_pages, key=lambda x: x[0]):
-                      f.write(f"- **[{orig_name}]({clean_name})**\n")
-
-          # ---------------------------------------------------------------------------
-          # 4. Generate _Sidebar.md Navigation
-          # ---------------------------------------------------------------------------
-          with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
-              f.write("### Navigation\n\n")
-              f.write("- [Home](Home)\n")
-              f.write("- [API Reference](API-Reference)\n\n")
-              f.write("#### Classes\n\n")
-              for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
-                  f.write(f"- [{orig_name}]({clean_name})\n")
-              
+                          returns = member.findall(".//simplesect[@kind='return'
