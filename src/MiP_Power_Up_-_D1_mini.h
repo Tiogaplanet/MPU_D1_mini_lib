@@ -145,33 +145,11 @@ class MiPStatus {
  */
 class MiP {
  public:
-  /**
-   * @brief MiP protocol command byte to request app disconnect.
-   */
-  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;
-
-  /**
-   * @brief MiP protocol command byte to put MiP to sleep.
-   */
-  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;
-
-  /**
-   * @brief MiP protocol command byte to query status (battery voltage and stance).
-   */
-  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
-
-  /**
-   * @brief Integer error codes encountered by the MiP library.
-   */
-  static constexpr uint8_t MIP_ERROR_NONE = 0;  ///< Success.
-  static constexpr uint8_t MIP_ERROR_TIMEOUT =
-      1;  ///< Timed out waiting for response from MiP.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT =
-      2;  ///< No event has arrived from MiP yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
-      3;  ///< Unexpected response from MiP.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
-      4;  ///< Exceeded maximum retries communicating with MiP.
+  static constexpr uint8_t MIP_ERROR_NONE = 0;         ///< Operation succeeded.
+  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;      ///< Timed out waiting for response from MiP.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;     ///< No event has arrived from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3; ///< Unexpected response received from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;  ///< Exceeded maximum retries communicating with MiP.
 
   // Core lifecycle functions.
 
@@ -323,6 +301,16 @@ class MiP {
                   ///< MPU_WiFi.h).
 
  protected:
+  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;  ///< Disconnect command byte.
+  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;           ///< Sleep command byte.
+  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;      ///< Status query command byte.
+
+  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES = 5;       ///< Max retries in begin().
+  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT = 500;    ///< Delay between retries in begin() (ms).
+  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE = 74880;///< ESP8266 bootloader debug rate.
+  static constexpr uint32_t MIP_FAST_BAUD_RATE = 115200;   ///< High-speed UART link rate.
+  static constexpr uint32_t MIP_SLOW_BAUD_RATE = 9600;     ///< Low-speed UART link rate.
+
   void clear();
 
   int8_t attemptMiPConnection(uint32_t baudRate);
