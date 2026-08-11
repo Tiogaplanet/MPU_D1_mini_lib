@@ -17,6 +17,7 @@
 #define MPU_WEIGHT_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 // Forward-declare the main MiP class to avoid circular includes.
 class MiP;
@@ -26,18 +27,6 @@ class MiP;
  */
 class MiP_Weight {
  public:
-  /**
-   * @brief MiP protocol command byte used to request the current payload
-   * weight.
-   *
-   * @details This value is placed in the first byte of requests sent to MiP
-   * (and appears in corresponding responses). See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
-   */
-  static constexpr uint8_t MIP_CMD_GET_WEIGHT = 0x81;
-
   /**
    * @brief Reads the current weight on MiP's weight sensor.
    *
@@ -50,11 +39,23 @@ class MiP_Weight {
   int8_t read();
 
  protected:
+  /**
+   * @brief MiP protocol command byte used to request the current payload
+   * weight.
+   *
+   * @details This value is placed in the first byte of requests sent to MiP
+   * (and appears in corresponding responses). See the official
+   * [MiP BLE
+   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
+   * for the complete list.
+   */
+  static constexpr uint8_t MIP_CMD_GET_WEIGHT = 0x81;
+
   void clear();
 
  private:
   /**
-   * @brief Constructs the Weight manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip Reference to the main MiP object for core communication
    * services.
@@ -80,9 +81,11 @@ class MiP_Weight {
   int8_t m_lastWeight;
 
   /**
-   * @brief Allows MiP to call private constructor.
+   * @brief Allows MiP and transport components to access private constructor
+   * and protected protocol bytes.
    */
   friend class MiP;
+  friend class MiP_Serial;
 };
 
 #endif  // MPU_WEIGHT_H
