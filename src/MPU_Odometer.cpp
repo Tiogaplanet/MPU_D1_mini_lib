@@ -19,12 +19,12 @@
 MiP_Odometer::MiP_Odometer(MiP& mip) : m_mip(mip) {}
 
 float MiP_Odometer::read() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->read()");
-  int8_t result;
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Odometer->read()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
-    float distance;
+    float distance = 0.0f;
     result = rawRead(distance);
     if (result == MiP::MIP_ERROR_NONE) {
       m_mip.m_lastError = MiP::MIP_ERROR_NONE;
@@ -40,18 +40,17 @@ float MiP_Odometer::read() {
 }
 
 void MiP_Odometer::reset() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Odometer->reset()");
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Odometer->reset()"));
   uint8_t command[1] = {MIP_CMD_RESET_ODOMETER};
 
   // Send this command blindly with no error checking since there is no robust
   // way to determine if it has failed.
-  // TODO: Not true.  Read the odometer.  If the value is greater than 0.0, call
-  // reset, then check for 0.0.
   m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 // ==========================================================================
-// Protected functions.
+// Protected / Private functions.
 // ==========================================================================
 
 // This internal protected method sends the read odometer command with minimal
@@ -59,7 +58,7 @@ void MiP_Odometer::reset() {
 int8_t MiP_Odometer::rawRead(float& distanceInCm) {
   const uint8_t readOdometer[1] = {MIP_CMD_READ_ODOMETER};
   uint8_t response[1 + 4];
-  size_t responseLength;
+  size_t responseLength = 0;
   int8_t result = m_mip.serial.rawReceive(readOdometer,
                                           sizeof(readOdometer),
                                           response,
@@ -73,10 +72,11 @@ int8_t MiP_Odometer::rawRead(float& distanceInCm) {
   }
 
   // Tick count is stored as big-endian in response buffer.
-  uint32_t ticks = (uint32_t)response[1] << 24 | (uint32_t)response[2] << 16 |
-                   (uint32_t)response[3] << 8 | response[4];
+  uint32_t ticks = (static_cast<uint32_t>(response[1]) << 24) |
+                   (static_cast<uint32_t>(response[2]) << 16) |
+                   (static_cast<uint32_t>(response[3]) << 8) | response[4];
 
   // Odometer has 48.5 ticks / cm.
-  distanceInCm = (float)((double)ticks / 48.5);
-  return result;
+  distanceInCm = static_cast<float>(ticks) / TICKS_PER_CM;
+  return MiP::MIP_ERROR_NONE;
 }
