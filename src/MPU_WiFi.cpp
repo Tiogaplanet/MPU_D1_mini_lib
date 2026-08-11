@@ -1,6 +1,5 @@
 /**
  * @file MPU_WiFi.cpp
- *
  * @brief Implements WiFi management for the MiP library.
  *
  * @details This source file implements Wi-Fi setup, connection handling, and
@@ -24,9 +23,8 @@ MiP_WiFi::MiP_WiFi(MiP& mip) : m_mip(mip) {
 
 uint8_t MiP_WiFi::begin(const char* ssid,
                         const char* password,
-                        const char* hostname) {
-  // Memory-safe string copy operations to address bug:
-  // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/26
+                        const char* hostname /* = "MiP" */) {
+  // Memory-safe string copy operations:
   strncpy(m_ssid, ssid, sizeof(m_ssid) - 1);
   m_ssid[sizeof(m_ssid) - 1] = '\0';
 
@@ -44,40 +42,41 @@ uint8_t MiP_WiFi::begin(const char* ssid,
 void MiP_WiFi::enableAirplaneMode() {
   WiFi.disconnect();       // Disconnect from current network.
   WiFi.mode(WIFI_OFF);     // Turn off WiFi radio.
-  WiFi.forceSleepBegin();  // Put the WiFi modem to sleep
+  WiFi.forceSleepBegin();  // Put the WiFi modem to sleep.
 
-  // App mode broadcasts BLE.  If MiP is currently in app mode, switch to
-  // the default, power-on gesture mode.
-  if (m_mip.mode.isAppEnabled())
+  // App mode broadcasts BLE. If MiP is currently in app mode, switch to
+  // the default gesture mode.
+  if (m_mip.mode.isAppEnabled()) {
     m_mip.gesture.enable();
+  }
 }
 
 uint8_t MiP_WiFi::disableAirplaneMode() {
+  WiFi.forceSleepWake();  // Wake WiFi modem from force-sleep mode
+  delay(1);
   WiFi.mode(WIFI_STA);
   return connect();
 }
 
 uint8_t MiP_WiFi::connect() {
-  // Safety check: ensure we have a valid SSID
+  // Safety check: ensure we have a valid SSID configured
   if (m_ssid[0] == '\0' || strlen(m_ssid) == 0) {
     MIP_DEBUG_ERROR_PRINTLN(
-        F("MiP: No SSID configured. Call wifiBegin() first."));
+        F("MiP: No SSID configured. Call wifi.begin() first."));
     return WL_DISCONNECTED;
   }
 
   WiFi.begin(m_ssid, m_password);
 
-  // Save original head LED state before animation
+  // Save original head LED state before starting animation
   MiPHeadLEDs originalLEDs;
   m_mip.headLEDs.read(originalLEDs);
 
-  // Non-blocking status loop to address bug:
-  // https://github.com/Tiogaplanet/MiP_ESP8266_Library/issues/25
   uint8_t attempts = 0;
   uint8_t ledPos = 0;
   bool direction = true;  // true = left-to-right, false = right-to-left
 
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+  while (WiFi.status() != WL_CONNECTED && attempts < MAX_CONNECT_ATTEMPTS) {
     // Animate the four head LEDs in a back-and-forth scanning pattern
     MiPHeadLED leds[4] = {
         MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF};
@@ -86,7 +85,7 @@ uint8_t MiP_WiFi::connect() {
 
     m_mip.headLEDs.unverifiedWrite(leds[0], leds[1], leds[2], leds[3]);
 
-    // Update position for next frame
+    // Update scanner position for next frame
     if (direction) {
       ledPos++;
       if (ledPos >= 3)
@@ -98,33 +97,31 @@ uint8_t MiP_WiFi::connect() {
     }
 
     MIP_DEBUG_WARN_PRINTLN(F("MiP: WiFi connection attempt..."));
-    delay(300);  // Nice visible animation speed
+    delay(ANIMATION_DELAY_MS);
     attempts++;
   }
 
+  // Restore original head LED state
   m_mip.headLEDs.unverifiedWrite(originalLEDs.led1,
                                  originalLEDs.led2,
                                  originalLEDs.led3,
                                  originalLEDs.led4);
 
-  // Turn all LEDs on when connected, or pulse slow red on failure
   uint8_t connectStatus = WiFi.status();
   if (connectStatus == WL_CONNECTED) {
     MIP_DEBUG_INFO_PRINTLN(F("MiP: WiFi connected successfully"));
-    // Set up mDNS responder using the user-specified hostname and ending with
-    // ".local". For example, if the user provides the hostname "HappyMiP" the
-    // fully-qualified domain name is "HappyMiP.local".
+
     if (!MDNS.begin(m_hostname)) {
       MIP_DEBUG_ERROR_PRINTLN(F("MiP: Error setting up mDNS responder."));
     } else {
       MIP_DEBUG_INFO_PRINTF(
           "MiP: mDNS responder started with hostname of %s.local\r\n",
           m_hostname);
-      MIP_DEBUG_INFO_PRINTLN(F("MiP: IP address: ") +
-                             WiFi.localIP().toString());
+      MIP_DEBUG_INFO_PRINT(F("MiP: IP address: "));
+      MIP_DEBUG_INFO_PRINTLN(WiFi.localIP().toString());
     }
 
-    // ArduinoOTA setup (unchanged)
+    // Configure ArduinoOTA callbacks
     ArduinoOTA.onStart([]() {
       String type =
           (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
@@ -133,7 +130,6 @@ uint8_t MiP_WiFi::connect() {
     });
 
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-      (void)progress;
       if (total == 0)
         return;
       MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
@@ -161,8 +157,8 @@ uint8_t MiP_WiFi::connect() {
   } else {
     MIP_DEBUG_WARN_PRINTLN(
         F("MiP: WiFi connection failed after maximum attempts"));
-    // Pulse slow red on chest LED to indicate failure
-    m_mip.chestLED.write(0xFF, 0x00, 0x00, 800, 800);  // Slow red blink
+    // Pulse slow red on chest LED to indicate connection failure
+    m_mip.chestLED.write(0xFF, 0x00, 0x00, 800, 800);
     return connectStatus;
   }
 }
