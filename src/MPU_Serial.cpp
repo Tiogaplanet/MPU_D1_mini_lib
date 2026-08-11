@@ -41,8 +41,8 @@ uint8_t MiP_Serial::rawReceive(const uint8_t request[],
 bool MiP_Serial::processAllResponseData() {
   bool responseFound = false;
   uint8_t buffer[(MIP_RESPONSE_MAX_LEN - 1) * 2];
-  size_t bytesToRead;
-  size_t bytesRead;
+  size_t bytesToRead = 0;
+  size_t bytesRead = 0;
 
   while (Serial.available() >= 2) {
     // Every MiP message starts with two hex ASCII digits that form the command
@@ -58,19 +58,23 @@ bool MiP_Serial::processAllResponseData() {
       m_responseBuffer[0] = commandByte;
 
       bytesToRead = m_expectedResponseSize - 1;
-      bytesRead = Serial.readBytes(buffer, bytesToRead * 2);
+      bytesRead = Serial.readBytes(reinterpret_cast<char*>(buffer), bytesToRead * 2);
 
       if (bytesRead == bytesToRead * 2) {
         copyHexTextToBinary(&m_responseBuffer[1], buffer, bytesToRead);
         responseFound = true;
         // Keep draining the buffer so later OOB events are not lost.
       } else {
-        // Incomplete response – abandon this attempt.
+        // Incomplete response – abandon this attempt and flush partial framing.
         m_expectedResponseCommand = 0;
         m_expectedResponseSize = 0;
         m_responseBuffer[0] = 0;
+        discardUnexpectedSerialData();
+
         MIP_DEBUG_ERROR_PRINTF(
-            "MiP: Response too short: %d, %d\r\n", bytesRead, bytesToRead * 2);
+            "MiP: Response too short: %u, expected %u\r\n",
+            static_cast<unsigned>(bytesRead),
+            static_cast<unsigned>(bytesToRead * 2));
         break;
       }
     } else {
@@ -154,7 +158,7 @@ void MiP_Serial::transportSendRequest(const uint8_t* pRequest,
 
 void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   size_t length = 0;
-  size_t bytesRead;
+  size_t bytesRead = 0;
 
   // Determine payload length from the command byte.
   switch (commandByte) {
@@ -184,19 +188,21 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
     default: {
       [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
       MIP_DEBUG_ERROR_PRINTF(
-          "MiP: Bad OOB command byte: 0x%02x (discarded %d bytes)\r\n",
+          "MiP: Bad OOB command byte: 0x%02x (discarded %u bytes)\r\n",
           commandByte,
-          discarded);
+          static_cast<unsigned>(discarded));
     }
       return;
   }
 
   // Read the remaining payload (still in hex-ASCII pairs).
   uint8_t buffer[4 * 2];  // max payload for IR dongle code is 4 bytes
-  bytesRead = Serial.readBytes(buffer, length * 2);
+  bytesRead = Serial.readBytes(reinterpret_cast<char*>(buffer), length * 2);
   if (bytesRead != length * 2) {
     MIP_DEBUG_ERROR_PRINTF(
-        "MiP: OOB too short: %d, %d\r\n", bytesRead, length * 2);
+        "MiP: OOB too short: %u, expected %u\r\n",
+        static_cast<unsigned>(bytesRead),
+        static_cast<unsigned>(length * 2));
     return;
   }
 
@@ -210,7 +216,7 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
 
 bool MiP_Serial::readIrLength(size_t& length) {
   uint8_t nibbles[2];
-  if (Serial.readBytes(nibbles, sizeof(nibbles)) != sizeof(nibbles)) {
+  if (Serial.readBytes(reinterpret_cast<char*>(nibbles), sizeof(nibbles)) != sizeof(nibbles)) {
     MIP_DEBUG_ERROR_PRINTLN(F("MiP: Missing IR code length"));
     return false;
   }
@@ -220,9 +226,9 @@ bool MiP_Serial::readIrLength(size_t& length) {
   if (length < 2 || length > 4) {
     [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
     MIP_DEBUG_ERROR_PRINTF(
-        "MiP: Bad IR code length: 0x%02x (discarded %d bytes)\r\n",
+        "MiP: Bad IR code length: 0x%02x (discarded %u bytes)\r\n",
         static_cast<unsigned>(length),
-        discarded);
+        static_cast<unsigned>(discarded));
     return false;
   }
   return true;
@@ -233,7 +239,7 @@ uint8_t MiP_Serial::discardUnexpectedSerialData() {
   while (Serial.available() > 0) {
     discarded++;
     Serial.read();
-    delayMicroseconds(200);  // was 100; safer across 9600 and 115200
+    delayMicroseconds(200);  // safer across 9600 and 115200 baud
   }
   // Brief idle so a mid-byte framing error can finish.
   delay(2);
