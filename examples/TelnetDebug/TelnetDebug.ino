@@ -67,7 +67,7 @@ const char *password = "..............";
 const char *hostname = "MiP-Debugger";
 
 /**
- * @brief Global MiP instance used to initialize and control the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details The mip object is used to establish the network connection and
  * to integrate MiP-specific functionality with the telnet debug service.
@@ -75,10 +75,7 @@ const char *hostname = "MiP-Debugger";
 MiP mip;
 
 /**
- * @brief Tracks whether the initial connection to the MiP succeeded.
- *
- * @details Stored so other parts of the sketch could check connection state
- * if extended.
+ * @brief Tracks whether the initial connection to MiP succeeded.
  */
 bool connectResult;
 
@@ -91,12 +88,12 @@ bool connectResult;
 MiPDebug debug;
 
 /**
- * @brief Timestamp of the last periodic debug emission.
+ * @brief Timestamp of the last periodic debug emission in milliseconds.
  *
  * @details Used to implement a non-blocking periodic message emission in
  * loop().
  */
-long int lastTimeCheck;
+uint32_t lastTimeCheck = 0;
 
 /**
  * @brief Period (milliseconds) between periodic debug message bursts.
@@ -104,7 +101,7 @@ long int lastTimeCheck;
  * @details The example uses a relatively long period to give the user time to
  * connect a telnet client and observe the messages.
  */
-const int period = 30000;
+const uint32_t period = 30000;
 
 /**
  * @brief One-shot flag to emit an initial set of example messages once.
@@ -119,9 +116,9 @@ bool runOnce = true;
  * @brief Arduino setup function.
  *
  * @details
- * - Attempts to initialize the MiP connection and Wi‑Fi using mip.begin(ssid,
- * password, hostname).
- * - If the connection fails, prints an error to Serial1 and returns early.
+ * - Attempts to initialize communication with MiP via mip.begin().
+ * - Attempts to connect to Wi‑Fi using mip.wifi.begin(ssid, password, hostname).
+ * - If either connection fails, prints an error to Serial1 and returns early.
  * - Starts the telnet debug server via debug.begin(hostname).
  * - Enables the telnet reset command with debug.setResetCmdEnabled(true).
  * - Prints the device IP address and a short banner to Serial1.
@@ -134,7 +131,12 @@ void setup() {
     return;
   }
 
-  mip.wifi.begin(ssid, password, hostname);
+  uint8_t wifiStatus = mip.wifi.begin(ssid, password, hostname);
+  if (wifiStatus != WL_CONNECTED) {
+    Serial1.println(F("TelnetDebug.ino: Failed connecting to WiFi."));
+    connectResult = false;
+    return;
+  }
 
   // Start telnet debug server and enable the reset command.
   debug.begin(hostname);
@@ -165,20 +167,22 @@ void setup() {
  * responsive to telnet and OTA events.
  */
 void loop() {
-  if (!connectResult)
-    return;  // If connecting to MiP failed in setup(), exit now.
+  // Exit immediately if connecting to MiP or WiFi failed during setup()
+  if (!connectResult) {
+    return;
+  }
 
   // Required for OTA programming to function while the sketch runs.
   ArduinoOTA.handle();
 
-  long now = millis();
+  uint32_t now = millis();
 
   // Emit example messages periodically so a telnet client can observe them.
-  if (now > lastTimeCheck + period) {
+  if (now - lastTimeCheck >= period) {
     if (runOnce) {
       // Demonstrate formatted output and that mDebug messages always print to
       // telnet.
-      mDebug("The telnet debug utility is very helpful.  It can selectively "
+      mDebug("The telnet debug utility is very helpful. It can selectively "
              "print messages of different levels.\n");
       mDebug("Messages at the mDebug level always print to telnet.\n");
       mDebug("All debugging messages can use formatted %s.\n", "output");
@@ -206,4 +210,3 @@ void loop() {
   // Service the telnet debug server (must be called frequently).
   debug.handle();
 }
-
