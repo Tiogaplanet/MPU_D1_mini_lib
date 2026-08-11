@@ -1,30 +1,27 @@
 /**
  * @file PersistentMemory.ino
- * @brief Robust memory read/write example with MiP chest-LED verification.
+ * @brief Robust memory read/write example with MiP chest LED verification.
  *
  * @details
- * This sketch is a LittleFS-based rewrite of the original SPIFFS example.
+ * This sketch demonstrates LittleFS filesystem integration with MiP.
  * It mounts the LittleFS filesystem onboard the D1 mini, writes a short 
  * password to a temporary file, reads it back, compares the contents, and
- * indicates success or failure using the MiP chest LED:
+ * indicates success or failure using MiP's chest LED:
  *   - Violet when the read matches the written password.
  *   - Red when the read does not match or an error occurs.
- * After verification, the temporary file is removed and the chest LED is
+ * After verification, the temporary file is removed and MiP's chest LED is
  * restored to green.
  *
- * Safety and robustness improvements:
+ * Safety and robustness features:
  *   - Verifies return values from LittleFS.begin(), LittleFS.open(), and
  *     LittleFS.remove().
  *   - Checks File objects before reading/writing.
  *   - Prints clear diagnostic messages to Serial1.
  *
  * Demonstrates these APIs:
- *   - begin()
- *   - chestLED.write()
+ *   - mip.begin()
+ *   - mip.chestLED.write()
  *   - LittleFS.begin(), LittleFS.open(), LittleFS.remove()
- *
- * This sketch primarily shows how MiP can be used as an output device, rather
- * than strictly testing MiP or its API.
  *
  * Notes:
  *   - LittleFS is provided by the ESP8266 core for Wemos D1 mini boards.
@@ -43,31 +40,35 @@
 /**
  * @brief Global MiP instance used to communicate with MiP.
  *
- * @details Use this object to call MiP API functions such as begin(), etc.
+ * @details Use this object to call MiP API functions such as begin(),
+ * chestLED.write(), etc.
  */
 MiP mip;
+
+/**
+ * @brief Tracks whether the initial connection to MiP succeeded.
+ */
+bool connectResult;
 
 /**
  * @brief Arduino setup function.
  *
  * @details
- * - Initializes Serial1 for diagnostics.
- * - Attempts to initialize MiP's connection via mip.begin() and sets the
- *   global `connectResult` flag.
- * - Mounts LittleFS and verifies success.
+ * - Initializes MiP's connection via mip.begin() and sets the global
+ *   `connectResult` flag.
+ * - Mounts LittleFS onboard filesystem and verifies success.
  * - Writes a password to /f.txt, reads it back, trims whitespace, compares
- *   to the original, and sets the chest LED to violet on match or red on
+ *   to the original, and sets MiP's chest LED to violet on match or red on
  *   mismatch.
- * - Deletes the temporary file and restores the chest LED to green after a
+ * - Deletes the temporary file and restores MiP's chest LED to green after a
  *   delay.
  *
- * If MiP's connection or the LittleFS mount fails, the function halts in a 
- * safe loop after printing an error so loop() will not run and cause further
- * errors.
+ * If MiP's connection or the LittleFS mount fails, the function prints an error
+ * to Serial1 and returns early.
  */
 void setup() {
   // Initialize MiP and record result in global flag.
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
 
   if (!connectResult) {
     Serial1.println(F("PersistentMemory.ino: Failed connecting to MiP!"));
@@ -84,9 +85,8 @@ void setup() {
     Serial1.println(F("PersistentMemory.ino: LittleFS failed to mount."));
     // Indicate error on chest LED (red) and stop.
     mip.chestLED.write(0xFF, 0x00, 0x00);
-    while (true) {
-      delay(1000);
-    }
+    connectResult = false;
+    return;
   }
   Serial1.println(F("LittleFS mounted."));
 
@@ -155,4 +155,8 @@ void setup() {
  * repeated work in loop().
  */
 void loop() {
+  // Exit immediately if connecting to MiP or LittleFS failed during setup()
+  if (!connectResult) {
+    return;
+  }
 }
