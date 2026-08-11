@@ -26,7 +26,7 @@ class MiP;
  * @brief MiP physical orientation or position states.
  */
 enum MiPPosition : uint8_t {
-  MIP_POSITION_ON_BACK = 0x00,    ///< MiP is lying on its back.
+  MIP_POSITION_ON_BACK = 0x00,    ///< MiP is lying on back position.
   MIP_POSITION_FACE_DOWN = 0x01,  ///< MiP is lying face down.
   MIP_POSITION_UPRIGHT =
       0x02,  ///< MiP is standing upright in balance position.
@@ -35,7 +35,7 @@ enum MiPPosition : uint8_t {
   MIP_POSITION_FACE_DOWN_ON_TRAY =
       0x05,  ///< MiP is face down with tray accessory attached.
   MIP_POSITION_ON_BACK_WITH_KICKSTAND =
-      0x06,  ///< MiP is lying on its back with kickstand deployed.
+      0x06,  ///< MiP is lying on back with kickstand deployed.
 };
 
 /**
@@ -50,13 +50,14 @@ class MiP_Position {
    * status events). No new serial request is sent to the robot hardware.
    *
    * @return MiPPosition Current physical position as a MiPPosition enum value.
+   *         Returns MIP_POSITION_ON_BACK_WITH_KICKSTAND if uninitialized.
    */
   MiPPosition read();
 
   /**
-   * @brief Checks if MiP is lying on its back.
+   * @brief Checks if MiP is lying on back position.
    *
-   * @return true if MiP is lying on its back, false otherwise.
+   * @return true if MiP is lying on back, false otherwise.
    */
   bool isOnBack();
 
@@ -90,27 +91,27 @@ class MiP_Position {
   bool isHandStanding();
 
   /**
-   * @brief Checks if MiP is face down on its tray.
+   * @brief Checks if MiP is face down on tray position.
    *
-   * @return true if MiP is face down on its tray, false otherwise.
+   * @return true if MiP is face down on tray, false otherwise.
    */
   bool isFaceDownOnTray();
 
   /**
-   * @brief Checks if MiP is on its back with the kickstand deployed.
+   * @brief Checks if MiP is on back with the kickstand deployed.
    *
-   * @return true if MiP is on its back with kickstand deployed, false
+   * @return true if MiP is on back with kickstand deployed, false
    * otherwise.
    */
   bool isOnBackWithKickstand();
 
  private:
   /**
-   * @brief Constructs the position manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core services.
    */
-  MiP_Position(MiP& mip);
+  explicit MiP_Position(MiP& mip);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
 
