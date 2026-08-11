@@ -29,10 +29,12 @@ class MiP_Battery {
   /**
    * @brief Reads MiP's cached battery voltage.
    *
-   * The voltage is read from MiP's periodic status updates and is
-   * never more than 30 seconds old.
+   * @details Processes any pending Out-Of-Band status events to update internal
+   * cached voltage data without transmitting a new request to MiP. The cached
+   * value is updated from periodic status updates.
    *
-   * @return Battery voltage, typically 4.0V (low) to 6.4V (full).
+   * @return float Battery voltage in Volts, typically 4.0V (low) to 6.4V (fully charged).
+   *         Returns 0.0f if MiP is uninitialized.
    */
   float readVoltage();
 
