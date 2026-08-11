@@ -111,15 +111,15 @@ void MiP::sleep() {
   serial.rawSend(command, sizeof(command));
 }
 
-bool MiP::isInitialized() {
+bool MiP::isInitialized() const {
   return (m_flags & MIP_FLAG_INITIALIZED);
 }
 
-int8_t MiP::lastCallResult() {
+int8_t MiP::lastCallResult() const {
   return m_lastError;
 }
 
-bool MiP::didLastCallFail() {
+bool MiP::didLastCallFail() const {
   return m_lastError != MIP_ERROR_NONE;
 }
 
@@ -148,6 +148,68 @@ void MiP::printLastCallResult() {
         break;
     }
   }
+}
+
+uint32_t MiP::getBaudRate() const {
+  return m_baudRate;
+}
+
+// ==========================================================================
+// Protected functions.
+// ==========================================================================
+
+void MiP::clear() {
+  m_baudRate = 0;  // 0 = not connected
+  m_flags = 0;
+  m_lastError = MIP_ERROR_NONE;
+  m_lastStatus.clear();
+  clap.clear();
+  gesture.clear();
+  infrared.clear();
+  radar.clear();
+  serial.clear();
+  weight.clear();
+  wifi.clear();
+}
+
+// This internal protected method provides the common code for connection
+// attempts at baud rates of 115200 or 9600.
+int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
+  Serial.end();
+  delay(20);
+
+  // Fresh start on default pins (GPIO1/3), then move to MiP pins once.
+  Serial.begin(baudRate, SERIAL_8N1);
+  Serial.swap();  // → GPIO15 TX / GPIO13 RX
+  Serial.flush();
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
+
+  // Enable MiP UART channel.
+  const uint8_t initMipCommand[] = {0xFF};
+  serial.rawSend(initMipCommand, sizeof(initMipCommand));
+  Serial.flush();
+
+  // Spec delay after 0xFF; give 9600 a little extra settle time.
+  delay(baudRate <= 9600 ? 50 : 30);
+
+  serial.discardUnexpectedSerialData();
+
+  int8_t result = rawGetStatus(m_lastStatus);
+  if (result == MIP_ERROR_NONE) {
+    MIP_DEBUG_INFO_PRINTF("MiP: Connected at %lu baud\r\n",
+                          (unsigned long)baudRate);
+    m_baudRate = baudRate;
+    // Leave UART open on alternate pins.
+    return result;
+  }
+
+  // Failed: return to default pins so the next attempt is clean.
+  Serial.swap();  // alternate → default
+  Serial.end();
+  delay(MIP_BEGIN_RETRY_WAIT);
+  return result;
 }
 
 void MiP::dispatchEvent(uint8_t command,
@@ -200,62 +262,6 @@ void MiP::dispatchEvent(uint8_t command,
       MIP_DEBUG_WARN_PRINTF("MiP: Unknown OOB Event: 0x%02X\n", command);
       break;
   }
-}
-
-// ==========================================================================
-// Protected functions.
-// ==========================================================================
-
-void MiP::clear() {
-  m_flags = 0;
-  m_lastError = MIP_ERROR_NONE;
-  m_lastStatus.clear();
-  clap.clear();
-  gesture.clear();
-  infrared.clear();
-  radar.clear();
-  serial.clear();
-  weight.clear();
-  wifi.clear();
-}
-
-// This internal protected method provides the common code for connection
-// attempts at baud rates of 115200 or 9600.
-int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
-  Serial.end();
-  delay(20);
-
-  // Fresh start on default pins (GPIO1/3), then move to MiP pins once.
-  Serial.begin(baudRate, SERIAL_8N1);
-  Serial.swap();  // → GPIO15 TX / GPIO13 RX
-  Serial.flush();
-  while (Serial.available() > 0) {
-    Serial.read();
-  }
-
-  // Enable MiP UART channel.
-  const uint8_t initMipCommand[] = {0xFF};
-  serial.rawSend(initMipCommand, sizeof(initMipCommand));
-  Serial.flush();
-
-  // Spec delay after 0xFF; give 9600 a little extra settle time.
-  delay(baudRate <= 9600 ? 50 : 30);
-
-  serial.discardUnexpectedSerialData();
-
-  int8_t result = rawGetStatus(m_lastStatus);
-  if (result == MIP_ERROR_NONE) {
-    MIP_DEBUG_INFO_PRINTF("MiP: Connected at %lu baud\r\n",
-                          (unsigned long)baudRate);
-    // Leave UART open on alternate pins.
-    return result;
-  }
-
-  // Failed: return to default pins so the next attempt is clean.
-  Serial.swap();  // alternate → default
-  Serial.end();
-  delay(MIP_BEGIN_RETRY_WAIT);
-  return result;
 }
 
 // This internal protected method sends the get status command with minimal
