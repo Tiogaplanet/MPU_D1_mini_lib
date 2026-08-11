@@ -159,6 +159,7 @@ class MiP_Clap {
   mip_detail::CircularQueue<uint8_t, 8> m_clapEvents;
 
   friend class MiP;
+  friend class MiP_Serial;
 };
 
 #endif  // MPU_CLAP_H
