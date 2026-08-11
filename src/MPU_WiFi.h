@@ -16,7 +16,11 @@
 #ifndef MPU_WIFI_H
 #define MPU_WIFI_H
 
-#include <stdint.h>
+#include <Arduino.h>
+#include <ArduinoOTA.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
 
 // Forward-declare the main MiP class to avoid circular include dependencies.
 class MiP;
