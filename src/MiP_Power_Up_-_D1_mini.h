@@ -120,7 +120,7 @@
 #define MIP_ASSERT(EXPRESSION) mipAssert((EXPRESSION), __LINE__, __FILE__)
 
 /**
- * @brief MiP's current position and battery voltage.
+ * @brief MiP's current stance position and battery voltage.
  */
 class MiPStatus {
  public:
@@ -146,36 +146,38 @@ class MiPStatus {
 /**
  * @mainpage MiP Power Up - D1 mini library
  *
- * This library provides a complete interface to control the WowWee MiP robot
+ * This library provides a complete interface to control WowWee MiP
  * over UART from a WeMos D1 mini (or compatible ESP8266 board).
  */
 class MiP {
  public:
   /**
-   * @brief MiP protocol command bytes related to core functions.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses). See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
+   * @brief MiP protocol command byte to request app disconnect.
    */
   static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;
+
+  /**
+   * @brief MiP protocol command byte to put MiP to sleep.
+   */
   static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;
+
+  /**
+   * @brief MiP protocol command byte to query status (battery voltage and stance).
+   */
   static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
 
   /**
-   * @brief Integer error codes that can be encountered by the MiP library.
+   * @brief Integer error codes encountered by the MiP library.
    */
   static constexpr uint8_t MIP_ERROR_NONE = 0;  ///< Success.
   static constexpr uint8_t MIP_ERROR_TIMEOUT =
-      1;  ///< Timed out waiting for response.
+      1;  ///< Timed out waiting for response from MiP.
   static constexpr uint8_t MIP_ERROR_NO_EVENT =
       2;  ///< No event has arrived from MiP yet.
   static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
       3;  ///< Unexpected response from MiP.
   static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
-      4;  ///< Exceeded maximum retries.
+      4;  ///< Exceeded maximum retries communicating with MiP.
 
   // Core lifecycle functions.
 
@@ -190,13 +192,12 @@ class MiP {
   /**
    * @brief Destructs the MiP orchestrator object and terminates connections.
    *
-   * @details Calls end() to restore robot defaults and close transport
-   * services.
+   * @details Calls end() to restore defaults and close transport services.
    */
   ~MiP();
 
   /**
-   * @brief Initializes the core UART connection to the MiP robot.
+   * @brief Initializes the core UART connection to MiP.
    *
    * Attempts connection at both 115200 and 9600 baud rates with retries.
    * Sets up debug output on Serial1 and prepares internal state.
@@ -208,15 +209,15 @@ class MiP {
   /**
    * @brief Cleans up the connection to MiP and shuts down network services.
    *
-   * Restores default volume, sends disconnect command, and ends
-   * Serial/WiFi/OTA.
+   * Restores default volume, sends disconnect command to MiP, and ends
+   * Serial/WiFi/OTA services.
    */
   void end();
 
   /**
-   * @brief Puts the MiP robot to sleep.
+   * @brief Puts MiP to sleep.
    *
-   * The robot will need to be physically reset before another `begin()` call.
+   * MiP will need to be physically reset before another `begin()` call.
    */
   void sleep();
 
@@ -230,7 +231,7 @@ class MiP {
    *
    * This accessor does not modify object state and has no side effects.
    * Consider calling this before invoking API methods that require an active
-   * connection to the robot.
+   * connection to MiP.
    *
    * @return **true** if the MiP instance is initialized and ready; **false**
    *         otherwise.
@@ -274,11 +275,11 @@ class MiP {
    */
   void printLastCallResult();
 
-/**
-   * @brief Returns the UART baud rate currently in use with the MiP.
+  /**
+   * @brief Returns the UART baud rate currently in use with MiP.
    *
    * After a successful @ref begin(), this reports either 115200 or 9600
-   * depending on which rate the library negotiated with the robot.
+   * depending on which rate the library negotiated with MiP.
    * Returns 0 if the connection has not been established (or after
    * @ref end() / a failed @ref begin()).
    *
@@ -290,7 +291,7 @@ class MiP {
    * @see begin()
    */
   uint32_t getBaudRate() const;
-  
+
   MiP_Battery
       battery;  ///< Interface for battery voltage queries (see MPU_Battery.h).
   MiP_ChestLED chestLED;  ///< Interface for chest LED RGB/flash control (see
