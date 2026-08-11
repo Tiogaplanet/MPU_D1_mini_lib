@@ -61,6 +61,13 @@ jobs:
                   return ""
               return "".join(element.itertext()).strip()
 
+          def sanitize_cell(text):
+              """ Strips newlines, collapses spaces, and escapes pipe characters for Markdown table cells """
+              if not text:
+                  return ""
+              text = text.replace('\r', ' ').replace('\n', ' ').replace('|', '\\|')
+              return " ".join(text.split())
+
           tree = ET.parse(index_path)
           root = tree.getroot()
 
@@ -163,8 +170,8 @@ jobs:
                               m_block.append("**Parameters:**\n\n")
                               m_block.append("| Parameter | Description |\n|:---|:---|\n")
                               for p_item in param_items:
-                                  p_name = get_text(p_item.find('.//parametername'))
-                                  p_desc = get_text(p_item.find('.//parameterdescription'))
+                                  p_name = sanitize_cell(get_text(p_item.find('.//parametername')))
+                                  p_desc = sanitize_cell(get_text(p_item.find('.//parameterdescription')))
                                   m_block.append(f"| `{p_name}` | {p_desc} |\n")
                               m_block.append("\n")
 
@@ -236,12 +243,12 @@ jobs:
                   page.append("## Enumerator Values\n\n")
                   page.append("| Enumerator | Value | Description |\n|:---|:---|:---|\n")
                   for ev in enum_values:
-                      ev_name = get_text(ev.find('name'))
-                      ev_init = get_text(ev.find('initializer'))
+                      ev_name = sanitize_cell(get_text(ev.find('name')))
+                      ev_init = sanitize_cell(get_text(ev.find('initializer')))
                       ev_brief = get_text(ev.find('briefdescription'))
                       ev_deta = get_text(ev.find('detaileddescription'))
 
-                      desc = ev_brief if ev_brief else ev_deta
+                      desc = sanitize_cell(ev_brief if ev_brief else ev_deta)
                       val_str = f"`{ev_init}`" if ev_init else ""
                       page.append(f"| `{ev_name}` | {val_str} | {desc} |\n")
                   page.append("\n")
@@ -309,7 +316,7 @@ jobs:
           
           git add .
           if ! git diff-index --quiet HEAD; then
-            git commit -m "Auto-update API class & enum documentation from Doxygen"
+            git commit -m "Auto-update API class & enum documentation from Doxygen with table cell sanitization"
             git push
           else
             echo "No changes to commit to Wiki."
