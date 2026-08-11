@@ -32,42 +32,6 @@ class MiP;
 class MiP_Serial {
  public:
   /**
-   * @brief Minimum inter-command delay in milliseconds required between
-   * consecutive UART transmissions.
-   */
-  static constexpr uint8_t MIP_REQUEST_DELAY = 8;
-
-  /**
-   * @brief Maximum duration in milliseconds to wait for a synchronous command
-   * response from MiP.
-   */
-  static constexpr uint8_t MIP_RESPONSE_TIMEOUT = 100;
-
-  /**
-   * @brief Flag passed to transportSendRequest() indicating no response is
-   * expected (fire-and-forget).
-   */
-  static constexpr uint8_t MIP_EXPECT_NO_RESPONSE = 0;
-
-  /**
-   * @brief Flag passed to transportSendRequest() indicating a synchronous
-   * response is expected.
-   */
-  static constexpr uint8_t MIP_EXPECT_RESPONSE = 1;
-
-  /**
-   * @brief Maximum buffer size in bytes required to store the longest MiP
-   * protocol request.
-   */
-  static constexpr size_t MIP_REQUEST_MAX_LEN = 17 + 1;
-
-  /**
-   * @brief Maximum buffer size in bytes required to store the longest MiP
-   * protocol response.
-   */
-  static constexpr size_t MIP_RESPONSE_MAX_LEN = 5 + 1;
-
-  /**
    * @brief Maximum number of retry attempts for verified read and write
    * operations.
    */
@@ -133,18 +97,54 @@ class MiP_Serial {
   bool processAllResponseData();
 
  protected:
+  /**
+   * @brief Minimum inter-command delay in milliseconds required between
+   * consecutive UART transmissions.
+   */
+  static constexpr uint8_t MIP_REQUEST_DELAY = 8;
+
+  /**
+   * @brief Maximum duration in milliseconds to wait for a synchronous command
+   * response from MiP.
+   */
+  static constexpr uint8_t MIP_RESPONSE_TIMEOUT = 100;
+
+  /**
+   * @brief Flag passed to transportSendRequest() indicating no response is
+   * expected (fire-and-forget).
+   */
+  static constexpr uint8_t MIP_EXPECT_NO_RESPONSE = 0;
+
+  /**
+   * @brief Flag passed to transportSendRequest() indicating a synchronous
+   * response is expected.
+   */
+  static constexpr uint8_t MIP_EXPECT_RESPONSE = 1;
+
+  /**
+   * @brief Maximum buffer size in bytes required to store the longest MiP
+   * protocol request.
+   */
+  static constexpr size_t MIP_REQUEST_MAX_LEN = 17 + 1;
+
+  /**
+   * @brief Maximum buffer size in bytes required to store the longest MiP
+   * protocol response.
+   */
+  static constexpr size_t MIP_RESPONSE_MAX_LEN = 5 + 1;
+
   void clear();
+  uint8_t discardUnexpectedSerialData();
 
  private:
   /**
-   * @brief Constructs the serial port transport manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core communication
    * services.
    */
-  MiP_Serial(MiP& mip);
+  explicit MiP_Serial(MiP& mip);
 
-  uint8_t discardUnexpectedSerialData();
   void processOobResponseData(uint8_t commandByte);
   uint8_t transportGetResponse(uint8_t* pResponseBuffer,
                                size_t responseBufferSize,
@@ -157,7 +157,7 @@ class MiP_Serial {
   void copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length);
   uint8_t parseHexDigit(uint8_t digit);
 
-  // Optional readability helper for the variable-length IR case
+  // Readability helper for variable-length IR cases
   bool readIrLength(size_t& length);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
