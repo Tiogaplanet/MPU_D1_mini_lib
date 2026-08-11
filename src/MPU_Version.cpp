@@ -20,8 +20,8 @@
 MiP_Version::MiP_Version(MiP& mip) : m_mip(mip) {}
 
 void MiP_Version::readHardware(MiPHardwareInfo& hardware) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Version->readHardware()");
-  int8_t result;
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Version->readHardware()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
@@ -39,8 +39,8 @@ void MiP_Version::readHardware(MiPHardwareInfo& hardware) {
 }
 
 void MiP_Version::readSoftware(MiPSoftwareVersion& software) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Version->readSoftwareVersion()");
-  int8_t result;
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Version->readSoftware()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
@@ -66,7 +66,7 @@ uint32_t MiP_Version::readMPUNumber() const {
 }
 
 // ==========================================================================
-// Protected functions.
+// Protected / Private functions.
 // ==========================================================================
 
 // This internal protected method sends the get hardware info command with
@@ -75,7 +75,7 @@ uint32_t MiP_Version::readMPUNumber() const {
 int8_t MiP_Version::rawGetHardware(MiPHardwareInfo& hardware) {
   const uint8_t getHardwareInfo[1] = {MIP_CMD_GET_HARDWARE_INFO};
   uint8_t response[1 + 2];
-  size_t responseLength;
+  size_t responseLength = 0;
   int8_t result = m_mip.serial.rawReceive(getHardwareInfo,
                                           sizeof(getHardwareInfo),
                                           response,
@@ -89,7 +89,7 @@ int8_t MiP_Version::rawGetHardware(MiPHardwareInfo& hardware) {
   }
   hardware.voiceChip = response[1];
   hardware.hardware = response[2];
-  return result;
+  return MiP::MIP_ERROR_NONE;
 }
 
 // This internal protected method sends the get software version command with
@@ -98,7 +98,7 @@ int8_t MiP_Version::rawGetHardware(MiPHardwareInfo& hardware) {
 int8_t MiP_Version::rawGetSoftware(MiPSoftwareVersion& software) {
   const uint8_t getSoftwareVersion[1] = {MIP_CMD_GET_SOFTWARE_VERSION};
   uint8_t response[1 + 4];
-  size_t responseLength;
+  size_t responseLength = 0;
   int8_t result = m_mip.serial.rawReceive(getSoftwareVersion,
                                           sizeof(getSoftwareVersion),
                                           response,
@@ -114,5 +114,5 @@ int8_t MiP_Version::rawGetSoftware(MiPSoftwareVersion& software) {
   software.month = response[2];
   software.day = response[3];
   software.uniqueVersion = response[4];
-  return result;
+  return MiP::MIP_ERROR_NONE;
 }
