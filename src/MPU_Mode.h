@@ -48,18 +48,6 @@ enum MiPGameMode : uint8_t {
 class MiP_Mode {
  public:
   /**
-   * @brief MiP protocol command byte to configure MiP's active game/app
-   * operating mode.
-   */
-  static constexpr uint8_t MIP_CMD_SET_GAME_MODE = 0x76;
-
-  /**
-   * @brief MiP protocol command byte to query MiP's active game/app operating
-   * mode.
-   */
-  static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
-
-  /**
    * @brief Switches MiP into App Mode.
    *
    * @details Verified operation: sends the set game mode command and reads back
@@ -149,14 +137,27 @@ class MiP_Mode {
    */
   bool isRoamEnabled();
 
+ protected:
+  /**
+   * @brief MiP protocol command byte to configure MiP's active game/app
+   * operating mode.
+   */
+  static constexpr uint8_t MIP_CMD_SET_GAME_MODE = 0x76;
+
+  /**
+   * @brief MiP protocol command byte to query MiP's active game/app operating
+   * mode.
+   */
+  static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
+
  private:
   /**
-   * @brief Constructs the mode manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core communication
    * services.
    */
-  MiP_Mode(MiP& mip);
+  explicit MiP_Mode(MiP& mip);
 
   void verifiedSet(MiPGameMode desiredMode);
   bool check(MiPGameMode expectedMode);
