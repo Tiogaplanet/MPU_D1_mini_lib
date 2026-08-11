@@ -67,56 +67,10 @@ struct MiPIRDongleCode {
 class MiP_Infrared {
  public:
   /**
-   * @brief Protocol command byte received when an IR dongle code is detected.
-   */
-  static constexpr uint8_t MIP_CMD_RECEIVE_IR_DONGLE_CODE = 0x03;
-
-  /**
-   * @brief Protocol command byte received when a nearby MiP is detected via IR.
-   */
-  static constexpr uint8_t MIP_CMD_GET_DETECTED_MIP = 0x04;
-
-  /**
-   * @brief Protocol command byte to configure MiP detection transmission and
-   * power.
-   */
-  static constexpr uint8_t MIP_CMD_SET_DETECTION_MODE = 0x0E;
-
-  /**
-   * @brief Protocol command byte to enable or disable IR remote control mode.
-   */
-  static constexpr uint8_t MIP_CMD_SET_IR_REMOTE_CONTROL = 0x10;
-
-  /**
-   * @brief Protocol command byte to query if IR remote control mode is active.
-   */
-  static constexpr uint8_t MIP_CMD_GET_IR_REMOTE_CONTROL = 0x11;
-
-  /**
-   * @brief Protocol command byte to transmit an IR dongle code.
-   */
-  static constexpr uint8_t MIP_CMD_SEND_IR_DONGLE_CODE = 0x8C;
-
-  /**
-   * @brief Special ID value used to disable MiP detection mode.
-   */
-  static constexpr uint8_t MIP_IR_DETECTION_MODE_DISABLE = 0;
-
-  /**
-   * @brief State value representing disabled IR remote control mode.
-   */
-  static constexpr uint8_t MIP_IR_REMOTE_CONTROL_DISABLE = 0;
-
-  /**
-   * @brief State value representing enabled IR remote control mode.
-   */
-  static constexpr uint8_t MIP_IR_REMOTE_CONTROL_ENABLE = 1;
-
-  /**
    * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
    *
-   * @details Configures the robot to broadcast its unique ID over IR and listen
-   * for other nearby MiP robots.
+   * @details Configures MiP to broadcast a unique ID over IR and listen for
+   * other nearby MiPs.
    *
    * @param id       Unique ID for this MiP (used in detection events broadcast
    * to others).
@@ -127,7 +81,7 @@ class MiP_Infrared {
   /**
    * @brief Disables MiP detection mode.
    *
-   * @details Stops broadcasting the robot's ID over IR.
+   * @details Stops broadcasting MiP's ID over IR.
    */
   void disableMiPDetectionMode();
 
@@ -247,16 +201,62 @@ class MiP_Infrared {
   void processEvent(uint8_t command, const uint8_t* payload, size_t length);
 
  protected:
+  /**
+   * @brief Protocol command byte received when an IR dongle code is detected.
+   */
+  static constexpr uint8_t MIP_CMD_RECEIVE_IR_DONGLE_CODE = 0x03;
+
+  /**
+   * @brief Protocol command byte received when a nearby MiP is detected via IR.
+   */
+  static constexpr uint8_t MIP_CMD_GET_DETECTED_MIP = 0x04;
+
+  /**
+   * @brief Protocol command byte to configure MiP detection transmission and
+   * power.
+   */
+  static constexpr uint8_t MIP_CMD_SET_DETECTION_MODE = 0x0E;
+
+  /**
+   * @brief Protocol command byte to enable or disable IR remote control mode.
+   */
+  static constexpr uint8_t MIP_CMD_SET_IR_REMOTE_CONTROL = 0x10;
+
+  /**
+   * @brief Protocol command byte to query if IR remote control mode is active.
+   */
+  static constexpr uint8_t MIP_CMD_GET_IR_REMOTE_CONTROL = 0x11;
+
+  /**
+   * @brief Protocol command byte to transmit an IR dongle code.
+   */
+  static constexpr uint8_t MIP_CMD_SEND_IR_DONGLE_CODE = 0x8C;
+
+  /**
+   * @brief Special ID value used to disable MiP detection mode.
+   */
+  static constexpr uint8_t MIP_IR_DETECTION_MODE_DISABLE = 0;
+
+  /**
+   * @brief State value representing disabled IR remote control mode.
+   */
+  static constexpr uint8_t MIP_IR_REMOTE_CONTROL_DISABLE = 0;
+
+  /**
+   * @brief State value representing enabled IR remote control mode.
+   */
+  static constexpr uint8_t MIP_IR_REMOTE_CONTROL_ENABLE = 1;
+
   void clear();
 
  private:
   /**
-   * @brief Constructs the infrared manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
-   * @param mip A reference to the main MiP object to access core communication
+   * @param mip Reference to the main MiP object to access core communication
    * services.
    */
-  MiP_Infrared(MiP& mip);
+  explicit MiP_Infrared(MiP& mip);
 
   void rawSetMiPDetectionMode(uint8_t id, uint8_t txPower);
   void verifiedRemoteControl(uint8_t desiredRemoteControlMode);
@@ -269,9 +269,11 @@ class MiP_Infrared {
   mip_detail::CircularQueue<uint8_t, 8> m_detectedMiPEvents;
 
   /**
-   * @brief Allows MiP to call private constructor.
+   * @brief Allows MiP and transport components to access private constructor
+   * and protected protocol bytes.
    */
   friend class MiP;
+  friend class MiP_Serial;
 };
 
 #endif  // MPU_INFRARED_H
