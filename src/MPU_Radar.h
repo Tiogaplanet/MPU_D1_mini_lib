@@ -25,7 +25,8 @@ class MiP;
  * @brief Proximity distance range intervals reported by MiP's front IR sensors.
  */
 enum MiPRadar : uint8_t {
-  MIP_RADAR_NONE = 0x01,  ///< No obstacle detected within radar tracking range.
+  MIP_RADAR_NONE =
+      0x01,  ///< No obstacle detected within radar tracking range.
   MIP_RADAR_10CM_30CM =
       0x02,  ///< Obstacle detected between 10cm and 30cm in front of MiP.
   MIP_RADAR_0CM_10CM =
@@ -48,24 +49,6 @@ enum MiPRadarMode : uint8_t {
  */
 class MiP_Radar {
  public:
-  /**
-   * @brief MiP protocol command byte to query the current gesture/radar
-   * operating mode.
-   */
-  static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
-
-  /**
-   * @brief MiP protocol command byte to configure the gesture/radar operating
-   * mode.
-   */
-  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
-
-  /**
-   * @brief MiP protocol notification byte received when a radar distance update
-   * arrives.
-   */
-  static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;
-
   /**
    * @brief Resets cached radar tracking data back to MIP_RADAR_INVALID.
    */
@@ -106,13 +89,32 @@ class MiP_Radar {
    */
   MiPRadar read();
 
+ protected:
+  /**
+   * @brief MiP protocol command byte to query the current gesture/radar
+   * operating mode.
+   */
+  static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
+
+  /**
+   * @brief MiP protocol command byte to configure the gesture/radar operating
+   * mode.
+   */
+  static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
+
+  /**
+   * @brief MiP protocol notification byte received when a radar distance update
+   * arrives.
+   */
+  static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;
+
  private:
   /**
-   * @brief Constructs the radar manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core services.
    */
-  MiP_Radar(MiP& mip);
+  explicit MiP_Radar(MiP& mip);
 
   void verifiedSet(MiPRadarMode desiredMode);
   bool check(MiPRadarMode expectedMode);
@@ -135,9 +137,11 @@ class MiP_Radar {
   MiPRadar m_lastRadar;
 
   /**
-   * @brief Allows MiP to call private constructor.
+   * @brief Allows MiP and transport components to access private constructor and
+   * protected protocol bytes.
    */
   friend class MiP;
+  friend class MiP_Serial;
 };
 
 #endif  // MPU_RADAR_H
