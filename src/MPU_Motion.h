@@ -41,7 +41,7 @@ enum MiPTurnDirection : uint8_t {
  * @brief Fall direction for internal fall commands.
  */
 enum MiPFallDirection : uint8_t {
-  MIP_FALL_ON_BACK = 0x00,   ///< Command MiP to fall onto its back.
+  MIP_FALL_ON_BACK = 0x00,   ///< Command MiP to fall onto back position.
   MIP_FALL_FACE_DOWN = 0x01  ///< Command MiP to fall face down.
 };
 
@@ -62,62 +62,6 @@ enum MiPGetUp : uint8_t {
  */
 class MiP_Motion {
  public:
-  /**
-   * @brief MiP protocol command byte for continuous drive (velocity + turn
-   * rate).
-   */
-  static constexpr uint8_t MIP_CMD_CONTINUOUS_DRIVE = 0x78;
-
-  /**
-   * @brief MiP protocol command byte to drive a specific distance and angle.
-   */
-  static constexpr uint8_t MIP_CMD_DISTANCE_DRIVE = 0x70;
-
-  /**
-   * @brief MiP protocol command byte to turn left by a specific angle and
-   * speed.
-   */
-  static constexpr uint8_t MIP_CMD_TURN_LEFT = 0x73;
-
-  /**
-   * @brief MiP protocol command byte to turn right by a specific angle and
-   * speed.
-   */
-  static constexpr uint8_t MIP_CMD_TURN_RIGHT = 0x74;
-
-  /**
-   * @brief MiP protocol command byte to drive forward for a timed duration.
-   */
-  static constexpr uint8_t MIP_CMD_DRIVE_FORWARD = 0x71;
-
-  /**
-   * @brief MiP protocol command byte to drive backward for a timed duration.
-   */
-  static constexpr uint8_t MIP_CMD_DRIVE_BACKWARD = 0x72;
-
-  /**
-   * @brief MiP protocol command byte to immediately stop all motor motion.
-   */
-  static constexpr uint8_t MIP_CMD_STOP = 0x77;
-
-  /**
-   * @brief MiP protocol command byte to force MiP to fall down in a specified
-   * direction.
-   */
-  static constexpr uint8_t MIP_CMD_SET_POSITION = 0x08;
-
-  /**
-   * @brief MiP protocol command byte to command MiP to stand up from a fallen
-   * position.
-   */
-  static constexpr uint8_t MIP_CMD_GET_UP = 0x23;
-
-  /**
-   * @brief Minimum inter-command delay in milliseconds for continuous drive
-   * commands (~20 Hz).
-   */
-  static constexpr uint8_t MIP_CONTINUOUS_DRIVE_DELAY = 50;
-
   /**
    * @brief Sends continuous drive command (velocity + turn rate).
    *
@@ -201,12 +145,12 @@ class MiP_Motion {
   void stop();
 
   /**
-   * @brief Commands MiP to fall forward onto its face.
+   * @brief Commands MiP to fall forward onto face position.
    */
   void fallForward();
 
   /**
-   * @brief Commands MiP to fall backward onto its back.
+   * @brief Commands MiP to fall backward onto back position.
    */
   void fallBackward();
 
@@ -218,14 +162,71 @@ class MiP_Motion {
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
+ protected:
+  /**
+   * @brief MiP protocol command byte for continuous drive (velocity + turn
+   * rate).
+   */
+  static constexpr uint8_t MIP_CMD_CONTINUOUS_DRIVE = 0x78;
+
+  /**
+   * @brief MiP protocol command byte to drive a specific distance and angle.
+   */
+  static constexpr uint8_t MIP_CMD_DISTANCE_DRIVE = 0x70;
+
+  /**
+   * @brief MiP protocol command byte to turn left by a specific angle and
+   * speed.
+   */
+  static constexpr uint8_t MIP_CMD_TURN_LEFT = 0x73;
+
+  /**
+   * @brief MiP protocol command byte to turn right by a specific angle and
+   * speed.
+   */
+  static constexpr uint8_t MIP_CMD_TURN_RIGHT = 0x74;
+
+  /**
+   * @brief MiP protocol command byte to drive forward for a timed duration.
+   */
+  static constexpr uint8_t MIP_CMD_DRIVE_FORWARD = 0x71;
+
+  /**
+   * @brief MiP protocol command byte to drive backward for a timed duration.
+   */
+  static constexpr uint8_t MIP_CMD_DRIVE_BACKWARD = 0x72;
+
+  /**
+   * @brief MiP protocol command byte to immediately stop all motor motion.
+   */
+  static constexpr uint8_t MIP_CMD_STOP = 0x77;
+
+  /**
+   * @brief MiP protocol command byte to force MiP to fall down in a specified
+   * direction.
+   */
+  static constexpr uint8_t MIP_CMD_SET_POSITION = 0x08;
+
+  /**
+   * @brief MiP protocol command byte to command MiP to stand up from a fallen
+   * position.
+   */
+  static constexpr uint8_t MIP_CMD_GET_UP = 0x23;
+
+  /**
+   * @brief Minimum inter-command delay in milliseconds for continuous drive
+   * commands (~20 Hz).
+   */
+  static constexpr uint8_t MIP_CONTINUOUS_DRIVE_DELAY = 50;
+
  private:
   /**
-   * @brief Constructs the drive system manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core communication
    * services.
    */
-  MiP_Motion(MiP& mip);
+  explicit MiP_Motion(MiP& mip);
 
   void fallDown(MiPFallDirection direction);
 
