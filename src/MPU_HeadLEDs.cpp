@@ -20,8 +20,8 @@
 MiP_HeadLEDs::MiP_HeadLEDs(MiP& mip) : m_mip(mip) {}
 
 void MiP_HeadLEDs::read(MiPHeadLEDs& headLEDs) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->read()");
-  int8_t result;
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->read()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
@@ -42,8 +42,8 @@ void MiP_HeadLEDs::write(MiPHeadLED led1,
                          MiPHeadLED led2,
                          MiPHeadLED led3,
                          MiPHeadLED led4) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->write()");
-  int8_t result;
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->write()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
 
   // Send the set command and then issue the corresponding get command. Retry if
   // the get fails or doesn't return the expected new setting.
@@ -77,7 +77,7 @@ void MiP_HeadLEDs::write(MiPHeadLED led1,
 }
 
 void MiP_HeadLEDs::write(const MiPHeadLEDs& headLEDs) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->write()");
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->write()"));
   write(headLEDs.led1, headLEDs.led2, headLEDs.led3, headLEDs.led4);
 }
 
@@ -85,12 +85,12 @@ void MiP_HeadLEDs::unverifiedWrite(MiPHeadLED led1,
                                    MiPHeadLED led2,
                                    MiPHeadLED led3,
                                    MiPHeadLED led4) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->unverifiedWrite()");
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->unverifiedWrite()"));
   rawSet(led1, led2, led3, led4);
 }
 
 void MiP_HeadLEDs::unverifiedWrite(const MiPHeadLEDs& headLEDs) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->HeadLEDs->unverifiedWrite()");
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->unverifiedWrite()"));
   unverifiedWrite(headLEDs.led1, headLEDs.led2, headLEDs.led3, headLEDs.led4);
 }
 
@@ -103,24 +103,24 @@ void MiP_HeadLEDs::unverifiedWrite(const MiPHeadLEDs& headLEDs) {
 int8_t MiP_HeadLEDs::rawGet(MiPHeadLEDs& headLEDs) {
   const uint8_t getHeadLEDs[1] = {MIP_CMD_GET_HEAD_LEDS};
   uint8_t response[1 + 4];
-  size_t responseLength;
-  int result = m_mip.serial.rawReceive(getHeadLEDs,
-                                       sizeof(getHeadLEDs),
-                                       response,
-                                       sizeof(response),
-                                       responseLength);
+  size_t responseLength = 0;
+  int8_t result = m_mip.serial.rawReceive(getHeadLEDs,
+                                          sizeof(getHeadLEDs),
+                                          response,
+                                          sizeof(response),
+                                          responseLength);
   if (result)
     return result;
   if (responseLength != sizeof(response) ||
-      response[0] != (uint8_t)MIP_CMD_GET_HEAD_LEDS ||
+      response[0] != MIP_CMD_GET_HEAD_LEDS ||
       !isValidSingleLED(response[1]) || !isValidSingleLED(response[2]) ||
       !isValidSingleLED(response[3]) || !isValidSingleLED(response[4])) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
-  headLEDs.led1 = (MiPHeadLED)response[1];
-  headLEDs.led2 = (MiPHeadLED)response[2];
-  headLEDs.led3 = (MiPHeadLED)response[3];
-  headLEDs.led4 = (MiPHeadLED)response[4];
+  headLEDs.led1 = static_cast<MiPHeadLED>(response[1]);
+  headLEDs.led2 = static_cast<MiPHeadLED>(response[2]);
+  headLEDs.led3 = static_cast<MiPHeadLED>(response[3]);
+  headLEDs.led4 = static_cast<MiPHeadLED>(response[4]);
   return MiP::MIP_ERROR_NONE;
 }
 
