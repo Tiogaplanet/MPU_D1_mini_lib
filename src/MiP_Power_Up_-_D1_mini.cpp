@@ -15,21 +15,6 @@
  */
 #include "MiP_Power_Up_-_D1_mini.h"
 
-// Number of times that begin() method should try to initialize MiP.
-#define MIP_MAX_BEGIN_RETRIES 5
-
-// Number of milliseconds to wait between retries in begin().
-#define MIP_BEGIN_RETRY_WAIT 500
-
-// Baud rate used for the ESP8266 debug channel.
-#define ESP8266_DEBUG_BAUD_RATE 74880
-
-// Fast baud rate for MiP communications.
-#define MIP_FAST_BAUD_RATE 115200
-
-// Slow baud rate for MiP communications.  MiPs support one or the other.
-#define MIP_SLOW_BAUD_RATE 9600
-
 MiP::MiP()
     : battery(*this),
       chestLED(*this),
