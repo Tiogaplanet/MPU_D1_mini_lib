@@ -25,10 +25,10 @@ class MiP;
  * @brief Individual head LED lighting and blinking patterns.
  */
 enum MiPHeadLED : uint8_t {
-  MIP_HEAD_LED_OFF = 0,         ///< Head LED is turned off.
-  MIP_HEAD_LED_ON = 1,          ///< Head LED is continuously turned on.
-  MIP_HEAD_LED_BLINK_SLOW = 2,  ///< Head LED blinks at a slow rate.
-  MIP_HEAD_LED_BLINK_FAST = 3,  ///< Head LED blinks at a fast rate.
+  MIP_HEAD_LED_OFF = 0,        ///< Head LED is turned off.
+  MIP_HEAD_LED_ON = 1,         ///< Head LED is continuously turned on.
+  MIP_HEAD_LED_BLINK_SLOW = 2, ///< Head LED blinks at a slow rate.
+  MIP_HEAD_LED_BLINK_FAST = 3, ///< Head LED blinks at a fast rate.
 };
 
 /**
@@ -60,10 +60,10 @@ class MiPHeadLEDs {
     led4 = MIP_HEAD_LED_OFF;
   }
 
-  MiPHeadLED led1;  ///< Pattern state for Head LED 1.
-  MiPHeadLED led2;  ///< Pattern state for Head LED 2.
-  MiPHeadLED led3;  ///< Pattern state for Head LED 3.
-  MiPHeadLED led4;  ///< Pattern state for Head LED 4.
+  MiPHeadLED led1; ///< Pattern state for Head LED 1.
+  MiPHeadLED led2; ///< Pattern state for Head LED 2.
+  MiPHeadLED led3; ///< Pattern state for Head LED 3.
+  MiPHeadLED led4; ///< Pattern state for Head LED 4.
 };
 
 /**
@@ -71,17 +71,6 @@ class MiPHeadLEDs {
  */
 class MiP_HeadLEDs {
  public:
-  /**
-   * @brief MiP protocol command byte to set the patterns of all four head LEDs.
-   */
-  static constexpr uint8_t MIP_CMD_SET_HEAD_LEDS = 0x8A;
-
-  /**
-   * @brief MiP protocol command byte to query the current patterns of all four
-   * head LEDs.
-   */
-  static constexpr uint8_t MIP_CMD_GET_HEAD_LEDS = 0x8B;
-
   /**
    * @brief Reads the current state of all four head LEDs.
    *
@@ -149,14 +138,26 @@ class MiP_HeadLEDs {
    */
   void unverifiedWrite(const MiPHeadLEDs& headLEDs);
 
+ protected:
+  /**
+   * @brief MiP protocol command byte to set the patterns of all four head LEDs.
+   */
+  static constexpr uint8_t MIP_CMD_SET_HEAD_LEDS = 0x8A;
+
+  /**
+   * @brief MiP protocol command byte to query the current patterns of all four
+   * head LEDs.
+   */
+  static constexpr uint8_t MIP_CMD_GET_HEAD_LEDS = 0x8B;
+
  private:
   /**
-   * @brief Constructs the eye LED manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core communication
    * services.
    */
-  MiP_HeadLEDs(MiP& mip);
+  explicit MiP_HeadLEDs(MiP& mip);
 
   int8_t rawGet(MiPHeadLEDs& headLEDs);
   void rawSet(MiPHeadLED led1,
