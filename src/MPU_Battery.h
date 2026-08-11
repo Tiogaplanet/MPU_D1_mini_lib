@@ -41,7 +41,7 @@ class MiP_Battery {
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    * @param mip A reference to the main MiP object to access core services.
    */
-  MiP_Battery(MiP& mip);
+  explicit MiP_Battery(MiP& mip);
 
   /**
    * @brief A private variable that stores a reference to the main MiP class.
