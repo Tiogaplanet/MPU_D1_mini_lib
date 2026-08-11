@@ -17,8 +17,7 @@
 
 // Implement the constructor to store the MiP reference.
 MiP_Motion::MiP_Motion(MiP& mip) : m_mip(mip) {
-  m_lastContinuousDriveTime =
-      millis() - MIP_CONTINUOUS_DRIVE_DELAY;
+  m_lastContinuousDriveTime = millis() - MIP_CONTINUOUS_DRIVE_DELAY;
 }
 
 void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
@@ -30,7 +29,7 @@ void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
   // Ignore requests if they come in too fast so that it can be done in a
   // tight loop but not overload MiP.
   if (millis() - m_lastContinuousDriveTime < MIP_CONTINUOUS_DRIVE_DELAY) {
-    m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+    m_mip.m_lastError = MiP::MIP_ERROR_NONE;
     return;
   }
   m_lastContinuousDriveTime = millis();
@@ -46,7 +45,7 @@ void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection,
@@ -60,13 +59,13 @@ void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection,
   command[1] = driveDirection;
   command[2] = cm;
   command[3] = turnDirection;
-  command[4] = degrees >> 8;
-  command[5] = degrees & 0xFF;
+  command[4] = static_cast<uint8_t>(degrees >> 8);
+  command[5] = static_cast<uint8_t>(degrees & 0xFF);
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::driveForward(uint8_t speed, uint16_t time) {
@@ -76,26 +75,34 @@ void MiP_Motion::driveForward(uint8_t speed, uint16_t time) {
   m_mip.MIP_ASSERT(speed <= 30);
   m_mip.MIP_ASSERT(time <= 255 * 7);
 
+  if (time > 255 * 7) {
+    time = 255 * 7;
+  }
+
   command[0] = MIP_CMD_DRIVE_FORWARD;
   command[1] = speed;
-  command[2] = time / 7;
+  command[2] = static_cast<uint8_t>(time / 7);
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
-  // The time parameters is in units of 7 milliseconds.
+  // The time parameter is in units of 7 milliseconds.
   uint8_t command[1 + 2];
 
   m_mip.MIP_ASSERT(speed <= 30);
   m_mip.MIP_ASSERT(time <= 255 * 7);
 
+  if (time > 255 * 7) {
+    time = 255 * 7;
+  }
+
   command[0] = MIP_CMD_DRIVE_BACKWARD;
   command[1] = speed;
-  command[2] = time / 7;
+  command[2] = static_cast<uint8_t>(time / 7);
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
@@ -105,11 +112,15 @@ void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
 
 void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
   // The turn command is in units of 5 degrees.
-  uint8_t angle = degrees / 5;
-  uint8_t command[1 + 2];
-
   m_mip.MIP_ASSERT(degrees <= 255 * 5);
   m_mip.MIP_ASSERT(speed <= 24);
+
+  if (degrees > 255 * 5) {
+    degrees = 255 * 5;
+  }
+
+  uint8_t angle = static_cast<uint8_t>(degrees / 5);
+  uint8_t command[1 + 2];
 
   command[0] = MIP_CMD_TURN_LEFT;
   command[1] = angle;
@@ -123,11 +134,15 @@ void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
 
 void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
   // The turn command is in units of 5 degrees.
-  uint8_t angle = degrees / 5;
-  uint8_t command[1 + 2];
-
   m_mip.MIP_ASSERT(degrees <= 255 * 5);
   m_mip.MIP_ASSERT(speed <= 24);
+
+  if (degrees > 255 * 5) {
+    degrees = 255 * 5;
+  }
+
+  uint8_t angle = static_cast<uint8_t>(degrees / 5);
+  uint8_t command[1 + 2];
 
   command[0] = MIP_CMD_TURN_RIGHT;
   command[1] = angle;
@@ -136,7 +151,7 @@ void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
   m_mip.serial.rawSend(command, sizeof(command));
-  m_mip.m_lastError = m_mip.MIP_ERROR_NONE;
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::stop() {
@@ -161,7 +176,7 @@ void MiP_Motion::fallBackward() {
 void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
   uint8_t command[1 + 1];
   command[0] = MIP_CMD_GET_UP;
-  command[1] = getup;
+  command[1] = static_cast<uint8_t>(getup);
 
   // Send this command blindly with no error checking since there is no easy
   // way to determine if it has failed.
@@ -170,7 +185,7 @@ void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
 }
 
 // ==========================================================================
-// Protected functions.
+// Protected / Private functions.
 // ==========================================================================
 
 // This internal protected method sends the desired set position command to
@@ -178,7 +193,7 @@ void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
 void MiP_Motion::fallDown(MiPFallDirection direction) {
   uint8_t command[1 + 1];
   command[0] = MIP_CMD_SET_POSITION;
-  command[1] = direction;
+  command[1] = static_cast<uint8_t>(direction);
 
   // Send this command blindly with no error checking since there is no easy
   // way to determine if it has failed.
