@@ -85,6 +85,9 @@ bool system_update_cpu_freq(uint8 freq);
  */
 class MiPDebug : public Print {
  public:
+ // --- System Configuration Constants ---
+  static constexpr uint16_t TELNET_PORT = 23;            ///< Default TCP telnet port (23).
+
   /**
    * @name Logging Severity Levels
    * @{
@@ -212,7 +215,6 @@ class MiPDebug : public Print {
 
  protected:
   // --- System Configuration Constants ---
-  static constexpr uint16_t TELNET_PORT = 23;            ///< Default TCP telnet port.
   static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity disconnect timeout (1 hour).
   static constexpr size_t BUFFER_PRINT = 150;            ///< Print character buffer size.
 
@@ -274,8 +276,6 @@ class MiPDebug : public Print {
   uint16_t m_sizeBufferSend = 0;
   uint32_t m_lastTimeSend = 0;
 #endif
-
-  friend class MiP_WiFi;
 };
 
 #endif  // MPU_DEBUG_H
