@@ -17,10 +17,6 @@
 #define MPU_D1_MINI_H
 
 #include <Arduino.h>
-#include <ArduinoOTA.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
 #include <stdint.h>
 #include <stdlib.h>
 
