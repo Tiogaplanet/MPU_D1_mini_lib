@@ -3,14 +3,15 @@
  * @brief Example sketch demonstrating MiP forward and backward drive commands.
  *
  * @details This sketch shows how to use the MiP library's driveForward() and
- * driveBackward() functions to move the robot a fixed speed for a specified
+ * driveBackward() functions to move MiP at a fixed speed for a specified
  * duration. The example drives forward for one second, waits, then drives
  * backward for one second. It prints status messages to Serial1 to indicate
  * progress and completion.
  *
  * The example exercises these API calls:
- *   - motion.driveForward()
- *   - motion.driveBackward()
+ *   - mip.begin()
+ *   - mip.motion.driveForward()
+ *   - mip.motion.driveBackward()
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -23,7 +24,7 @@
 #include <MiP_Power_Up_-_D1_mini.h>
 
 /**
- * @brief Global MiP instance used to communicate with the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(),
  * motion.driveForward(), and motion.driveBackward().
@@ -31,20 +32,25 @@
 MiP mip;
 
 /**
+ * @brief Tracks whether the initial connection to MiP succeeded.
+ */
+bool connectResult;
+
+/**
  * @brief Arduino setup function.
  *
  * @details Called once after the board powers up or resets. This function:
- *  - Initializes communication with the MiP robot by calling mip.begin().
+ *  - Initializes communication with MiP by calling mip.begin().
  *  - If the connection fails, prints an error to Serial1 and returns early.
  *  - If successful, prints a description of the demonstration and issues
  *    a forward drive command for 1000 ms, waits 2000 ms, then issues a
  *    backward drive command for 1000 ms and waits another 2000 ms.
  *
- * The function demonstrates non-blocking command usage where the MiP device
- * handles the timed motion while the sketch issues the commands.
+ * The function demonstrates non-blocking command usage where MiP's device
+ * firmware handles the timed motion while the sketch issues the commands.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
     Serial1.println(F("DriveForwardBackward.ino: Failed connecting to MiP!"));
     return;
@@ -56,14 +62,12 @@ void setup() {
 
   /* Drive forward at speed 15 for 1000 milliseconds. */
   mip.motion.driveForward(15, 1000);
-  /* Wait 2000 ms to allow the forward motion to complete and provide a pause.
-   */
+  /* Wait 2000 ms to allow the forward motion to complete and provide a pause. */
   delay(2000);
 
   /* Drive backward at speed 15 for 1000 milliseconds. */
   mip.motion.driveBackward(15, 1000);
-  /* Wait 2000 ms to allow the backward motion to complete and provide a pause.
-   */
+  /* Wait 2000 ms to allow the backward motion to complete and provide a pause. */
   delay(2000);
 
   Serial1.println();
@@ -74,8 +78,11 @@ void setup() {
  * @brief Arduino loop function.
  *
  * @details This example performs all actions in setup() and does not require
- * repeated work in loop(). The function is intentionally left empty so the
- * sketch does not issue additional commands after the demonstration completes.
+ * repeated work in loop().
  */
-void loop() {}
-
+void loop() {
+  // Exit immediately if connecting to MiP failed during setup()
+  if (!connectResult) {
+    return;
+  }
+}
