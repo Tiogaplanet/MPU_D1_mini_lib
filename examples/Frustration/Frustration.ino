@@ -1,16 +1,16 @@
 /**
- * @file frustration.ino
+ * @file Frustration.ino
  * @brief Playful MiP "frustration" behavior: wander, evade, then tantrum.
  *
- * @details This sketch makes a MiP wander happily using radar-based obstacle
- * detection. When the robot detects too many near obstructions within a
- * cooldown interval, it expresses a short "frustration" routine: chest LED
- * turns red, head LEDs flash, it plays angry sounds, spins randomly a few
- * times, then recovers (chest LED turns green and it makes an exhaustion
- * sound). The sketch uses non-blocking timing (millis()) to track a cooldown
- * period and counts near-obstruction events to determine when to trigger the
- * frustration routine. If the MiP is tipped over, the sketch relinquishes
- * control back to factory behavior when a clap is detected.
+ * @details This sketch makes MiP wander happily using radar-based obstacle
+ * detection. When MiP detects too many near obstructions within a
+ * cooldown interval, a short "frustration" routine is expressed: chest LED
+ * turns red, head LEDs flash, angry sounds play, MiP spins randomly a few
+ * times, then recovers (chest LED turns green and an exhaustion sound plays).
+ * The sketch uses non-blocking timing (millis()) to track a cooldown period
+ * and counts near-obstruction events to determine when to trigger the
+ * frustration routine. If MiP is tipped over, the sketch relinquishes control
+ * back to factory behavior when a clap is detected.
  *
  * The example exercises these API calls:
  *   - begin()
@@ -35,7 +35,13 @@
 #include <MiP_Power_Up_-_D1_mini.h>
 
 /**
- * @brief Global MiP instance used to control the robot.
+ * @brief Forward declarations for helper functions.
+ */
+void frustration();
+void randomEvasion();
+
+/**
+ * @brief Global MiP instance used to control MiP.
  *
  * @details Use this object to call MiP API functions throughout the sketch.
  */
@@ -54,10 +60,10 @@ const uint8_t blue = 0x00;
 /**
  * @brief Cooldown interval in milliseconds.
  *
- * @details If MiP avoids near obstacles for this interval, its frustration
+ * @details If MiP avoids near obstacles for this interval, the frustration
  * counter is reset. Default is one minute (60000 ms).
  */
-const long cooldownInterval = 60000;
+const uint32_t cooldownInterval = 60000;
 
 /**
  * @brief Number of near-obstruction events tolerated within the cooldown
@@ -78,28 +84,25 @@ uint8_t frustrationLevel = 0;
  *
  * @details Used with millis() to implement non-blocking cooldown timing.
  */
-unsigned long previousMillis = 0;
+uint32_t previousMillis = 0;
 
 /**
- * @brief Tracks whether the initial connection to the MiP succeeded.
- *
- * @details Stored so other parts of the sketch could check connection state
- * if extended.
+ * @brief Tracks whether the initial connection to MiP succeeded.
  */
 bool connectResult;
 
 /**
  * @brief Initialize MiP and prepare sensors and audio.
  *
- * @details Connects to the MiP, mutes initial volume, seeds the random
+ * @details Connects to MiP, mutes initial volume, seeds the random
  * generator, and enables radar mode for obstacle detection. If connection
- * fails, prints an error to Serial and returns early.
+ * fails, prints an error to Serial1 and returns early.
  */
 void setup() {
-  // Initialize the serial connection with the MiP.
+  // Initialize the connection with MiP.
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial.println(F("Frustration.ino: Failed connecting to MiP.  Is it turned on?"));
+    Serial1.println(F("Frustration.ino: Failed connecting to MiP. Is MiP turned on?"));
     return;
   }
 
@@ -116,11 +119,11 @@ void setup() {
 /**
  * @brief Main behavior loop.
  *
- * @details While the robot is upright, it wanders forward and uses radar
- * readings to decide whether to evade, increment frustration, or trigger the
- * frustration routine. If the robot is tipped over, the sketch disables
- * radar mode and enables clap detection; a clap will end the sketch and
- * return control to factory behavior.
+ * @details While MiP is upright, continuous forward driving occurs and radar
+ * readings decide whether to evade, increment frustration, or trigger the
+ * frustration routine. If MiP is tipped over, radar mode is disabled and clap
+ * detection is enabled; a clap will end the sketch and return control to
+ * factory behavior.
  */
 void loop() {
   if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
@@ -133,7 +136,7 @@ void loop() {
     static MiPRadar lastRadar = MIP_RADAR_INVALID;
     MiPRadar currentRadar = mip.radar.read();
 
-    unsigned long currentMillis = millis();
+    uint32_t currentMillis = millis();
 
     // Only react when radar reading changes and is valid.
     if (currentRadar != MiPRadar::MIP_RADAR_INVALID && lastRadar != currentRadar) {
@@ -176,17 +179,25 @@ void loop() {
       previousMillis = currentMillis;
       frustrationLevel = 0;
     }
+
+    // Yield control briefly to prevent watchdog reset triggers
+    delay(10);
   }
 
-  // If tipped over, relinquish control back to factory behavior on clap.
+  // If tipped over, prepare to relinquish control back to factory behavior
+  mip.radar.disable();
+  mip.clap.enableEvents();
+
+  // Wait until MiP is upright again or a clap is detected
   while (!mip.position.isUpright()) {
-    mip.radar.disable();
-    mip.clap.enableEvents();
     if (mip.clap.availableEvents() > 0) {
       // Turn off head LEDs and end this sketch so factory code resumes.
       mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       mip.end();
+      connectResult = false; // Mark connection inactive
+      return;
     }
+    delay(50); // Yield CPU time while tipped over
   }
 
   // Re-enable radar mode when upright again.
@@ -205,7 +216,6 @@ void loop() {
  *   - Sets chest LED back to green to indicate recovery.
  */
 void frustration() {
-
   // Set the chest LED to red to indicate anger.
   red = 0xFF;
   green = 0x00;
@@ -226,8 +236,8 @@ void frustration() {
 
   // Do three spins, each in a random direction for a random number of degrees.
   for (uint8_t i = 0; i < 3; i++) {
-    (random(0, 2)) ? mip.motion.turnLeft(random(0, 1276), 24) : mip.motion.turnRight(random(0, 1276), 24);
-    delay(1500);  // allow spin to complete
+    (random(0, 2) == 0) ? mip.motion.turnLeft(random(0, 1276), 24) : mip.motion.turnRight(random(0, 1276), 24);
+    delay(1500);  // Allow spin to complete
   }
 
   // Restore the eyes to steady-on.
@@ -258,4 +268,3 @@ void randomEvasion() {
   (random(0, 2) == 0) ? mip.motion.turnLeft(90, 12) : mip.motion.turnRight(90, 12);
   delay(500);
 }
-
