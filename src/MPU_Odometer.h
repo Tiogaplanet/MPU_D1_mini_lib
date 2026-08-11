@@ -27,18 +27,6 @@ class MiP;
 class MiP_Odometer {
  public:
   /**
-   * @brief MiP protocol command byte to read the accumulated wheel tick
-   * odometer count.
-   */
-  static constexpr uint8_t MIP_CMD_READ_ODOMETER = 0x85;
-
-  /**
-   * @brief MiP protocol command byte to reset the odometer wheel tick counter
-   * to zero.
-   */
-  static constexpr uint8_t MIP_CMD_RESET_ODOMETER = 0x86;
-
-  /**
    * @brief Reads MiP's total distance travelled.
    *
    * @details Queries MiP's wheel encoder ticks and converts the result to
@@ -53,19 +41,37 @@ class MiP_Odometer {
   /**
    * @brief Resets the odometer distance counter back to zero.
    *
-   * @details Sends the reset command to MiP to zero out its internal
-   * wheel tick registers.
+   * @details Sends the reset command to MiP to zero out internal wheel tick
+   * registers.
    */
   void reset();
 
+ protected:
+  /**
+   * @brief MiP protocol command byte to read the accumulated wheel tick
+   * odometer count.
+   */
+  static constexpr uint8_t MIP_CMD_READ_ODOMETER = 0x85;
+
+  /**
+   * @brief MiP protocol command byte to reset the odometer wheel tick counter
+   * to zero.
+   */
+  static constexpr uint8_t MIP_CMD_RESET_ODOMETER = 0x86;
+
+  /**
+   * @brief Encoder wheel ticks per centimeter ratio (48.5 ticks/cm).
+   */
+  static constexpr float TICKS_PER_CM = 48.5f;
+
  private:
   /**
-   * @brief Constructs the odometer manager.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
    * @param mip A reference to the main MiP object to access core communication
    * services.
    */
-  MiP_Odometer(MiP& mip);
+  explicit MiP_Odometer(MiP& mip);
 
   int8_t rawRead(float& distanceInCm);
 
