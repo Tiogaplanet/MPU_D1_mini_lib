@@ -1,6 +1,6 @@
 /**
  * @file Status.ino
- * @brief Example sketch that monitors and reports MiP status changes.
+ * @brief Example sketch that monitors and reports MiP's status changes.
  *
  * @details
  * This sketch demonstrates how to query and report various status values from
