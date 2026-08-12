@@ -1,6 +1,6 @@
 /**
  * @file Odometer.ino
- * @brief Example sketch demonstrating MiP odometer read and reset operations.
+ * @brief Example sketch demonstrating MiP's odometer read and reset operations.
  *
  * @details This sketch shows how to use the MiP library to read the total
  * distance MiP has traveled since the last reset and how to reset the
