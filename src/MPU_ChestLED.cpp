@@ -21,6 +21,7 @@ MiP_ChestLED::MiP_ChestLED(MiP& mip) : m_mip(mip) {}
 void MiP_ChestLED::read(MiPChestLED& chestLED) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->read()"));
+
   int8_t result;
 
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
@@ -38,6 +39,7 @@ void MiP_ChestLED::read(MiPChestLED& chestLED) {
 void MiP_ChestLED::write(uint8_t red, uint8_t green, uint8_t blue) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write()"));
+
   int8_t result;
 
   // Blue channel is 6-bit; zero out lower 2 bits.
@@ -62,7 +64,8 @@ void MiP_ChestLED::write(uint8_t red, uint8_t green, uint8_t blue) {
 void MiP_ChestLED::write(
   uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime) {
   MIP_DEBUG_INFO_PREFIX();
-  MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write(flash)"));
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write()"));
+
   int8_t result;
 
   // Convert on/off time from milliseconds to 20ms ticks.
@@ -94,12 +97,14 @@ void MiP_ChestLED::write(
 void MiP_ChestLED::write(const MiPChestLED& chestLED) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write()"));
+
   write(chestLED.red, chestLED.green, chestLED.blue, chestLED.onTime, chestLED.offTime);
 }
 
 void MiP_ChestLED::unverifiedWrite(uint8_t red, uint8_t green, uint8_t blue) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
+
   rawSet(red, green, blue);
 }
 
@@ -107,6 +112,7 @@ void MiP_ChestLED::unverifiedWrite(
   uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
+
   m_mip.MIP_ASSERT(onTime / 20 <= 255 && offTime / 20 <= 255);
   uint8_t onTicks = static_cast<uint8_t>((onTime + 10) / 20);
   uint8_t offTicks = static_cast<uint8_t>((offTime + 10) / 20);
@@ -116,6 +122,7 @@ void MiP_ChestLED::unverifiedWrite(
 void MiP_ChestLED::unverifiedWrite(const MiPChestLED& chestLED) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
+
   unverifiedWrite(
     chestLED.red, chestLED.green, chestLED.blue, chestLED.onTime, chestLED.offTime);
 }
