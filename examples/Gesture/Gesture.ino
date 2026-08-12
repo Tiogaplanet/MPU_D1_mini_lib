@@ -54,8 +54,7 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("Gesture.ino: Detect gesture and inform user as they occur."));
+  Serial1.println(F("Gesture.ino: Detect gesture and inform user as they occur."));
 
   Serial1.println(F(" Waiting for MiP to be standing upright."));
   while (!mip.position.isUpright()) {
@@ -77,20 +76,14 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   while (mip.gesture.availableEvents() > 0) {
     MiPGesture gesture = mip.gesture.readEvent();
     Serial1.print(F(" Detected "));
     switch (gesture) {
-      case MIP_GESTURE_LEFT:
-        Serial1.println(F("Left gesture!"));
-        break;
-      case MIP_GESTURE_RIGHT:
-        Serial1.println(F("Right gesture!"));
-        break;
+      case MIP_GESTURE_LEFT: Serial1.println(F("Left gesture!")); break;
+      case MIP_GESTURE_RIGHT: Serial1.println(F("Right gesture!")); break;
       case MIP_GESTURE_CENTER_SWEEP_LEFT:
         Serial1.println(F("Center Sweep Left gesture!"));
         break;
@@ -100,12 +93,8 @@ void loop() {
       case MIP_GESTURE_CENTER_HOLD:
         Serial1.println(F("Center Hold gesture!"));
         break;
-      case MIP_GESTURE_FORWARD:
-        Serial1.println(F("Forward gesture!"));
-        break;
-      case MIP_GESTURE_BACKWARD:
-        Serial1.println(F("Backward gesture!"));
-        break;
+      case MIP_GESTURE_FORWARD: Serial1.println(F("Forward gesture!")); break;
+      case MIP_GESTURE_BACKWARD: Serial1.println(F("Backward gesture!")); break;
       case MIP_GESTURE_INVALID:
         /**
          * @note MIP_GESTURE_INVALID should not normally be returned when

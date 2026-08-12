@@ -1,6 +1,7 @@
 /**
  * @file Sleep.ino
- * @brief Demonstrates connecting, disconnecting, reconnecting, and sleeping MiP.
+ * @brief Demonstrates connecting, disconnecting, reconnecting, and sleeping
+ * MiP.
  *
  * @details
  * This example shows how to manage a MiP connection from an MPU: D1 mini using
@@ -51,12 +52,15 @@ bool connectResult;
  * - Attempts to initialize communication with MiP using mip.begin().
  * - If the connection fails, prints an error to Serial1 and returns early.
  * - On success, prints explanatory messages and demonstrates:
- *     1. Leaving the connection open for a short period (chest LED should be green).
+ *     1. Leaving the connection open for a short period (chest LED should be
+ * green).
  *     2. Calling mip.end() to disconnect (chest LED should revert to blue).
  *     3. Reconnecting with mip.begin() to show chest LED returns to green.
- *     4. Calling mip.sleep() to put MiP into a low-power state (requires power cycle to reconnect).
+ *     4. Calling mip.sleep() to put MiP into a low-power state (requires power
+ * cycle to reconnect).
  *
- * The delays are included so the user can observe LED and connection state changes.
+ * The delays are included so the user can observe LED and connection state
+ * changes.
  */
 void setup() {
   connectResult = mip.begin();
@@ -103,7 +107,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

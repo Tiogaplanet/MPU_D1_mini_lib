@@ -62,12 +62,14 @@ void setup() {
 
   /* Drive forward at speed 15 for 1000 milliseconds. */
   mip.motion.driveForward(15, 1000);
-  /* Wait 2000 ms to allow the forward motion to complete and provide a pause. */
+  /* Wait 2000 ms to allow the forward motion to complete and provide a pause.
+   */
   delay(2000);
 
   /* Drive backward at speed 15 for 1000 milliseconds. */
   mip.motion.driveBackward(15, 1000);
-  /* Wait 2000 ms to allow the backward motion to complete and provide a pause. */
+  /* Wait 2000 ms to allow the backward motion to complete and provide a pause.
+   */
   delay(2000);
 
   Serial1.println();
@@ -82,7 +84,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

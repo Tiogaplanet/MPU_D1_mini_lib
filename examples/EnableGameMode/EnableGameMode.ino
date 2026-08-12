@@ -77,7 +77,8 @@ void setup() {
 
   delay(500);
 
-  // Reset MiP's volume to default so you can hear him cycling through the modes.
+  // Reset MiP's volume to default so you can hear him cycling through the
+  // modes.
   mip.sound.writeVolume(MIP_VOLUME_7);
 }
 
@@ -100,43 +101,29 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   mip.mode.enableCage();
-  if (mip.mode.isCageEnabled()) {
-    Serial1.println(F(" Cage mode enabled."));
-  }
+  if (mip.mode.isCageEnabled()) { Serial1.println(F(" Cage mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableDance();
-  if (mip.mode.isDanceEnabled()) {
-    Serial1.println(F(" Dance mode enabled."));
-  }
+  if (mip.mode.isDanceEnabled()) { Serial1.println(F(" Dance mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableStack();
-  if (mip.mode.isStackEnabled()) {
-    Serial1.println(F(" Stack mode enabled."));
-  }
+  if (mip.mode.isStackEnabled()) { Serial1.println(F(" Stack mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableTrick();
-  if (mip.mode.isTrickEnabled()) {
-    Serial1.println(F(" Trick mode enabled."));
-  }
+  if (mip.mode.isTrickEnabled()) { Serial1.println(F(" Trick mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableRoam();
-  if (mip.mode.isRoamEnabled()) {
-    Serial1.println(F(" Roam mode enabled."));
-  }
+  if (mip.mode.isRoamEnabled()) { Serial1.println(F(" Roam mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableApp();
-  if (mip.mode.isAppEnabled()) {
-    Serial1.println(F(" App mode enabled."));
-  }
+  if (mip.mode.isAppEnabled()) { Serial1.println(F(" App mode enabled.")); }
   delay(delayPeriod);
 }

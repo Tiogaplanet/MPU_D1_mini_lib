@@ -62,9 +62,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("DistanceDrive.ino: Use distanceDrive function. Drive forward, turn "
-        "360 degrees in each direction and backward."));
+  Serial1.println(F("DistanceDrive.ino: Use distanceDrive function. Drive forward, turn "
+                    "360 degrees in each direction and backward."));
 
   // Queue up multiple motion commands for MiP to run in sequence.
   // distanceDrive(driveDirection, cm, turnDirection, degrees)
@@ -85,7 +84,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

@@ -126,7 +126,8 @@ void setup() {
  * factory behavior.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  if (!connectResult)
+    return;  // If connecting to MiP failed in setup(), exit now.
 
   // While upright, wander and react to radar.
   while (mip.position.isUpright()) {
@@ -162,8 +163,7 @@ void loop() {
           }
           break;
 
-        default:
-          break;
+        default: break;
       }
       lastRadar = currentRadar;
     }
@@ -194,10 +194,10 @@ void loop() {
       // Turn off head LEDs and end this sketch so factory code resumes.
       mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       mip.end();
-      connectResult = false; // Mark connection inactive
+      connectResult = false;  // Mark connection inactive
       return;
     }
-    delay(50); // Yield CPU time while tipped over
+    delay(50);  // Yield CPU time while tipped over
   }
 
   // Re-enable radar mode when upright again.
@@ -236,7 +236,8 @@ void frustration() {
 
   // Do three spins, each in a random direction for a random number of degrees.
   for (uint8_t i = 0; i < 3; i++) {
-    (random(0, 2) == 0) ? mip.motion.turnLeft(random(0, 1276), 24) : mip.motion.turnRight(random(0, 1276), 24);
+    (random(0, 2) == 0) ? mip.motion.turnLeft(random(0, 1276), 24)
+                        : mip.motion.turnRight(random(0, 1276), 24);
     delay(1500);  // Allow spin to complete
   }
 

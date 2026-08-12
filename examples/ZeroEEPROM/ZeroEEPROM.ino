@@ -63,7 +63,8 @@ uint8_t eepromContents;
  *     1. Writes a zero to each EEPROM offset using eeprom.write(offset, 0x00).
  *     2. Waits one second to allow observation and avoid flooding UART.
  *     3. Reads the byte back with eeprom.read(offset) and prints the physical
- *        address and recovered value in hexadecimal to Serial1 for verification.
+ *        address and recovered value in hexadecimal to Serial1 for
+ * verification.
  *
  * Note:
  *   - This operation will irreversibly overwrite any existing user EEPROM
@@ -79,8 +80,7 @@ void setup() {
   Serial1.println(F("ZeroEEPROM.ino: Writes zeros to each byte in EEPROM."));
 
   // Calculate total number of user EEPROM offsets (0 to 15)
-  const uint8_t maxOffset =
-      MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS;
+  const uint8_t maxOffset = MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS;
 
   // Iterate over the valid user EEPROM offsets and write zeros
   for (uint8_t offset = 0; offset <= maxOffset; offset++) {
@@ -118,7 +118,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

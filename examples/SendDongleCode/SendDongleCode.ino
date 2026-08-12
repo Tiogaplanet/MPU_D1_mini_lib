@@ -1,11 +1,12 @@
 /**
  * @file SendDongleCode.ino
- * @brief Example sketch demonstrating sending 2-, 3-, and 4-byte IR dongle codes.
+ * @brief Example sketch demonstrating sending 2-, 3-, and 4-byte IR dongle
+ * codes.
  *
  * @details
  * This sketch initializes communication with MiP and sequentially transmits
- * 2-byte, 3-byte, and 4-byte IR dongle codes using the updated sendDongleCode() API.
- * The transmission power is configured via the MIP_IR_TX_POWER constant.
+ * 2-byte, 3-byte, and 4-byte IR dongle codes using the updated sendDongleCode()
+ * API. The transmission power is configured via the MIP_IR_TX_POWER constant.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -58,60 +59,62 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-    F("SendDongleCode.ino: Send 2-, 3-, and 4-byte IR codes to another MiP."));
+  Serial1.println(F("SendDongleCode.ino: Send 2-, 3-, and 4-byte IR codes to another MiP."));
 }
 
 /**
  * @brief Arduino loop function.
  *
  * @details Sequentially transmits 2-byte, 3-byte, and 4-byte IR dongle codes
- * to another MiP every 2 seconds. Demonstrates both direct-value and struct-based
- * overloads of the sendDongleCode() API:
+ * to another MiP every 2 seconds. Demonstrates both direct-value and
+ * struct-based overloads of the sendDongleCode() API:
  *   - State 0: Transmits a 2-byte IR code (0x4567).
  *   - State 1: Transmits a 3-byte IR code (0x123456).
- *   - State 2: Transmits a 4-byte IR code (0xA1B2C3D4) via MiPIRDongleCode struct.
+ *   - State 2: Transmits a 4-byte IR code (0xA1B2C3D4) via MiPIRDongleCode
+ * struct.
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   switch (cycleState) {
-    case 0: {
-      // --- Test 1: Send a 2-byte IR code (0x4567) ---
-      uint16_t code2Byte = 0x4567;
-      Serial1.print(F(" Sending 2-byte IR Code: 0x"));
-      Serial1.println(code2Byte, HEX);
+    case 0:
+      {
+        // --- Test 1: Send a 2-byte IR code (0x4567) ---
+        uint16_t code2Byte = 0x4567;
+        Serial1.print(F(" Sending 2-byte IR Code: 0x"));
+        Serial1.println(code2Byte, HEX);
 
-      mip.infrared.sendDongleCode(code2Byte, 2, MIP_IR_TX_POWER);
-      delay(50);  // Allow UART TX to complete before console mux switch
-      break;
-    }
+        mip.infrared.sendDongleCode(code2Byte, 2, MIP_IR_TX_POWER);
+        delay(50);  // Allow UART TX to complete before console mux switch
+        break;
+      }
 
-    case 1: {
-      // --- Test 2: Send a 3-byte IR code (0x123456) ---
-      uint32_t code3Byte = 0x123456;
-      Serial1.print(F(" Sending 3-byte IR Code: 0x"));
-      Serial1.println(code3Byte, HEX);
+    case 1:
+      {
+        // --- Test 2: Send a 3-byte IR code (0x123456) ---
+        uint32_t code3Byte = 0x123456;
+        Serial1.print(F(" Sending 3-byte IR Code: 0x"));
+        Serial1.println(code3Byte, HEX);
 
-      mip.infrared.sendDongleCode(code3Byte, 3, MIP_IR_TX_POWER);
-      delay(50);
-      break;
-    }
+        mip.infrared.sendDongleCode(code3Byte, 3, MIP_IR_TX_POWER);
+        delay(50);
+        break;
+      }
 
-    case 2: {
-      // --- Test 3: Send a 4-byte IR code using MiPIRDongleCode struct (0xA1B2C3D4) ---
-      MiPIRDongleCode code4Byte(0xA1B2C3D4, 4);
-      Serial1.print(F(" Sending 4-byte IR Code: 0x"));
-      Serial1.print(code4Byte.code, HEX);
-      Serial1.println(F(" (via struct)"));
+    case 2:
+      {
+        // --- Test 3: Send a 4-byte IR code using MiPIRDongleCode struct
+        // (0xA1B2C3D4) ---
+        MiPIRDongleCode code4Byte(0xA1B2C3D4, 4);
+        Serial1.print(F(" Sending 4-byte IR Code: 0x"));
+        Serial1.print(code4Byte.code, HEX);
+        Serial1.println(F(" (via struct)"));
 
-      mip.infrared.sendDongleCode(code4Byte, MIP_IR_TX_POWER);
-      delay(50);
-      break;
-    }
+        mip.infrared.sendDongleCode(code4Byte, MIP_IR_TX_POWER);
+        delay(50);
+        break;
+      }
   }
 
   // Cycle to next test state

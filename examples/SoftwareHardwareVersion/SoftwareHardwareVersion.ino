@@ -25,7 +25,8 @@
  *   - mip.version.readHardware()
  *
  * The output is printed to Serial1 in a human-readable format so the user can
- * inspect MiP's firmware build date, revision, hardware details, and link speed.
+ * inspect MiP's firmware build date, revision, hardware details, and link
+ * speed.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -57,7 +58,8 @@ bool connectResult;
  * @details
  * - Attempts to initialize the MiP connection via mip.begin().
  * - If the connection fails, prints an error to Serial1 and returns early.
- * - On success, prints the MPU library version string and active UART baud rate.
+ * - On success, prints the MPU library version string and active UART baud
+ * rate.
  * - Reads the software version into a MiPSoftwareVersion struct
  *   and prints a formatted version string (YYYY-MM-DD.uniqueVersion).
  * - Reads hardware information into a MiPHardwareInfo struct and prints the
@@ -69,14 +71,12 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(
-      F("SoftwareHardwareVersion.ino: Failed connecting to MiP."));
+    Serial1.println(F("SoftwareHardwareVersion.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(
-    F("SoftwareHardwareVersion.ino: Use getBaudRate(), version.readSoftware(), "
-      "and version.readHardware() functions."));
+  Serial1.println(F("SoftwareHardwareVersion.ino: Use getBaudRate(), version.readSoftware(), "
+                    "and version.readHardware() functions."));
 
   // Display the Arduino library version string
   Serial1.print(F(" MiP Power Up library version: "));
@@ -93,10 +93,10 @@ void setup() {
   Serial1.print(F(" Software version: "));
   Serial1.print(softwareVersion.year);
   Serial1.print('-');
-  if (softwareVersion.month < 10) Serial1.print('0'); // Month zero-padding
+  if (softwareVersion.month < 10) Serial1.print('0');  // Month zero-padding
   Serial1.print(softwareVersion.month);
   Serial1.print('-');
-  if (softwareVersion.day < 10) Serial1.print('0');   // Day zero-padding
+  if (softwareVersion.day < 10) Serial1.print('0');  // Day zero-padding
   Serial1.print(softwareVersion.day);
   Serial1.print('.');
   Serial1.println(softwareVersion.uniqueVersion);
@@ -110,7 +110,6 @@ void setup() {
   Serial1.print(F("  Hardware version: "));
   Serial1.println(hardwareInfo.hardware);
 
-  Serial1.println();
   Serial1.println(F("SoftwareHardwareVersion.ino: Done."));
 }
 
@@ -122,7 +121,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

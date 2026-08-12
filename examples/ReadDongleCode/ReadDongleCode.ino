@@ -1,12 +1,13 @@
 /**
  * @file ReadDongleCode.ino
- * @brief Example sketch demonstrating receiving variable-length IR dongle codes.
+ * @brief Example sketch demonstrating receiving variable-length IR dongle
+ * codes.
  *
  * @details
- * This sketch continuously polls for incoming IR dongle codes transmitted by another MiP.
- * When an IR code event is available, it retrieves a MiPIRDongleCode struct,
- * inspects the length field (2, 3, or 4 bytes), and prints the constituent bytes in
- * hexadecimal to Serial1.
+ * This sketch continuously polls for incoming IR dongle codes transmitted by
+ * another MiP. When an IR code event is available, it retrieves a
+ * MiPIRDongleCode struct, inspects the length field (2, 3, or 4 bytes), and
+ * prints the constituent bytes in hexadecimal to Serial1.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -50,8 +51,7 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-    F("ReadDongleCode.ino: Receiving 2-, 3-, and 4-byte IR codes from another MiP."));
+  Serial1.println(F("ReadDongleCode.ino: Receiving 2-, 3-, and 4-byte IR codes from another MiP."));
 }
 
 /**
@@ -65,9 +65,7 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   // Drain all pending IR code events from the queue
   while (mip.infrared.availableCodeEvents() > 0) {
@@ -86,9 +84,7 @@ void loop() {
           Serial1.print(F("0"));  // Leading zero padding
         }
         Serial1.print(byteVal, HEX);
-        if (i > 0) {
-          Serial1.print(F(" "));
-        }
+        if (i > 0) { Serial1.print(F(" ")); }
       }
       Serial1.println();
     }

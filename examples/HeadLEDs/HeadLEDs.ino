@@ -9,7 +9,8 @@
  *     a human-readable description for each LED.
  *   - Restores all head LEDs to the ON state.
  *   - Repeats the sequence using headLEDs.unverifiedWrite() to demonstrate
- *     the unverified API which sends fire-and-forget commands without read-back.
+ *     the unverified API which sends fire-and-forget commands without
+ * read-back.
  *
  * The example exercises these API calls:
  *   - headLEDs.write()
@@ -56,21 +57,11 @@ bool connectResult;
  */
 static void printLEDString(MiPHeadLED led) {
   switch (led) {
-    case MIP_HEAD_LED_OFF:
-      Serial1.println(F(" Off"));
-      break;
-    case MIP_HEAD_LED_ON:
-      Serial1.println(F(" On"));
-      break;
-    case MIP_HEAD_LED_BLINK_SLOW:
-      Serial1.println(F(" Blink Slow"));
-      break;
-    case MIP_HEAD_LED_BLINK_FAST:
-      Serial1.println(F(" Blink Fast"));
-      break;
-    default:
-      Serial1.println();
-      break;
+    case MIP_HEAD_LED_OFF: Serial1.println(F(" Off")); break;
+    case MIP_HEAD_LED_ON: Serial1.println(F(" On")); break;
+    case MIP_HEAD_LED_BLINK_SLOW: Serial1.println(F(" Blink Slow")); break;
+    case MIP_HEAD_LED_BLINK_FAST: Serial1.println(F(" Blink Fast")); break;
+    default: Serial1.println(); break;
   }
 }
 
@@ -98,8 +89,7 @@ void setup() {
 
   Serial1.println(F("HeadLEDs.ino: Use head LED functions. Should set each "
                     "head LED to a different state."));
-  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW,
-                     MIP_HEAD_LED_BLINK_FAST);
+  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW, MIP_HEAD_LED_BLINK_FAST);
 
   MiPHeadLEDs headLEDs;
   mip.headLEDs.read(headLEDs);
@@ -117,22 +107,19 @@ void setup() {
 
   // Turn all the LEDs back on now.
   Serial1.println(F(" Turning all eye LEDs back on now."));
-  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 =
-    MIP_HEAD_LED_ON;
+  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 = MIP_HEAD_LED_ON;
   mip.headLEDs.write(headLEDs);
   delay(1000);
 
   // Attempt to run through the same sequence of head LED changes using the
   // headLEDs.unverifiedWrite() functions which send fire-and-forget commands.
   Serial1.println(F(" Trying to set each head LED to a different state."));
-  mip.headLEDs.unverifiedWrite(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                               MIP_HEAD_LED_BLINK_SLOW,
-                               MIP_HEAD_LED_BLINK_FAST);
+  mip.headLEDs.unverifiedWrite(
+    MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_BLINK_SLOW, MIP_HEAD_LED_BLINK_FAST);
   delay(4000);
 
   Serial1.println(F(" Trying to set all eye LEDs back on now."));
-  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 =
-    MIP_HEAD_LED_ON;
+  headLEDs.led1 = headLEDs.led2 = headLEDs.led3 = headLEDs.led4 = MIP_HEAD_LED_ON;
   mip.headLEDs.unverifiedWrite(headLEDs);
 
   Serial1.println();
@@ -147,7 +134,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

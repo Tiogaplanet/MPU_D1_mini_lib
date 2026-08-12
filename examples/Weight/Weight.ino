@@ -68,8 +68,7 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-    F("Weight.ino: Read MiP's weight with different objects on the tray."));
+  Serial1.println(F("Weight.ino: Read MiP's weight with different objects on the tray."));
 }
 
 /**
@@ -86,9 +85,7 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   int8_t currentWeight = mip.weight.read();
 

@@ -51,9 +51,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("ContinuousDrive.ino: Use continuousDrive() function. Drive forward "
-        "with right turn and then backward with left turn."));
+  Serial1.println(F("ContinuousDrive.ino: Use continuousDrive() function. Drive forward "
+                    "with right turn and then backward with left turn."));
 }
 
 /**
@@ -71,18 +70,12 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   /**
    * @brief States for the continuous drive demonstration state machine.
    */
-  static enum States {
-    RIGHT_TURN,
-    LEFT_TURN,
-    DONE
-  } state = RIGHT_TURN;
+  static enum States { RIGHT_TURN, LEFT_TURN, DONE } state = RIGHT_TURN;
 
   /**
    * @brief Start time for the current state interval in milliseconds.

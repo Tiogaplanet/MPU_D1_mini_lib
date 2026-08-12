@@ -336,13 +336,15 @@ jobs:
         run: |
           cd wiki_repo
           
-          # PURGE STEP: Remove all files and folders in the wiki repository EXCEPT Home.md and the .git directory
-          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name 'Home.md' -exec rm -rf {} +
+          # PURGE STEP: Remove generated pages, but keep Home.md, _Footer.md, and .git
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' \
+            ! -name 'Home.md' ! -name '_Footer.md' -exec rm -rf {} +
           
           cd ..
           
-          # Copy freshly generated markdown files into wiki_repo without overwriting custom Home.md
-          rsync -av --exclude='Home.md' wiki_markdown/ wiki_repo/
+          # Copy freshly generated markdown files into wiki_repo without overwriting
+          # custom Home.md or _Footer.md
+          rsync -av --exclude='Home.md' --exclude='_Footer.md' wiki_markdown/ wiki_repo/
           
           # Initialize Home.md if it does not exist in the wiki repository
           if [ ! -f wiki_repo/Home.md ]; then

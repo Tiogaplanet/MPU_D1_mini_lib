@@ -49,8 +49,8 @@ bool connectResult;
  * @details Called once after the board powers up or resets. This function:
  *   - Initializes communication with MiP via mip.begin().
  *   - If the connection fails, prints an error to Serial1 and returns early.
- *   - Commands MiP to get up from the kickstand, wait for stabilization, then fall
- *     forward and attempt to get up again from the front position.
+ *   - Commands MiP to get up from the kickstand, wait for stabilization, then
+ * fall forward and attempt to get up again from the front position.
  *   - Prints progress and completion messages to Serial1.
  */
 void setup() {
@@ -85,7 +85,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

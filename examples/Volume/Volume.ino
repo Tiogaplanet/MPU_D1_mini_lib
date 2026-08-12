@@ -5,9 +5,9 @@
  * @details
  * This sketch connects to MiP and demonstrates how to set speaker volume using
  * sound.writeVolume() and read the active volume level back using
- * sound.readVolume(). The example first sets the volume to the predefined constant
- * MIP_VOLUME_OFF (mute), prints the resulting volume level to Serial1, and then
- * restores the volume back to MIP_VOLUME_7 (maximum).
+ * sound.readVolume(). The example first sets the volume to the predefined
+ * constant MIP_VOLUME_OFF (mute), prints the resulting volume level to Serial1,
+ * and then restores the volume back to MIP_VOLUME_7 (maximum).
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -33,8 +33,8 @@
  * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(),
- * sound.writeVolume(), and sound.readVolume(). Keeping the instance at file scope makes
- * it available in both setup() and loop().
+ * sound.writeVolume(), and sound.readVolume(). Keeping the instance at file
+ * scope makes it available in both setup() and loop().
  */
 MiP mip;
 
@@ -61,9 +61,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-    F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
-      "volume level to off (0) and read out afterwards."));
+  Serial1.println(F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
+                    "volume level to off (0) and read out afterwards."));
 
   // 1. Set speaker volume to the predefined "off" constant (mute)
   Serial1.println(F(" Setting volume to MIP_VOLUME_OFF (0)..."));
@@ -97,7 +96,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

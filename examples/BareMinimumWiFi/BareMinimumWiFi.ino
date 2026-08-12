@@ -9,12 +9,12 @@
  * address, and sets up the loop for Over-The-Air (OTA) updates and custom user
  * code.
  *
- * While using the MiP Power Up - D1 mini library, the entirety of the esp8266 library
- * is available for use, meaning you could manage your own WiFi connectivity with
- * calls to WiFi.begin(), WiFi.connect(), etc. Therefore, this library wraps those
- * WiFi functions to provide minor additional capability: MiP manages the ssid,
- * password, and hostname variables and animates MiP's eyes while attempting to
- * establish a WiFi connection.
+ * While using the MiP Power Up - D1 mini library, the entirety of the esp8266
+ * library is available for use, meaning you could manage your own WiFi
+ * connectivity with calls to WiFi.begin(), WiFi.connect(), etc. Therefore, this
+ * library wraps those WiFi functions to provide minor additional capability:
+ * MiP manages the ssid, password, and hostname variables and animates MiP's
+ * eyes while attempting to establish a WiFi connection.
  *
  * Example API methods demonstrated:
  *   - mip.begin()
@@ -37,7 +37,8 @@ const char *ssid = "..............";
 /** @brief The password for your local WiFi network. */
 const char *password = "..............";
 
-/** @brief The mDNS hostname assigned to MiP on the network (resolves as MiPFi.local). */
+/** @brief The mDNS hostname assigned to MiP on the network (resolves as
+ * MiPFi.local). */
 const char *hostname = "MiPFi";
 
 /** @brief The global MiP library instance used to control MiP. */
@@ -62,8 +63,8 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("BareMinimumWiFi.ino: Connecting to wireless access point..."));
+  Serial1.println(F("BareMinimumWiFi.ino: Connecting to wireless access "
+                    "point..."));
 
   // Connect to WiFi and initialize mDNS and ArduinoOTA network services
   uint8_t wifiStatus = mip.wifi.begin(ssid, password, hostname);
@@ -89,9 +90,7 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   // Handle background Over-The-Air (OTA) programming requests
   ArduinoOTA.handle();

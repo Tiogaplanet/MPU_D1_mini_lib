@@ -117,7 +117,8 @@ bool runOnce = true;
  *
  * @details
  * - Attempts to initialize communication with MiP via mip.begin().
- * - Attempts to connect to Wi‑Fi using mip.wifi.begin(ssid, password, hostname).
+ * - Attempts to connect to Wi‑Fi using mip.wifi.begin(ssid, password,
+ * hostname).
  * - If either connection fails, prints an error to Serial1 and returns early.
  * - Starts the telnet debug server via debug.begin(hostname).
  * - Enables the telnet reset command with debug.setResetCmdEnabled(true).
@@ -142,8 +143,7 @@ void setup() {
   debug.begin(hostname);
   debug.setResetCmdEnabled(true);
 
-  Serial1.println(
-    F("TelnetDebug.ino: Explore the different telnet debug levels."));
+  Serial1.println(F("TelnetDebug.ino: Explore the different telnet debug levels."));
   Serial1.println();
   Serial1.print(F(" IP address: "));
   Serial1.println(WiFi.localIP());
@@ -168,9 +168,7 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP or WiFi failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   // Required for OTA programming to function while the sketch runs.
   ArduinoOTA.handle();

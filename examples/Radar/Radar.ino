@@ -5,8 +5,8 @@
  * @details This sketch shows how to use the MiP library to enable radar mode,
  * read radar distance categories, and report changes to the user over Serial1.
  * The sketch waits for MiP to be standing upright before enabling radar
- * mode and then continuously polls radar.read() in loop(), printing a human-readable
- * description whenever the radar reading changes.
+ * mode and then continuously polls radar.read() in loop(), printing a
+ * human-readable description whenever the radar reading changes.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -81,26 +81,19 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
-  static MiPRadar lastRadar = MIP_RADAR_INVALID;  // Remember last reported radar state.
-  MiPRadar currentRadar = mip.radar.read();        // Read current radar category.
+  static MiPRadar lastRadar = MIP_RADAR_INVALID;  // Remember last reported
+                                                  // radar state.
+  MiPRadar currentRadar = mip.radar.read();  // Read current radar category.
 
   // Only act when a valid reading is available and it changed since last time.
   if (currentRadar != MIP_RADAR_INVALID && lastRadar != currentRadar) {
     Serial1.print(F(" Radar = "));
     switch (currentRadar) {
-      case MIP_RADAR_NONE:
-        Serial1.println(F("None"));
-        break;
-      case MIP_RADAR_10CM_30CM:
-        Serial1.println(F("10cm - 30cm"));
-        break;
-      case MIP_RADAR_0CM_10CM:
-        Serial1.println(F("0cm - 10cm"));
-        break;
+      case MIP_RADAR_NONE: Serial1.println(F("None")); break;
+      case MIP_RADAR_10CM_30CM: Serial1.println(F("10cm - 30cm")); break;
+      case MIP_RADAR_0CM_10CM: Serial1.println(F("0cm - 10cm")); break;
       default:
         // Defensive: handle any future or unexpected enum values gracefully.
         Serial1.println(F("Unknown"));

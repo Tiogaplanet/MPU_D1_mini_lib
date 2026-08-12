@@ -60,10 +60,10 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("ReadWriteEEPROM.ino: Read and write MiP's 16-byte user EEPROM."));
+  Serial1.println(F("ReadWriteEEPROM.ino: Read and write MiP's 16-byte user EEPROM."));
 
-  // 1. Read and display the current contents of all 16 user EEPROM offsets (0-15)
+  // 1. Read and display the current contents of all 16 user EEPROM offsets
+  // (0-15)
   Serial1.println(F("\n Current User EEPROM Contents (Offsets 0 to 15):"));
   for (uint8_t offset = 0; offset < 16; offset++) {
     uint8_t val = mip.eeprom.read(offset);
@@ -72,7 +72,7 @@ void setup() {
     if (offset < 10) Serial1.print(F(" "));  // Align single-digit offsets
     Serial1.print(offset);
     Serial1.print(F(": 0x"));
-    if (val < 0x10) Serial1.print(F("0"));    // Leading zero padding for hex
+    if (val < 0x10) Serial1.print(F("0"));  // Leading zero padding for hex
     Serial1.print(val, HEX);
     Serial1.print(F(" ("));
     Serial1.print(val);
@@ -113,7 +113,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

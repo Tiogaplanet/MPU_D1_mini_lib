@@ -113,15 +113,11 @@ void loop() {
 
   /* Report position changes by evaluating all position predicates. */
   if (currentPosition != lastPosition) {
-    if (mip.position.isOnBack()) {
-      Serial1.println(F(" Position: On Back"));
-    }
+    if (mip.position.isOnBack()) { Serial1.println(F(" Position: On Back")); }
     if (mip.position.isFaceDown()) {
       Serial1.println(F(" Position: Face Down"));
     }
-    if (mip.position.isUpright()) {
-      Serial1.println(F(" Position: Upright"));
-    }
+    if (mip.position.isUpright()) { Serial1.println(F(" Position: Upright")); }
     if (mip.position.isPickedUp()) {
       Serial1.println(F(" Position: Picked Up"));
     }

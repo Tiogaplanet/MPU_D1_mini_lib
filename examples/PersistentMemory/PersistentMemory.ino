@@ -4,7 +4,7 @@
  *
  * @details
  * This sketch demonstrates LittleFS filesystem integration with MiP.
- * It mounts the LittleFS filesystem onboard the D1 mini, writes a short 
+ * It mounts the LittleFS filesystem onboard the D1 mini, writes a short
  * password to a temporary file, reads it back, compares the contents, and
  * indicates success or failure using MiP's chest LED:
  *   - Violet when the read matches the written password.
@@ -156,7 +156,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP or LittleFS failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

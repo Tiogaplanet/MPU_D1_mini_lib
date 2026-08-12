@@ -12,7 +12,7 @@
  * once a minute.
  *
  * This sketch serves as an excellent starting point to make MiP into an alarm
- * clock using built-in sounds, a web interface to set the alarm time, and a 
+ * clock using built-in sounds, a web interface to set the alarm time, and a
  * change in position (such as a tip forward) to turn off the alarm.
  *
  * Example API methods demonstrated:
@@ -57,7 +57,8 @@ const char *hostname = "MiP-Timekeeper";
 /**
  * @brief Global MiP instance used to communicate with MiP.
  *
- * @details The mip object is used throughout the sketch to call MiP API functions.
+ * @details The mip object is used throughout the sketch to call MiP API
+ * functions.
  */
 MiP mip;
 
@@ -103,14 +104,10 @@ void updateTimeDigits() {
   struct tm *timeinfo = localtime(&now);
 
   // Ignore invalid epoch values before the first good sync
-  if (timeinfo == nullptr || timeinfo->tm_year + 1900 < 2020) {
-    return;
-  }
+  if (timeinfo == nullptr || timeinfo->tm_year + 1900 < 2020) { return; }
 
   // Only update the cached digits when the minute changes
-  if (timeinfo->tm_min == lastFetchedMinute) {
-    return;
-  }
+  if (timeinfo->tm_min == lastFetchedMinute) { return; }
 
   lastFetchedMinute = timeinfo->tm_min;
 
@@ -124,69 +121,58 @@ void updateTimeDigits() {
 
   Serial1.print(F(" Time updated: "));
   Serial1.println(timeBuf);
-  Serial1.printf(" Displaying %d%d:%d%d\r\n", hour_tens, hour_ones, minute_tens,
-                 minute_ones);
+  Serial1.printf(" Displaying %d%d:%d%d\r\n", hour_tens, hour_ones, minute_tens, minute_ones);
 }
 
 /**
- * @brief Display a single numerical digit (0-9) using MiP's head and chest LEDs.
+ * @brief Display a single numerical digit (0-9) using MiP's head and chest
+ * LEDs.
  *
  * @param digit Value from 0 to 9 to visually display on MiP.
  */
 void showDigit(uint8_t digit) {
   switch (digit) {
     case 0:
-      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       mip.chestLED.write(0x00, 0x00, 0xFF);  // Blue indicates zero
       break;
     case 1:
-      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       break;
     case 2:
-      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       break;
     case 3:
-      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
       break;
     case 4:
-      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
       break;
     case 5:
-      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
       break;
     case 6:
-      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
       break;
     case 7:
-      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON,
-                         MIP_HEAD_LED_OFF);
+      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF);
       break;
     case 8:
-      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                         MIP_HEAD_LED_ON);
+      mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
       break;
     case 9:
-      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                         MIP_HEAD_LED_ON);
+      mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
       break;
-    default:
-      break;
+    default: break;
   }
 }
 
 /**
- * @brief Reset head LEDs to off and chest LED to green between digit transitions.
+ * @brief Reset head LEDs to off and chest LED to green between digit
+ * transitions.
  */
 void resetEyesAndChest() {
-  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                     MIP_HEAD_LED_OFF);
+  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
   mip.chestLED.write(0x00, 0xFF, 0x00);  // Green inter-digit transition
   delay(500);
 }
@@ -194,9 +180,9 @@ void resetEyesAndChest() {
 /**
  * @brief Arduino setup routine.
  *
- * @details Initializes the MiP object, establishes a WiFi connection, configures
- * NTP time synchronization, waits for a valid time signal, and forces an initial
- * time fetch.
+ * @details Initializes the MiP object, establishes a WiFi connection,
+ * configures NTP time synchronization, waits for a valid time signal, and
+ * forces an initial time fetch.
  */
 void setup() {
   connectResult = mip.begin();
@@ -246,7 +232,8 @@ void setup() {
  */
 void loop() {
   if (!connectResult) {
-    return;  // Exit immediately if connecting to MiP or WiFi failed during setup()
+    return;  // Exit immediately if connecting to MiP or WiFi failed during
+             // setup()
   }
 
   // Required for OTA programming to function while running
@@ -279,8 +266,7 @@ void loop() {
   delay(2000);
 
   // End-of-cycle indicator (magenta)
-  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF,
-                     MIP_HEAD_LED_OFF);
+  mip.headLEDs.write(MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF);
   mip.chestLED.write(0xFF, 0x01, 0xFE);  // Magenta
   delay(3000);
   mip.chestLED.write(0x00, 0xFF, 0x00);  // Restore green

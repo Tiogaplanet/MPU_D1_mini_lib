@@ -1,6 +1,7 @@
 /**
  * @file GestureRadarMode.ino
- * @brief Example sketch demonstrating switching between gesture and radar modes.
+ * @brief Example sketch demonstrating switching between gesture and radar
+ * modes.
  *
  * @details This sketch shows how to enable and disable MiP's radar
  * and gesture sensing modes and how to query their states. It performs a
@@ -53,7 +54,8 @@ bool connectResult;
  *   - If connection fails, prints an error to Serial1 and returns early.
  *   - Demonstrates enabling/disabling radar and gesture modes and prints
  *     pass/fail verification messages using the radar.isEnabled(),
- *     gesture.isEnabled(), and gesture.areGestureAndRadarModesDisabled() query functions.
+ *     gesture.isEnabled(), and gesture.areGestureAndRadarModesDisabled() query
+ * functions.
  *
  * The function intentionally performs the checks in sequence so the user can
  * observe MiP's responses on Serial1.
@@ -126,7 +128,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

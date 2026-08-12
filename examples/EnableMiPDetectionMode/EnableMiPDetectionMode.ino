@@ -119,16 +119,14 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   // Poll for available detected MiP events
   while (mip.infrared.availableDetectedMiPEvents() > 0) {
     uint8_t detectedId = mip.infrared.readDetectedMiP();
     Serial1.print(F(" I detected MiP with ID number 0x"));
     if (detectedId < 0x10) {
-      Serial1.print(F("0")); // Leading zero padding
+      Serial1.print(F("0"));  // Leading zero padding
     }
     Serial1.println(detectedId, HEX);
   }

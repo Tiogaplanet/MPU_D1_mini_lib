@@ -5,8 +5,8 @@
  * @details This sketch demonstrates how to use the MiP library to command
  * MiP to intentionally fall forward and backward using the motion.fallForward()
  * and motion.fallBackward() APIs. The sketch first waits for MiP to be
- * standing upright (position.isUpright()) before issuing each fall command and prints
- * status messages to Serial1 so the sequence can be observed.
+ * standing upright (position.isUpright()) before issuing each fall command and
+ * prints status messages to Serial1 so the sequence can be observed.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -94,7 +94,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

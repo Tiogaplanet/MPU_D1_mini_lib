@@ -57,8 +57,7 @@ void setup() {
     return;
   }
 
-  Serial1.println(
-      F("Odometer.ino: Read out current odometer reading and reset."));
+  Serial1.println(F("Odometer.ino: Read out current odometer reading and reset."));
 
   // Read initial distance travelled prior to reset
   float distanceCm = mip.odometer.read();
@@ -88,7 +87,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

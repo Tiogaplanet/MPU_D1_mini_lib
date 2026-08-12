@@ -39,8 +39,8 @@ bool connectResult;
  * @brief Prints the current chest LED setting to Serial1.
  *
  * @details Reads the current chest LED state from MiP using chestLED.read()
- * and prints the red, green, blue, onTime, and offTime values in a human-readable
- * format.
+ * and prints the red, green, blue, onTime, and offTime values in a
+ * human-readable format.
  */
 static void printCurrentChestLEDSetting() {
   MiPChestLED chestLED;
@@ -94,8 +94,7 @@ void setup() {
   delay(1000);
 
   // 2. Set flashing color (red) using verified write
-  Serial1.println(
-      F(" Set chest LED to blink red, on time: 990ms, off time: 989ms."));
+  Serial1.println(F(" Set chest LED to blink red, on time: 990ms, off time: 989ms."));
   red = 0xFF;
   green = 0x01;
   blue = 0x05;
@@ -118,24 +117,21 @@ void setup() {
   delay(1000);
 
   // 4. Repeat sequence using unverified write (fire-and-forget) APIs
-  Serial1.println(
-      F(" Trying to set chest LED to magenta, no time specified."));
+  Serial1.println(F(" Trying to set chest LED to magenta, no time specified."));
   red = 0xFF;
   green = 0x01;
   blue = 0xFE;
   mip.chestLED.unverifiedWrite(red, green, blue);
   delay(1000);
 
-  Serial1.println(
-      F(" Trying to set chest LED to blink red, with time specified."));
+  Serial1.println(F(" Trying to set chest LED to blink red, with time specified."));
   red = 0xFF;
   green = 0x01;
   blue = 0x05;
   mip.chestLED.unverifiedWrite(red, green, blue, onTime, offTime);
   delay(4000);
 
-  Serial1.println(
-      F(" Trying to set chest LED back to green with a flash time."));
+  Serial1.println(F(" Trying to set chest LED back to green with a flash time."));
   chestLED.red = 0x00;
   chestLED.green = 0xFF;
   chestLED.blue = 0x00;
@@ -163,7 +159,5 @@ void setup() {
  * work in loop().
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

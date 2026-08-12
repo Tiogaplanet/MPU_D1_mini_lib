@@ -134,9 +134,7 @@ void setup() {
  */
 void loop() {
   // If connecting to MiP failed in setup(), exit now.
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   enum States {
     RESTART,
@@ -146,9 +144,11 @@ void loop() {
   };
   static States state = RESTART;
 
-  static int8_t animationDirection = 0; /**< +1 = leftward animation, -1 = rightward */
-  static uint32_t keyframeStart = 0;   /**< Timestamp when current keyframe started */
-  static uint8_t frameCount = 0;       /**< Remaining frames in current animation */
+  static int8_t animationDirection = 0; /**< +1 = leftward animation, -1 =
+                                           rightward */
+  static uint32_t keyframeStart = 0;    /**< Timestamp when current keyframe
+                                           started */
+  static uint8_t frameCount = 0; /**< Remaining frames in current animation */
   MiPGesture gesture;
 
   switch (state) {
@@ -167,11 +167,12 @@ void loop() {
         /* Switch into gesture mode now that MiP is up and balancing. */
         g_mip.gesture.enable();
 
-        /* Blink the left and right most eye LEDs in fast mode to indicate readiness. */
+        /* Blink the left and right most eye LEDs in fast mode to indicate
+         * readiness. */
         blinkOuterEyes();
         state = WAITING_FOR_GESTURE;
       } else {
-        delay(50); // Yield CPU time while waiting to stand
+        delay(50);  // Yield CPU time while waiting to stand
       }
       break;
 
@@ -182,8 +183,8 @@ void loop() {
         return;
       }
 
-      /* Poll for a gesture event. gesture.readEvent() returns the last gesture or
-       * MIP_GESTURE_INVALID. */
+      /* Poll for a gesture event. gesture.readEvent() returns the last gesture
+       * or MIP_GESTURE_INVALID. */
       gesture = g_mip.gesture.readEvent();
       if (gesture == MIP_GESTURE_LEFT) {
         /* User moved hand from right to left; animate leftward. */
@@ -192,7 +193,8 @@ void loop() {
         /* User moved hand from left to right; animate rightward. */
         animationDirection = -1;
       } else {
-        /* No relevant gesture detected; yield briefly and check again on next loop. */
+        /* No relevant gesture detected; yield briefly and check again on next
+         * loop. */
         delay(10);
         return;
       }
@@ -223,12 +225,13 @@ void loop() {
         animateEyes(animationDirection);
         frameCount--;
         if (frameCount == 0) {
-          /* Animation finished; return to waiting for gestures and blink outer eyes. */
+          /* Animation finished; return to waiting for gestures and blink outer
+           * eyes. */
           blinkOuterEyes();
           state = WAITING_FOR_GESTURE;
         }
       } else {
-        delay(10); // Yield CPU time between animation frames
+        delay(10);  // Yield CPU time between animation frames
       }
       break;
   }

@@ -2,15 +2,15 @@
  * @file Shake.ino
  * @brief Example sketch demonstrating MiP shake detection.
  *
- * @details This simple example initializes communication with MiP and continuously
- * polls for shake events. When MiP detects a shake, the sketch prints a
- * notification to Serial1. The sketch demonstrates basic use of the MiP API for
- * initialization and the shake-detection query:
+ * @details This simple example initializes communication with MiP and
+ * continuously polls for shake events. When MiP detects a shake, the sketch
+ * prints a notification to Serial1. The sketch demonstrates basic use of the
+ * MiP API for initialization and the shake-detection query:
  *   - begin()
  *   - shake.read()
  *
  * Typical usage:
- *   - Load this sketch onto the MPU: D1 mini connected to MiP Power Up.
+ *   - Load this sketch onto the MPU-D1 mini connected to MiP Power Up.
  *   - Open Serial1 to observe "Shake detected!" messages when MiP is shaken.
  *
  * @author Adam Green (Original Author)
@@ -68,13 +68,9 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
-  if (mip.shake.read()) {
-    Serial1.println(F(" Shake detected!"));
-  }
+  if (mip.shake.read()) { Serial1.println(F(" Shake detected!")); }
 
   // Yield CPU control briefly to keep background tasks responsive
   delay(10);

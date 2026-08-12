@@ -61,9 +61,10 @@ void setup() {
                     "chest LED to purple and display MiP firmware revision."));
 
   /* Send 4-byte MiP command to set Chest LED to Purple.
-   * Command structure: [0x84 (SET_CHEST_LED), Red (0xFF), Green (0x01), Blue (0xFF)]
+   * Command structure: [0x84 (SET_CHEST_LED), Red (0xFF), Green (0x01), Blue
+   * (0xFF)]
    */
-  uint8_t setChestPurple[] = {0x84, 0xFF, 0x01, 0xFF};
+  uint8_t setChestPurple[] = { 0x84, 0xFF, 0x01, 0xFF };
   mip.serial.rawSend(setChestPurple, sizeof(setChestPurple));
 
   /* Request MiP's firmware revision information and display it.
@@ -72,9 +73,9 @@ void setup() {
    * request packet. On success, validate the response length and expected
    * command byte before printing a formatted version string.
    */
-  uint8_t getMiPSoftwareVersion[] = {0x14};
+  uint8_t getMiPSoftwareVersion[] = { 0x14 };
   size_t responseLength = 0;
-  uint8_t response[5] = {0};
+  uint8_t response[5] = { 0 };
   int result = mip.serial.rawReceive(
     getMiPSoftwareVersion, sizeof(getMiPSoftwareVersion), response,
     sizeof(response), responseLength);
@@ -88,11 +89,11 @@ void setup() {
     Serial1.print(F(" MiP Software Version: "));
     Serial1.print(response[1] + 2000);  // Year offset stored as (year - 2000)
     Serial1.print('-');
-    if (response[2] < 10) Serial1.print('0'); // Month zero-padding
-    Serial1.print(response[2]);  // Month
+    if (response[2] < 10) Serial1.print('0');  // Month zero-padding
+    Serial1.print(response[2]);                // Month
     Serial1.print('-');
-    if (response[3] < 10) Serial1.print('0'); // Day zero-padding
-    Serial1.print(response[3]);  // Day
+    if (response[3] < 10) Serial1.print('0');  // Day zero-padding
+    Serial1.print(response[3]);                // Day
     Serial1.print(F(" (build #"));
     Serial1.print(response[4]);  // Build number
     Serial1.print(')');
@@ -110,7 +111,5 @@ void setup() {
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }
