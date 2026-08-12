@@ -1,6 +1,6 @@
 /**
  * @file Radar.ino
- * @brief Example sketch demonstrating MiP radar distance sensing and reporting.
+ * @brief Example sketch demonstrating MiP's radar distance sensing and reporting.
  *
  * @details This sketch shows how to use the MiP library to enable radar mode,
  * read radar distance categories, and report changes to the user over Serial1.
