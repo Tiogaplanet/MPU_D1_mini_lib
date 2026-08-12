@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - minor-edits
 
 jobs:
   deploy-wiki:
@@ -28,17 +29,18 @@ jobs:
             doxygen -g
           fi
           
-          # Configure Doxyfile settings for XML generation
+          # Configure Doxyfile settings for XML generation and exclude internal namespaces
           sed -i 's/GENERATE_XML           = NO/GENERATE_XML           = YES/' Doxyfile
           sed -i 's/XML_OUTPUT             = xml/XML_OUTPUT             = xml/' Doxyfile
           sed -i 's/GENERATE_HTML          = YES/GENERATE_HTML          = NO/' Doxyfile
           sed -i 's/GENERATE_LATEX         = YES/GENERATE_LATEX         = NO/' Doxyfile
           sed -i 's/RECURSIVE              = NO/RECURSIVE              = YES/' Doxyfile
+          sed -i 's/EXCLUDE_SYMBOLS        =/EXCLUDE_SYMBOLS        = mip_detail::*/' Doxyfile
           
           # Run Doxygen
           doxygen Doxyfile
 
-      - name: Convert Doxygen XML to Multi-Page Markdown & Sidebar
+      - name: Convert Doxygen XML to Sectioned Markdown
         run: |
           mkdir -p wiki_markdown
           python3 - << 'EOF'
@@ -59,22 +61,37 @@ jobs:
                   return ""
               return "".join(element.itertext()).strip()
 
+          def sanitize_cell(text):
+              """ Strips newlines, collapses spaces, and escapes pipe characters for Markdown table cells """
+              if not text:
+                  return ""
+              text = text.replace('\r', ' ').replace('\n', ' ').replace('|', '\\|')
+              return " ".join(text.split())
+
           tree = ET.parse(index_path)
           root = tree.getroot()
 
-          pages = []
+          class_pages = []
+          enum_pages = []
+          defines_list = []
+          seen_enums = set()
+          seen_defines = set()
 
+          # ---------------------------------------------------------------------------
+          # 1. Parse Classes, Structs, Enums, and Preprocessor Defines
+          # ---------------------------------------------------------------------------
           for compound in root.findall('compound'):
               kind = compound.get('kind')
               name = compound.find('name').text
               refid = compound.get('refid')
 
-              if kind in ['class', 'struct', 'header', 'file']:
+              # Classes & Structs
+              if kind in ['class', 'struct'] and not name.startswith('mip_detail::'):
                   clean_name = name.replace(':', '_').replace('/', '_').replace('.', '_')
                   doc_filename = f"{clean_name}.md"
-                  pages.append((name, clean_name, kind))
+                  class_pages.append((name, clean_name))
 
-                  page = [f"# {kind.capitalize()} `{name}`\n\n"]
+                  page = [f"# Class `{name}`\n\n"]
                   detail_path = os.path.join(xml_dir, f"{refid}.xml")
 
                   if os.path.exists(detail_path):
@@ -82,93 +99,230 @@ jobs:
                       d_root = d_tree.getroot()
                       comp_def = d_root.find('compounddef')
 
-                      # --- Class Brief Description ---
+                      # --- Class @brief Description ---
                       brief = get_text(comp_def.find('briefdescription'))
                       if brief:
                           page.append(f"{brief}\n\n")
 
-                      # --- Class Detailed Description (@details) ---
+                      # --- Class @details Description ---
                       deta = get_text(comp_def.find('detaileddescription'))
                       if deta:
                           page.append(f"## Detailed Description\n\n{deta}\n\n")
 
-                      # --- Class Members and Functions ---
+                      # --- Categorize Public Members ---
                       members = comp_def.findall('.//memberdef')
-                      if members:
-                          page.append("## Public Members & Functions\n\n")
+                      public_members = [m for m in members if m.get('prot') == 'public']
 
-                          for member in members:
-                              m_kind = member.get('kind')
-                              m_prot = member.get('prot')
+                      constructors = []
+                      functions = []
+                      variables = []
 
-                              # Only document public and protected members
-                              if m_prot not in ['public', 'protected']:
-                                  continue
+                      for m in public_members:
+                          m_kind = m.get('kind')
+                          m_name = get_text(m.find('name'))
 
-                              m_name = get_text(member.find('name'))
-                              m_type = get_text(member.find('type'))
-                              m_args = get_text(member.find('argsstring'))
-                              m_brief = get_text(member.find('briefdescription'))
-                              m_deta_el = member.find('detaileddescription')
+                          if m_kind == 'function':
+                              if m_name == name or m_name == f"~{name}":
+                                  constructors.append(m)
+                              else:
+                                  functions.append(m)
+                          elif m_kind == 'variable':
+                              variables.append(m)
+                          elif m_kind == 'enum' and not m_name.startswith('mip_detail::') and m_name not in seen_enums:
+                              seen_enums.add(m_name)
+                              enum_pages.append((m_name, m_name, m))
 
-                              # Signature Title
-                              sig = f"`{m_type} {m_name}{m_args}`" if m_type else f"`{m_name}{m_args}`"
-                              page.append(f"### {m_name}\n\n")
-                              page.append(f"**Signature:** {sig}\n\n")
+                      # --- Table of Contents / Section Jump Links ---
+                      toc = ["## Table of Contents\n\n"]
+                      if constructors:
+                          toc.append("- [Constructors & Destructors](#constructors--destructors)\n")
+                      if functions:
+                          toc.append("- [Public Functions](#public-functions)\n")
+                      if variables:
+                          toc.append("- [Public Variables & Constants](#public-variables)\n")
+                      
+                      if constructors or functions or variables:
+                          page.append("".join(toc) + "\n---\n\n")
 
-                              if m_brief:
-                                  page.append(f"{m_brief}\n\n")
+                      # Helper function to format member elements
+                      def format_member(member):
+                          m_name = get_text(member.find('name'))
+                          m_type = get_text(member.find('type'))
+                          m_args = get_text(member.find('argsstring'))
+                          m_brief = get_text(member.find('briefdescription'))
+                          m_deta_el = member.find('detaileddescription')
 
-                              # Extract Method @details
-                              if m_deta_el is not None:
-                                  # Exclude parameterlist/simplesect text from general details
-                                  para_text = []
-                                  for para in m_deta_el.findall('para'):
-                                      p_txt = get_text(para)
-                                      if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
-                                          para_text.append(p_txt)
-                                  if para_text:
-                                      page.append(f"**Details:**\n\n" + "\n\n".join(para_text) + "\n\n")
+                          sig = f"`{m_type} {m_name}{m_args}`" if m_type else f"`{m_name}{m_args}`"
+                          m_block = [f"### `{m_name}`\n\n", f"**Signature:** {sig}\n\n"]
 
-                              # Extract Parameters (@param)
-                              param_items = member.findall('.//parameteritem')
-                              if param_items:
-                                  page.append("**Parameters:**\n\n")
-                                  page.append("| Parameter | Description |\n|:---|:---|\n")
-                                  for p_item in param_items:
-                                      p_name = get_text(p_item.find('.//parametername'))
-                                      p_desc = get_text(p_item.find('.//parameterdescription'))
-                                      page.append(f"| `{p_name}` | {p_desc} |\n")
-                                  page.append("\n")
+                          if m_brief:
+                              m_block.append(f"**Summary:** {m_brief}\n\n")
 
-                              # Extract Return Value (@return)
-                              returns = member.findall(".//simplesect[@kind='return']")
-                              if returns:
-                                  ret_desc = get_text(returns[0])
-                                  if ret_desc:
-                                      page.append(f"**Returns:** {ret_desc}\n\n")
+                          if m_deta_el is not None:
+                              para_text = []
+                              for para in m_deta_el.findall('para'):
+                                  p_txt = get_text(para)
+                                  if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
+                                      para_text.append(p_txt)
+                              if para_text:
+                                  m_block.append("**Details:**\n\n" + "\n\n".join(para_text) + "\n\n")
 
-                              page.append("---\n\n")
+                          param_items = member.findall('.//parameteritem')
+                          if param_items:
+                              m_block.append("**Parameters:**\n\n")
+                              m_block.append("| Parameter | Description |\n|:---|:---|\n")
+                              for p_item in param_items:
+                                  p_name = sanitize_cell(get_text(p_item.find('.//parametername')))
+                                  p_desc = sanitize_cell(get_text(p_item.find('.//parameterdescription')))
+                                  m_block.append(f"| `{p_name}` | {p_desc} |\n")
+                              m_block.append("\n")
+
+                          returns = member.findall(".//simplesect[@kind='return']")
+                          if returns:
+                              ret_desc = get_text(returns[0])
+                              if ret_desc:
+                                  m_block.append(f"**Returns:** {ret_desc}\n\n")
+
+                          m_block.append("---\n\n")
+                          return "".join(m_block)
+
+                      # --- Section 1: Constructors & Destructors ---
+                      if constructors:
+                          page.append("## Constructors & Destructors\n\n")
+                          for c in constructors:
+                              page.append(format_member(c))
+
+                      # --- Section 2: Public Functions ---
+                      if functions:
+                          page.append("## Public Functions\n\n")
+                          for f in functions:
+                              page.append(format_member(f))
+
+                      # --- Section 3: Public Variables & Constants ---
+                      if variables:
+                          page.append("## Public Variables\n\n")
+                          for v in variables:
+                              page.append(format_member(v))
 
                   with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
                       f.write("".join(page))
 
-          # Generate API-Reference.md Index
-          with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
-              f.write("# API Reference Index\n\nAutomated list of library classes and modules:\n\n")
-              for orig_name, clean_name, kind in sorted(pages, key=lambda x: x[0]):
-                  f.write(f"- **[{orig_name}]({clean_name})** ({kind})\n")
+              # Header File Compounds (contain global enums and #defines)
+              elif kind == 'file':
+                  detail_path = os.path.join(xml_dir, f"{refid}.xml")
+                  if os.path.exists(detail_path):
+                      f_tree = ET.parse(detail_path)
+                      f_root = f_tree.getroot()
 
-          # Generate _Sidebar.md Navigation
+                      # Enums
+                      for enum_def in f_root.findall('.//memberdef[@kind="enum"]'):
+                          e_name = get_text(enum_def.find('name'))
+                          if e_name and not e_name.startswith('mip_detail::') and e_name not in seen_enums:
+                              seen_enums.add(e_name)
+                              enum_pages.append((e_name, e_name, enum_def))
+
+                      # Preprocessor Defines (#define)
+                      for def_member in f_root.findall('.//memberdef[@kind="define"]'):
+                          d_name = sanitize_cell(get_text(def_member.find('name')))
+                          d_init = sanitize_cell(get_text(def_member.find('initializer')))
+                          d_brief = sanitize_cell(get_text(def_member.find('briefdescription')))
+                          d_deta = sanitize_cell(get_text(def_member.find('detaileddescription')))
+                          desc = d_brief if d_brief else d_deta
+
+                          if d_name and not d_name.startswith('mip_detail::') and d_name not in seen_defines:
+                              seen_defines.add(d_name)
+                              defines_list.append((d_name, d_init, desc))
+
+          # ---------------------------------------------------------------------------
+          # 2. Format & Write Dedicated Enum Pages
+          # ---------------------------------------------------------------------------
+          for orig_name, clean_name, enum_def in enum_pages:
+              doc_filename = f"{clean_name}.md"
+              brief = get_text(enum_def.find('briefdescription'))
+              deta_el = enum_def.find('detaileddescription')
+
+              page = [f"# Enum `{orig_name}`\n\n"]
+              if brief:
+                  page.append(f"{brief}\n\n")
+
+              if deta_el is not None:
+                  para_text = []
+                  for para in deta_el.findall('para'):
+                      p_txt = get_text(para)
+                      if p_txt and not para.find('parameterlist') and not para.find('simplesect'):
+                          para_text.append(p_txt)
+                  if para_text:
+                      page.append("## Detailed Description\n\n" + "\n\n".join(para_text) + "\n\n")
+
+              enum_values = enum_def.findall('enumvalue')
+              if enum_values:
+                  page.append("## Enumerator Values\n\n")
+                  page.append("| Enumerator | Value | Description |\n|:---|:---|:---|\n")
+                  for ev in enum_values:
+                      ev_name = sanitize_cell(get_text(ev.find('name')))
+                      ev_init = sanitize_cell(get_text(ev.find('initializer')))
+                      ev_brief = get_text(ev.find('briefdescription'))
+                      ev_deta = get_text(ev.find('detaileddescription'))
+
+                      desc = sanitize_cell(ev_brief if ev_brief else ev_deta)
+                      val_str = f"`{ev_init}`" if ev_init else ""
+                      page.append(f"| `{ev_name}` | {val_str} | {desc} |\n")
+                  page.append("\n")
+
+              with open(os.path.join(out_dir, doc_filename), 'w', encoding='utf-8') as f:
+                  f.write("".join(page))
+
+          # ---------------------------------------------------------------------------
+          # 3. Write Constants-and-Defines.md
+          # ---------------------------------------------------------------------------
+          if defines_list:
+              with open(os.path.join(out_dir, 'Constants-and-Defines.md'), 'w', encoding='utf-8') as f:
+                  f.write("# Constants and Defines\n\nGlobal preprocessor macros and defines:\n\n")
+                  f.write("| Macro / Define | Value | Description |\n|:---|:---|:---|\n")
+                  for d_name, d_init, d_desc in sorted(defines_list, key=lambda x: x[0]):
+                      val_str = f"`{d_init}`" if d_init else ""
+                      f.write(f"| `{d_name}` | {val_str} | {d_desc} |\n")
+                  f.write("\n")
+
+          # ---------------------------------------------------------------------------
+          # 4. Generate API-Reference.md Index
+          # ---------------------------------------------------------------------------
+          with open(os.path.join(out_dir, 'API-Reference.md'), 'w', encoding='utf-8') as f:
+              f.write("# API Reference Index\n\nList of all public library classes, enumerations, and constants:\n\n")
+              f.write("## Classes\n\n")
+              for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
+                  f.write(f"- **[{orig_name}]({clean_name})**\n")
+              
+              if enum_pages:
+                  f.write("\n## Enumerations\n\n")
+                  for orig_name, clean_name, _ in sorted(enum_pages, key=lambda x: x[0]):
+                      f.write(f"- **[{orig_name}]({clean_name})**\n")
+
+              if defines_list:
+                  f.write("\n## Constants and Defines\n\n")
+                  f.write("- **[Constants and Defines](Constants-and-Defines)**\n")
+
+          # ---------------------------------------------------------------------------
+          # 5. Generate _Sidebar.md Navigation
+          # ---------------------------------------------------------------------------
           with open(os.path.join(out_dir, '_Sidebar.md'), 'w', encoding='utf-8') as f:
               f.write("### Navigation\n\n")
               f.write("- [Home](Home)\n")
               f.write("- [API Reference](API-Reference)\n\n")
-              f.write("#### Classes & Modules\n\n")
-              for orig_name, clean_name, _ in sorted(pages, key=lambda x: x[0]):
+              f.write("#### Classes\n\n")
+              for orig_name, clean_name in sorted(class_pages, key=lambda x: x[0]):
                   f.write(f"- [{orig_name}]({clean_name})\n")
+              
+              if enum_pages:
+                  f.write("\n#### Enumerations\n\n")
+                  for orig_name, clean_name, _ in sorted(enum_pages, key=lambda x: x[0]):
+                      f.write(f"- [{orig_name}]({clean_name})\n")
 
-          print("Generated detailed API Markdown pages, API-Reference.md, and _Sidebar.md")
+              if defines_list:
+                  f.write("\n#### Constants\n\n")
+                  f.write("- [Constants and Defines](Constants-and-Defines)\n")
+
+          print("Generated Class, Enum, and Constants Markdown pages, API-Reference.md, and _Sidebar.md")
           EOF
 
       - name: Checkout Wiki Repository
@@ -178,12 +332,21 @@ jobs:
           path: wiki_repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit and Push to Wiki
+      - name: Purge Old Pages and Deploy Fresh Wiki
         run: |
-          # Copy generated markdown files into wiki_repo WITHOUT overwriting an existing Home.md
-          rsync -av --exclude='Home.md' wiki_markdown/ wiki_repo/
+          cd wiki_repo
           
-          # Initialize Home.md if it does not exist yet in the wiki
+          # PURGE STEP: Remove generated pages, but keep Home.md, _Footer.md, and .git
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' \
+            ! -name 'Home.md' ! -name '_Footer.md' -exec rm -rf {} +
+          
+          cd ..
+          
+          # Copy freshly generated markdown files into wiki_repo without overwriting
+          # custom Home.md or _Footer.md
+          rsync -av --exclude='Home.md' --exclude='_Footer.md' wiki_markdown/ wiki_repo/
+          
+          # Initialize Home.md if it does not exist in the wiki repository
           if [ ! -f wiki_repo/Home.md ]; then
             echo "# Welcome to the Library Wiki" > wiki_repo/Home.md
             echo "See the [API Reference](API-Reference) for detailed class documentation." >> wiki_repo/Home.md
@@ -193,9 +356,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add .
+          # Stage all deletions and new files
+          git add -A
           if ! git diff-index --quiet HEAD; then
-            git commit -m "Auto-update API documentation from Doxygen"
+            git commit -m "Fresh deployment of API documentation from Doxygen"
             git push
           else
             echo "No changes to commit to Wiki."
