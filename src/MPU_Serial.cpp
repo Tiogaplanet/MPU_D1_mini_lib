@@ -227,7 +227,6 @@ bool MiP_Serial::readIrLength(size_t& length) {
   uint8_t nibbles[2];
   if (Serial.readBytes(reinterpret_cast<char*>(nibbles), sizeof(nibbles)) !=
       sizeof(nibbles)) {
-    // Missing IR length.
     MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINTLN(F("MiP: Missing IR code length"));
     return false;
@@ -236,13 +235,13 @@ bool MiP_Serial::readIrLength(size_t& length) {
   length = (parseHexDigit(nibbles[0]) << 4) | parseHexDigit(nibbles[1]);
 
   if (length < 2 || length > 4) {
-    [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
-    // OOB too short
+    uint8_t discarded = discardUnexpectedSerialData();
     MIP_DEBUG_ERROR_PREFIX();
-    MIP_DEBUG_ERROR_PRINT(F("MiP: OOB too short: "));
-    MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(bytesRead));
-    MIP_DEBUG_ERROR_PRINT(F(", expected "));
-    MIP_DEBUG_ERROR_PRINTLN(static_cast<unsigned>(length * 2));
+    MIP_DEBUG_ERROR_PRINT(F("MiP: Bad IR code length: 0x"));
+    MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(length), HEX);
+    MIP_DEBUG_ERROR_PRINT(F(" (discarded "));
+    MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(discarded));
+    MIP_DEBUG_ERROR_PRINTLN(F(" bytes)"));
     return false;
   }
   return true;
