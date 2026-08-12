@@ -1,6 +1,6 @@
 /**
  * @file RawSendReceive.ino
- * @brief Example sketch demonstrating MiP raw send/receive operations.
+ * @brief Example sketch demonstrating MiP's raw send and receive operations.
  *
  * @details This sketch shows how to use the MiP library's serial.rawSend() and
  * serial.rawReceive() APIs to transmit and receive low-level MiP command
