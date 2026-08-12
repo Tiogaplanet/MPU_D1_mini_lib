@@ -68,20 +68,17 @@ int8_t MiP_Weight::read() {
 // ==========================================================================
 
 int8_t MiP_Weight::rawGet(int8_t& weight) {
-  const uint8_t getWeight[1] = {MIP_CMD_GET_WEIGHT};
+  const uint8_t getWeight[1] = { MIP_CMD_GET_WEIGHT };
   uint8_t response[1 + 1];
   size_t responseLength = 0;
 
   int8_t result = m_mip.serial.rawReceive(
-      getWeight, sizeof(getWeight), response, sizeof(response), responseLength);
-  if (result)
-    return result;
+    getWeight, sizeof(getWeight), response, sizeof(response), responseLength);
+  if (result) return result;
   return parse(weight, response, responseLength);
 }
 
-int8_t MiP_Weight::parse(int8_t& weight,
-                         const uint8_t response[],
-                         size_t responseLength) {
+int8_t MiP_Weight::parse(int8_t& weight, const uint8_t response[], size_t responseLength) {
   if (responseLength != 2 || response[0] != MIP_CMD_GET_WEIGHT) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }

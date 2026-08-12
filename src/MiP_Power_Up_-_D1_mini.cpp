@@ -16,24 +16,10 @@
 #include "MiP_Power_Up_-_D1_mini.h"
 
 MiP::MiP()
-    : battery(*this),
-      chestLED(*this),
-      clap(*this),
-      eeprom(*this),
-      gesture(*this),
-      headLEDs(*this),
-      infrared(*this),
-      mode(*this),
-      motion(*this),
-      odometer(*this),
-      position(*this),
-      radar(*this),
-      serial(*this),
-      shake(*this),
-      sound(*this),
-      version(*this),
-      weight(*this),
-      wifi(*this) {
+  : battery(*this), chestLED(*this), clap(*this), eeprom(*this), gesture(*this),
+    headLEDs(*this), infrared(*this), mode(*this), motion(*this),
+    odometer(*this), position(*this), radar(*this), serial(*this), shake(*this),
+    sound(*this), version(*this), weight(*this), wifi(*this) {
   clear();
 }
 
@@ -59,13 +45,11 @@ bool MiP::begin() {
     // Try to connect at 115200 baud, the rate used by some MiPs.
     MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 115200"));
-    if (attemptMiPConnection(MIP_FAST_BAUD_RATE) == MIP_ERROR_NONE)
-      return true;
+    if (attemptMiPConnection(MIP_FAST_BAUD_RATE) == MIP_ERROR_NONE) return true;
     // Try to connect at 9600 baud if the fast attempt failed.
     MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 9600"));
-    if (attemptMiPConnection(MIP_SLOW_BAUD_RATE) == MIP_ERROR_NONE)
-      return true;
+    if (attemptMiPConnection(MIP_SLOW_BAUD_RATE) == MIP_ERROR_NONE) return true;
   }
 
   // Get here if the connection attempt to MiP never succeeds.
@@ -77,7 +61,7 @@ bool MiP::begin() {
 void MiP::end() {
   if (isInitialized()) {
     sound.end();
-    const uint8_t command[] = {MIP_CMD_DISCONNECT_APP};
+    const uint8_t command[] = { MIP_CMD_DISCONNECT_APP };
     serial.rawSend(command, sizeof(command));
     Serial.flush();
   }
@@ -94,7 +78,7 @@ void MiP::end() {
 void MiP::sleep() {
   // Put  MiP to sleep.
   // MiP will need to be reset before another begin() will succeed.
-  const uint8_t command[] = {MIP_CMD_SLEEP};
+  const uint8_t command[] = { MIP_CMD_SLEEP };
   serial.rawSend(command, sizeof(command));
 }
 
@@ -115,24 +99,19 @@ void MiP::printLastCallResult() {
     MIP_DEBUG_ERROR_PRINT(F("MiP: API returned "));
     switch (m_lastError) {
       case MIP_ERROR_TIMEOUT:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
+        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
         break;
       case MIP_ERROR_NO_EVENT:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
+        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
         break;
       case MIP_ERROR_BAD_RESPONSE:
-        MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
+        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
         break;
       case MIP_ERROR_MAX_RETRIES:
         MIP_DEBUG_ERROR_PRINTLN(
-            F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
+          F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
         break;
-      default:
-        MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));
-        break;
+      default: MIP_DEBUG_ERROR_PRINTLN(F("unknown error")); break;
     }
   }
 }
@@ -169,12 +148,10 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
   Serial.begin(baudRate, SERIAL_8N1);
   Serial.swap();  // → GPIO15 TX / GPIO13 RX
   Serial.flush();
-  while (Serial.available() > 0) {
-    Serial.read();
-  }
+  while (Serial.available() > 0) { Serial.read(); }
 
   // Enable MiP UART channel.
-  const uint8_t initMipCommand[] = {0xFF};
+  const uint8_t initMipCommand[] = { 0xFF };
   serial.rawSend(initMipCommand, sizeof(initMipCommand));
   Serial.flush();
 
@@ -201,31 +178,22 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
   return result;
 }
 
-void MiP::dispatchEvent(uint8_t command,
-                        const uint8_t* payload,
-                        size_t length) {
+void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) {
   switch (command) {
     case MiP_Clap::MIP_CMD_CLAP_RESPONSE:
       // A clap event was found. Dispatch it to the Clap component.
-      if (length >= 2) {
-        clap.processEvent(payload[1]);
-      }
+      if (length >= 2) { clap.processEvent(payload[1]); }
       break;
     case MiP_Weight::MIP_CMD_GET_WEIGHT:
       // A weight event was found. Dispatch it to the Weight component.
       MIP_DEBUG_INFO_PREFIX();
-      MIP_DEBUG_INFO_PRINT(
-          "MiP->Core->dispatchEvent(), in weight case. payload[1]: ");
+      MIP_DEBUG_INFO_PRINT("MiP->Core->dispatchEvent(), in weight case. payload[1]: ");
       MIP_DEBUG_INFO_PRINTLN(payload[1]);
-      if (length >= 2) {
-        weight.processEvent(payload[1]);
-      }
+      if (length >= 2) { weight.processEvent(payload[1]); }
       break;
     case MiP_Gesture::MIP_CMD_GET_GESTURE_RESPONSE:
       // A gesture was found. Dispatch to the Gesture component.
-      if (length >= 2) {
-        gesture.processEvent(payload[1]);
-      }
+      if (length >= 2) { gesture.processEvent(payload[1]); }
       break;
     case MIP_CMD_GET_STATUS:
       // A status update arrived. Parse it and update the core status.
@@ -243,9 +211,7 @@ void MiP::dispatchEvent(uint8_t command,
       m_flags |= MIP_FLAG_SHAKE_DETECTED;
       break;
     case MiP_Radar::MIP_CMD_GET_RADAR_RESPONSE:
-      if (length >= 2) {
-        radar.processEvent(payload[1]);
-      }
+      if (length >= 2) { radar.processEvent(payload[1]); }
       break;
     default:
       // An unknown OOB event was received.
@@ -260,31 +226,27 @@ void MiP::dispatchEvent(uint8_t command,
 // error handling. The error recovery happens at a higher level of the driver in
 // begin(). All status updates after begin() come from events.
 int8_t MiP::rawGetStatus(MiPStatus& status) {
-  const uint8_t getStatus[1] = {MIP_CMD_GET_STATUS};
+  const uint8_t getStatus[1] = { MIP_CMD_GET_STATUS };
   uint8_t response[1 + 2];
   size_t responseLength;
   int result = serial.rawReceive(
-      getStatus, sizeof(getStatus), response, sizeof(response), responseLength);
-  if (result)
-    return result;
+    getStatus, sizeof(getStatus), response, sizeof(response), responseLength);
+  if (result) return result;
   return parseStatus(status, response, responseLength);
 }
 
 // This internal protected method takes the status response, validates it,
 // converts it into convenient units and packs the result into a MiPStatus
 // class.
-int8_t MiP::parseStatus(MiPStatus& status,
-                        const uint8_t response[],
-                        size_t responseLength) {
-  if (responseLength != 3 || response[0] != MIP_CMD_GET_STATUS ||
-      response[2] > MIP_POSITION_ON_BACK_WITH_KICKSTAND) {
+int8_t MiP::parseStatus(MiPStatus& status, const uint8_t response[], size_t responseLength) {
+  if (responseLength != 3 || response[0] != MIP_CMD_GET_STATUS
+      || response[2] > MIP_POSITION_ON_BACK_WITH_KICKSTAND) {
     return MIP_ERROR_BAD_RESPONSE;
   }
 
   // Convert battery integer value to floating point voltage value.
   status.battery =
-      (float)(((response[1] - 0x4D) / (float)(0x7C - 0x4D)) * (6.4f - 4.0f)) +
-      4.0f;
+    (float)(((response[1] - 0x4D) / (float)(0x7C - 0x4D)) * (6.4f - 4.0f)) + 4.0f;
   status.position = (MiPPosition)response[2];
   return MIP_ERROR_NONE;
 }
@@ -298,8 +260,6 @@ void MiP::mipAssert(bool condition, uint32_t lineNumber, const char* fileName) {
     MIP_DEBUG_ERROR_PRINT(fileName);
     MIP_DEBUG_ERROR_PRINT(F(" at line: "));
     MIP_DEBUG_ERROR_PRINTLN(lineNumber);
-    while (true) {
-      delay(100);
-    }
+    while (true) { delay(100); }
   }
 }

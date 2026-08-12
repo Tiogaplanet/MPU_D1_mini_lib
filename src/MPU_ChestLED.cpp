@@ -48,23 +48,19 @@ void MiP_ChestLED::write(uint8_t red, uint8_t green, uint8_t blue) {
 
     MiPChestLED actualChestLED;
     result = rawGet(actualChestLED);
-    if (result == MiP::MIP_ERROR_NONE && actualChestLED.red == red &&
-        actualChestLED.green == green && actualChestLED.blue == blue) {
+    if (result == MiP::MIP_ERROR_NONE && actualChestLED.red == red
+        && actualChestLED.green == green && actualChestLED.blue == blue) {
       m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       return;
     }
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError =
-      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
-void MiP_ChestLED::write(uint8_t red,
-                         uint8_t green,
-                         uint8_t blue,
-                         uint16_t onTime,
-                         uint16_t offTime) {
+void MiP_ChestLED::write(
+  uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write(flash)"));
   int8_t result;
@@ -82,28 +78,23 @@ void MiP_ChestLED::write(uint8_t red,
 
     MiPChestLED actualChestLED;
     result = rawGet(actualChestLED);
-    if (result == MiP::MIP_ERROR_NONE && actualChestLED.red == red &&
-        actualChestLED.green == green && actualChestLED.blue == blue &&
-        actualChestLED.onTime == static_cast<uint16_t>(onTicks) * 20 &&
-        actualChestLED.offTime == static_cast<uint16_t>(offTicks) * 20) {
+    if (result == MiP::MIP_ERROR_NONE && actualChestLED.red == red
+        && actualChestLED.green == green && actualChestLED.blue == blue
+        && actualChestLED.onTime == static_cast<uint16_t>(onTicks) * 20
+        && actualChestLED.offTime == static_cast<uint16_t>(offTicks) * 20) {
       m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       return;
     }
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError =
-      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 void MiP_ChestLED::write(const MiPChestLED& chestLED) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write()"));
-  write(chestLED.red,
-        chestLED.green,
-        chestLED.blue,
-        chestLED.onTime,
-        chestLED.offTime);
+  write(chestLED.red, chestLED.green, chestLED.blue, chestLED.onTime, chestLED.offTime);
 }
 
 void MiP_ChestLED::unverifiedWrite(uint8_t red, uint8_t green, uint8_t blue) {
@@ -112,11 +103,8 @@ void MiP_ChestLED::unverifiedWrite(uint8_t red, uint8_t green, uint8_t blue) {
   rawSet(red, green, blue);
 }
 
-void MiP_ChestLED::unverifiedWrite(uint8_t red,
-                                   uint8_t green,
-                                   uint8_t blue,
-                                   uint16_t onTime,
-                                   uint16_t offTime) {
+void MiP_ChestLED::unverifiedWrite(
+  uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
   m_mip.MIP_ASSERT(onTime / 20 <= 255 && offTime / 20 <= 255);
@@ -128,26 +116,18 @@ void MiP_ChestLED::unverifiedWrite(uint8_t red,
 void MiP_ChestLED::unverifiedWrite(const MiPChestLED& chestLED) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
-  unverifiedWrite(chestLED.red,
-                  chestLED.green,
-                  chestLED.blue,
-                  chestLED.onTime,
-                  chestLED.offTime);
+  unverifiedWrite(
+    chestLED.red, chestLED.green, chestLED.blue, chestLED.onTime, chestLED.offTime);
 }
 
 int8_t MiP_ChestLED::rawGet(MiPChestLED& chestLED) {
-  const uint8_t getChestLED[1] = {MIP_CMD_GET_CHEST_LED};
+  const uint8_t getChestLED[1] = { MIP_CMD_GET_CHEST_LED };
   uint8_t response[1 + 5];
   size_t responseLength = 0;
-  uint8_t result = m_mip.serial.rawReceive(getChestLED,
-                                           sizeof(getChestLED),
-                                           response,
-                                           sizeof(response),
-                                           responseLength);
-  if (result)
-    return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_CHEST_LED) {
+  uint8_t result = m_mip.serial.rawReceive(
+    getChestLED, sizeof(getChestLED), response, sizeof(response), responseLength);
+  if (result) return result;
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_CHEST_LED) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   chestLED.red = response[1];
@@ -161,16 +141,14 @@ int8_t MiP_ChestLED::rawGet(MiPChestLED& chestLED) {
 }
 
 void MiP_ChestLED::rawSet(uint8_t red, uint8_t green, uint8_t blue) {
-  uint8_t command[1 + 3] = {MIP_CMD_SET_CHEST_LED, red, green, blue};
+  uint8_t command[1 + 3] = { MIP_CMD_SET_CHEST_LED, red, green, blue };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 
-void MiP_ChestLED::rawFlash(uint8_t red,
-                            uint8_t green,
-                            uint8_t blue,
-                            uint8_t onTicks,
-                            uint8_t offTicks) {
+void MiP_ChestLED::rawFlash(
+  uint8_t red, uint8_t green, uint8_t blue, uint8_t onTicks, uint8_t offTicks) {
   uint8_t command[1 + 5] = {
-      MIP_CMD_FLASH_CHEST_LED, red, green, blue, onTicks, offTicks};
+    MIP_CMD_FLASH_CHEST_LED, red, green, blue, onTicks, offTicks
+  };
   m_mip.serial.rawSend(command, sizeof(command));
 }

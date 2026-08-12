@@ -23,12 +23,12 @@
 #include "Print.h"
 
 extern "C" {
-/**
- * @brief ESP8266 SDK low-level function to adjust CPU frequency.
- * @param freq Target CPU frequency in MHz (e.g., 80 or 160).
- * @return true if frequency change succeeded, false otherwise.
- */
-bool system_update_cpu_freq(uint8 freq);
+  /**
+   * @brief ESP8266 SDK low-level function to adjust CPU frequency.
+   * @param freq Target CPU frequency in MHz (e.g., 80 or 160).
+   * @return true if frequency change succeeded, false otherwise.
+   */
+  bool system_update_cpu_freq(uint8 freq);
 }
 
 /**
@@ -36,46 +36,39 @@ bool system_update_cpu_freq(uint8 freq);
  * @{
  */
 
-#define mDebug(...)                \
-  {                                \
-    if (debug.isActive(debug.ANY)) \
-      debug.printf(__VA_ARGS__);   \
+#define mDebug(...) \
+  { \
+    if (debug.isActive(debug.ANY)) debug.printf(__VA_ARGS__); \
   }
 
-#define mDebugP(...)                    \
-  {                                     \
-    if (debug.isActive(debug.PROFILER)) \
-      debug.printf(__VA_ARGS__);        \
+#define mDebugP(...) \
+  { \
+    if (debug.isActive(debug.PROFILER)) debug.printf(__VA_ARGS__); \
   }
 
-#define mDebugV(...)                   \
-  {                                    \
-    if (debug.isActive(debug.VERBOSE)) \
-      debug.printf(__VA_ARGS__);       \
+#define mDebugV(...) \
+  { \
+    if (debug.isActive(debug.VERBOSE)) debug.printf(__VA_ARGS__); \
   }
 
-#define mDebugD(...)                 \
-  {                                  \
-    if (debug.isActive(debug.DEBUG)) \
-      debug.printf(__VA_ARGS__);     \
+#define mDebugD(...) \
+  { \
+    if (debug.isActive(debug.DEBUG)) debug.printf(__VA_ARGS__); \
   }
 
-#define mDebugI(...)                \
-  {                                 \
-    if (debug.isActive(debug.INFO)) \
-      debug.printf(__VA_ARGS__);    \
+#define mDebugI(...) \
+  { \
+    if (debug.isActive(debug.INFO)) debug.printf(__VA_ARGS__); \
   }
 
-#define mDebugW(...)                   \
-  {                                    \
-    if (debug.isActive(debug.WARNING)) \
-      debug.printf(__VA_ARGS__);       \
+#define mDebugW(...) \
+  { \
+    if (debug.isActive(debug.WARNING)) debug.printf(__VA_ARGS__); \
   }
 
-#define mDebugE(...)                 \
-  {                                  \
-    if (debug.isActive(debug.ERROR)) \
-      debug.printf(__VA_ARGS__);     \
+#define mDebugE(...) \
+  { \
+    if (debug.isActive(debug.ERROR)) debug.printf(__VA_ARGS__); \
   }
 
 /** @} */
@@ -84,27 +77,30 @@ bool system_update_cpu_freq(uint8 freq);
  * @brief Telnet and Serial debug server for real-time remote diagnostics.
  */
 class MiPDebug : public Print {
- public:
- // --- System Configuration Constants ---
-  static constexpr uint16_t TELNET_PORT = 23;            ///< Default TCP telnet port (23).
+public:
+  // --- System Configuration Constants ---
+  static constexpr uint16_t TELNET_PORT = 23;  ///< Default TCP telnet port
+                                               ///< (23).
 
   /**
    * @name Logging Severity Levels
    * @{
    */
-  static constexpr uint8_t PROFILER = 0; ///< Execution timing section profiling.
-  static constexpr uint8_t VERBOSE  = 1; ///< Detailed verbose messages.
-  static constexpr uint8_t DEBUG    = 2; ///< Standard debug messages.
-  static constexpr uint8_t INFO     = 3; ///< Informational status messages.
-  static constexpr uint8_t WARNING  = 4; ///< Warning messages.
-  static constexpr uint8_t ERROR    = 5; ///< Critical error messages.
-  static constexpr uint8_t ANY      = 6; ///< Messages output unconditionally.
+  static constexpr uint8_t PROFILER = 0;  ///< Execution timing section
+                                          ///< profiling.
+  static constexpr uint8_t VERBOSE = 1;   ///< Detailed verbose messages.
+  static constexpr uint8_t DEBUG = 2;     ///< Standard debug messages.
+  static constexpr uint8_t INFO = 3;      ///< Informational status messages.
+  static constexpr uint8_t WARNING = 4;   ///< Warning messages.
+  static constexpr uint8_t ERROR = 5;     ///< Critical error messages.
+  static constexpr uint8_t ANY = 6;       ///< Messages output unconditionally.
   /** @} */
 
   /**
    * @brief Initializes and starts the telnet debug server.
    * @param hostname Hostname broadcast by the telnet service.
-   * @param startingDebugLevel Initial active debug threshold (default: VERBOSE).
+   * @param startingDebugLevel Initial active debug threshold (default:
+   * VERBOSE).
    */
   void begin(const String& hostname, uint8_t startingDebugLevel = VERBOSE);
 
@@ -114,7 +110,8 @@ class MiPDebug : public Print {
   void stop();
 
   /**
-   * @brief Service loop handler for maintaining telnet client connections and processing commands.
+   * @brief Service loop handler for maintaining telnet client connections and
+   * processing commands.
    * @note Must be called periodically inside the sketch loop().
    */
   void handle();
@@ -126,7 +123,8 @@ class MiPDebug : public Print {
   void setSerialEnabled(bool enable);
 
   /**
-   * @brief Configures whether the telnet server allows remote system reset commands.
+   * @brief Configures whether the telnet server allows remote system reset
+   * commands.
    * @param enable true to allow remote ESP8266 reset via telnet command.
    */
   void setResetCmdEnabled(bool enable);
@@ -138,13 +136,16 @@ class MiPDebug : public Print {
   void setHelpProjectsCmds(const String& help);
 
   /**
-   * @brief Registers a callback handler for custom sketch/project telnet commands.
-   * @param callback Function pointer executed when a custom command is received.
+   * @brief Registers a callback handler for custom sketch/project telnet
+   * commands.
+   * @param callback Function pointer executed when a custom command is
+   * received.
    */
   void setCallBackProjectCmds(void (*callback)());
 
   /**
-   * @brief Retrieves the last command string received from the connected telnet client.
+   * @brief Retrieves the last command string received from the connected telnet
+   * client.
    * @return String containing command text.
    */
   String getLastCommand() const;
@@ -163,12 +164,14 @@ class MiPDebug : public Print {
   /**
    * @brief Configures execution profiler logging between consecutive prints.
    * @param show true to show elapsed execution time, false to omit.
-   * @param minTime Minimum elapsed time threshold in ms required to trigger profiler output.
+   * @param minTime Minimum elapsed time threshold in ms required to trigger
+   * profiler output.
    */
   void showProfiler(bool show, uint32_t minTime = 0);
 
   /**
-   * @brief Configures whether debug severity tags ([INFO], [DEBUG], etc.) are prepended.
+   * @brief Configures whether debug severity tags ([INFO], [DEBUG], etc.) are
+   * prepended.
    * @param show true to show level tags, false to omit.
    */
   void showDebugLevel(bool show);
@@ -180,14 +183,16 @@ class MiPDebug : public Print {
   void showColors(bool show);
 
   /**
-   * @brief Automatically switches logging level to PROFILER if elapsed time exceeds threshold.
+   * @brief Automatically switches logging level to PROFILER if elapsed time
+   * exceeds threshold.
    * @param millisElapsed Threshold duration in ms between loop iterations.
    */
   void autoProfilerLevel(uint32_t millisElapsed);
 
   /**
    * @brief Applies a text filter string to debug outputs.
-   * @param filter Substring filter; only log lines containing this string will print.
+   * @param filter Substring filter; only log lines containing this string will
+   * print.
    */
   void setFilter(const String& filter);
 
@@ -207,20 +212,23 @@ class MiPDebug : public Print {
   virtual size_t write(const uint8_t* buffer, size_t size) override;
 
   /**
-   * @brief Helper method to expand CR/LF control characters into literal "\\r" and "\\n".
+   * @brief Helper method to expand CR/LF control characters into literal "\\r"
+   * and "\\n".
    * @param string Input string containing raw control characters.
    * @return String with CR/LF replaced by escaped representations.
    */
   String expand(const String& string);
 
- protected:
+protected:
   // --- System Configuration Constants ---
-  static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity disconnect timeout (1 hour).
-  static constexpr size_t BUFFER_PRINT = 150;            ///< Print character buffer size.
+  static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity
+                                                          ///< disconnect
+                                                          ///< timeout (1 hour).
+  static constexpr size_t BUFFER_PRINT = 150;  ///< Print character buffer size.
 
 #ifdef CLIENT_BUFFERING
-  static constexpr uint32_t DELAY_TO_SEND = 10;          ///< Packet send delay in ms.
-  static constexpr size_t MAX_SIZE_SEND = 1460;          ///< TCP MSS limit.
+  static constexpr uint32_t DELAY_TO_SEND = 10;  ///< Packet send delay in ms.
+  static constexpr size_t MAX_SIZE_SEND = 1460;  ///< TCP MSS limit.
 #endif
 
   // --- ANSI Terminal Escape Codes ---
@@ -240,7 +248,7 @@ class MiPDebug : public Print {
   static constexpr const char* COLOR_BACKGROUND_CYAN = "\x1B[46m";
   static constexpr const char* COLOR_BACKGROUND_WHITE = "\x1B[47m";
 
- private:
+private:
   void showHelp();
   void processCommand();
   String formatNumber(uint32_t value, uint8_t size, char insert = '0');

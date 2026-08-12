@@ -30,7 +30,7 @@ class MiP;
  * from MiP.
  */
 class MiP_Serial {
- public:
+public:
   /**
    * @brief Maximum number of retry attempts for verified read and write
    * operations.
@@ -76,11 +76,9 @@ class MiP_Serial {
    * @return uint8_t MIP_ERROR_NONE on success, or MIP_ERROR_TIMEOUT on response
    * timeout.
    */
-  uint8_t rawReceive(const uint8_t request[],
-                     size_t requestLength,
-                     uint8_t responseBuffer[],
-                     size_t responseBufferSize,
-                     size_t& responseLength);
+  uint8_t rawReceive(
+    const uint8_t request[], size_t requestLength, uint8_t responseBuffer[],
+    size_t responseBufferSize, size_t& responseLength);
 
   /**
    * @brief Reads and processes all incoming data available in the hardware
@@ -96,7 +94,7 @@ class MiP_Serial {
    */
   bool processAllResponseData();
 
- protected:
+protected:
   /**
    * @brief Minimum inter-command delay in milliseconds required between
    * consecutive UART transmissions.
@@ -136,7 +134,7 @@ class MiP_Serial {
   void clear();
   uint8_t discardUnexpectedSerialData();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
@@ -146,12 +144,9 @@ class MiP_Serial {
   explicit MiP_Serial(MiP& mip);
 
   void processOobResponseData(uint8_t commandByte);
-  uint8_t transportGetResponse(uint8_t* pResponseBuffer,
-                               size_t responseBufferSize,
-                               size_t* pResponseLength);
-  void transportSendRequest(const uint8_t* pRequest,
-                            size_t requestLength,
-                            int expectResponse);
+  uint8_t transportGetResponse(
+    uint8_t* pResponseBuffer, size_t responseBufferSize, size_t* pResponseLength);
+  void transportSendRequest(const uint8_t* pRequest, size_t requestLength, int expectResponse);
 
   // Hex helpers
   void copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length);

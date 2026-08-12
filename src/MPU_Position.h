@@ -26,23 +26,23 @@ class MiP;
  * @brief MiP physical orientation or position states.
  */
 enum MiPPosition : uint8_t {
-  MIP_POSITION_ON_BACK = 0x00,    ///< MiP is lying on back position.
-  MIP_POSITION_FACE_DOWN = 0x01,  ///< MiP is lying face down.
-  MIP_POSITION_UPRIGHT =
-      0x02,  ///< MiP is standing upright in balance position.
+  MIP_POSITION_ON_BACK = 0x00,     ///< MiP is lying on back position.
+  MIP_POSITION_FACE_DOWN = 0x01,   ///< MiP is lying face down.
+  MIP_POSITION_UPRIGHT = 0x02,     ///< MiP is standing upright in balance
+                                   ///< position.
   MIP_POSITION_PICKED_UP = 0x03,   ///< MiP has been picked up off the ground.
   MIP_POSITION_HAND_STAND = 0x04,  ///< MiP is in a hand-standing position.
-  MIP_POSITION_FACE_DOWN_ON_TRAY =
-      0x05,  ///< MiP is face down with tray accessory attached.
-  MIP_POSITION_ON_BACK_WITH_KICKSTAND =
-      0x06,  ///< MiP is lying on back with kickstand deployed.
+  MIP_POSITION_FACE_DOWN_ON_TRAY = 0x05,       ///< MiP is face down with tray
+                                               ///< accessory attached.
+  MIP_POSITION_ON_BACK_WITH_KICKSTAND = 0x06,  ///< MiP is lying on back with
+                                               ///< kickstand deployed.
 };
 
 /**
  * @brief Manages reporting of MiP's physical orientation and stance position.
  */
 class MiP_Position {
- public:
+public:
   /**
    * @brief Reads MiP's current physical position or orientation.
    *
@@ -105,7 +105,7 @@ class MiP_Position {
    */
   bool isOnBackWithKickstand();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

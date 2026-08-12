@@ -101,8 +101,7 @@ void MiP_Clap::writeDelay(uint16_t delayTime) {
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError =
-      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 void MiP_Clap::clear() {
@@ -123,8 +122,7 @@ void MiP_Clap::checkedEnableEvents(MiPClapEnabled enabled) {
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError =
-      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 int8_t MiP_Clap::readSettings(MiPClapSettings& settings) {
@@ -132,8 +130,7 @@ int8_t MiP_Clap::readSettings(MiPClapSettings& settings) {
 
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     result = rawGetSettings(settings);
-    if (result == MiP::MIP_ERROR_NONE)
-      return MiP::MIP_ERROR_NONE;
+    if (result == MiP::MIP_ERROR_NONE) return MiP::MIP_ERROR_NONE;
 
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
@@ -142,33 +139,27 @@ int8_t MiP_Clap::readSettings(MiPClapSettings& settings) {
 }
 
 void MiP_Clap::rawEnable(MiPClapEnabled enabled) {
-  uint8_t command[1 + 1] = {MIP_CMD_ENABLE_CLAP, static_cast<uint8_t>(enabled)};
+  uint8_t command[1 + 1] = { MIP_CMD_ENABLE_CLAP, static_cast<uint8_t>(enabled) };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 
 void MiP_Clap::rawSetDelay(uint16_t delay) {
-  uint8_t command[1 + 2] = {MIP_CMD_SET_CLAP_DELAY,
-                            static_cast<uint8_t>(delay >> 8),
-                            static_cast<uint8_t>(delay & 0xFF)};
+  uint8_t command[1 + 2] = { MIP_CMD_SET_CLAP_DELAY, static_cast<uint8_t>(delay >> 8),
+                             static_cast<uint8_t>(delay & 0xFF) };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 
 int8_t MiP_Clap::rawGetSettings(MiPClapSettings& settings) {
-  const uint8_t getClapSettings[1] = {MIP_CMD_GET_CLAP_SETTINGS};
+  const uint8_t getClapSettings[1] = { MIP_CMD_GET_CLAP_SETTINGS };
   uint8_t response[1 + 3];
   size_t responseLength = 0;
-  int8_t result = m_mip.serial.rawReceive(getClapSettings,
-                                          sizeof(getClapSettings),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
+  int8_t result = m_mip.serial.rawReceive(
+    getClapSettings, sizeof(getClapSettings), response, sizeof(response), responseLength);
 
-  if (result)
-    return result;
+  if (result) return result;
 
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_CLAP_SETTINGS ||
-      (response[1] != MIP_CLAP_DISABLED && response[1] != MIP_CLAP_ENABLED)) {
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_CLAP_SETTINGS
+      || (response[1] != MIP_CLAP_DISABLED && response[1] != MIP_CLAP_ENABLED)) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
 

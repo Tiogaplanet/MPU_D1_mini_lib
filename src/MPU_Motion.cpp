@@ -38,12 +38,9 @@ void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
   m_lastContinuousDriveTime = millis();
 
   command[0] = MIP_CMD_CONTINUOUS_DRIVE;
-  command[1] = (velocity == 0)
-                   ? 0x00
-                   : ((velocity < 0) ? (0x20 + (-velocity)) : velocity);
-  command[2] = (turnRate == 0) ? 0x00
-                               : ((turnRate < 0) ? (0x60 + (-turnRate))
-                                                 : (0x40 + turnRate));
+  command[1] = (velocity == 0) ? 0x00 : ((velocity < 0) ? (0x20 + (-velocity)) : velocity);
+  command[2] =
+    (turnRate == 0) ? 0x00 : ((turnRate < 0) ? (0x60 + (-turnRate)) : (0x40 + turnRate));
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.
@@ -51,10 +48,8 @@ void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
-void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection,
-                               uint8_t cm,
-                               MiPTurnDirection turnDirection,
-                               uint16_t degrees) {
+void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection, uint8_t cm,
+                               MiPTurnDirection turnDirection, uint16_t degrees) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->distanceDrive()"));
 
@@ -84,9 +79,7 @@ void MiP_Motion::driveForward(uint8_t speed, uint16_t time) {
   m_mip.MIP_ASSERT(speed <= 30);
   m_mip.MIP_ASSERT(time <= 255 * 7);
 
-  if (time > 255 * 7) {
-    time = 255 * 7;
-  }
+  if (time > 255 * 7) { time = 255 * 7; }
 
   command[0] = MIP_CMD_DRIVE_FORWARD;
   command[1] = speed;
@@ -108,9 +101,7 @@ void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
   m_mip.MIP_ASSERT(speed <= 30);
   m_mip.MIP_ASSERT(time <= 255 * 7);
 
-  if (time > 255 * 7) {
-    time = 255 * 7;
-  }
+  if (time > 255 * 7) { time = 255 * 7; }
 
   command[0] = MIP_CMD_DRIVE_BACKWARD;
   command[1] = speed;
@@ -130,9 +121,7 @@ void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
   m_mip.MIP_ASSERT(degrees <= 255 * 5);
   m_mip.MIP_ASSERT(speed <= 24);
 
-  if (degrees > 255 * 5) {
-    degrees = 255 * 5;
-  }
+  if (degrees > 255 * 5) { degrees = 255 * 5; }
 
   uint8_t angle = static_cast<uint8_t>(degrees / 5);
   uint8_t command[1 + 2];
@@ -155,9 +144,7 @@ void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
   m_mip.MIP_ASSERT(degrees <= 255 * 5);
   m_mip.MIP_ASSERT(speed <= 24);
 
-  if (degrees > 255 * 5) {
-    degrees = 255 * 5;
-  }
+  if (degrees > 255 * 5) { degrees = 255 * 5; }
 
   uint8_t angle = static_cast<uint8_t>(degrees / 5);
   uint8_t command[1 + 2];
@@ -176,7 +163,7 @@ void MiP_Motion::stop() {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->stop()"));
 
-  uint8_t command[1] = {MIP_CMD_STOP};
+  uint8_t command[1] = { MIP_CMD_STOP };
 
   // Send this command blindly with no error checking since there is no way to
   // determine if it has failed.

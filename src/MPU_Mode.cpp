@@ -101,8 +101,7 @@ bool MiP_Mode::check(MiPGameMode expectedMode) {
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     MiPGameMode currentMode;
     result = rawGet(currentMode);
-    if (result == MiP::MIP_ERROR_NONE)
-      return currentMode == expectedMode;
+    if (result == MiP::MIP_ERROR_NONE) return currentMode == expectedMode;
 
     // An error was encountered so we will loop around and try again.
     // Wait for a bit before the next retry.
@@ -120,14 +119,14 @@ void MiP_Mode::rawSet(MiPGameMode mode) {
   // first.
   m_mip.motion.stop();
 
-  uint8_t command[1 + 1] = {MIP_CMD_SET_GAME_MODE, mode};
+  uint8_t command[1 + 1] = { MIP_CMD_SET_GAME_MODE, mode };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 
 // This internal protected method sends the get game mode command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP_Mode::rawGet(MiPGameMode& mode) {
-  const uint8_t getGameMode[1] = {MIP_CMD_GET_GAME_MODE};
+  const uint8_t getGameMode[1] = { MIP_CMD_GET_GAME_MODE };
   uint8_t response[1 + 1];
   size_t responseLength = 0;
 
@@ -135,18 +134,14 @@ int8_t MiP_Mode::rawGet(MiPGameMode& mode) {
   // so Stop first.
   m_mip.motion.stop();
 
-  int8_t result = m_mip.serial.rawReceive(getGameMode,
-                                          sizeof(getGameMode),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
-  if (result)
-    return result;
-  if (responseLength != 2 || response[0] != MIP_CMD_GET_GAME_MODE ||
-      (response[1] != MIP_APP_MODE && response[1] != MIP_CAGE_MODE &&
-       response[1] != MIP_TRACKING_MODE && response[1] != MIP_DANCE_MODE &&
-       response[1] != MIP_DEFAULT_MODE && response[1] != MIP_STACK_MODE &&
-       response[1] != MIP_TRICK_MODE && response[1] != MIP_ROAM_MODE)) {
+  int8_t result = m_mip.serial.rawReceive(
+    getGameMode, sizeof(getGameMode), response, sizeof(response), responseLength);
+  if (result) return result;
+  if (responseLength != 2 || response[0] != MIP_CMD_GET_GAME_MODE
+      || (response[1] != MIP_APP_MODE && response[1] != MIP_CAGE_MODE
+          && response[1] != MIP_TRACKING_MODE && response[1] != MIP_DANCE_MODE
+          && response[1] != MIP_DEFAULT_MODE && response[1] != MIP_STACK_MODE
+          && response[1] != MIP_TRICK_MODE && response[1] != MIP_ROAM_MODE)) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   mode = static_cast<MiPGameMode>(response[1]);

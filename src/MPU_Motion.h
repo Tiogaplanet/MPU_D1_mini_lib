@@ -49,10 +49,10 @@ enum MiPFallDirection : uint8_t {
  * @brief Get-up direction options.
  */
 enum MiPGetUp : uint8_t {
-  MIP_GETUP_FROM_FRONT =
-      0x00,  ///< Attempt self-righting stand from face-down position.
-  MIP_GETUP_FROM_BACK =
-      0x01,  ///< Attempt self-righting stand from back position.
+  MIP_GETUP_FROM_FRONT = 0x00,  ///< Attempt self-righting stand from face-down
+                                ///< position.
+  MIP_GETUP_FROM_BACK = 0x01,   ///< Attempt self-righting stand from back
+                                ///< position.
   MIP_GETUP_FROM_EITHER = 0x02  ///< Automatically detect orientation and
                                 ///< attempt stand from either side.
 };
@@ -61,7 +61,7 @@ enum MiPGetUp : uint8_t {
  * @brief Manages MiP's drive, turn, posture, and balance systems.
  */
 class MiP_Motion {
- public:
+public:
   /**
    * @brief Sends continuous drive command (velocity + turn rate).
    *
@@ -88,10 +88,8 @@ class MiP_Motion {
    * MIP_TURN_RIGHT).
    * @param degrees        Turn angle in degrees (0-360 degrees).
    */
-  void distanceDrive(MiPDriveDirection driveDirection,
-                     uint8_t cm,
-                     MiPTurnDirection turnDirection,
-                     uint16_t degrees);
+  void distanceDrive(MiPDriveDirection driveDirection, uint8_t cm,
+                     MiPTurnDirection turnDirection, uint16_t degrees);
 
   /**
    * @brief Drives forward for a limited time at given speed.
@@ -162,7 +160,7 @@ class MiP_Motion {
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte for continuous drive (velocity + turn
    * rate).
@@ -219,7 +217,7 @@ class MiP_Motion {
    */
   static constexpr uint8_t MIP_CONTINUOUS_DRIVE_DELAY = 50;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

@@ -139,24 +139,24 @@ enum MiPSoundIndex : uint8_t {
   MIP_SOUND_VOLUME_4 = 0xFB,       ///< Sound sequence command: Set volume to 4.
   MIP_SOUND_VOLUME_5 = 0xFC,       ///< Sound sequence command: Set volume to 5.
   MIP_SOUND_VOLUME_6 = 0xFD,       ///< Sound sequence command: Set volume to 6.
-  MIP_SOUND_VOLUME_7 =
-      0xFE  ///< Sound sequence command: Set volume to 7 (maximum).
+  MIP_SOUND_VOLUME_7 = 0xFE        ///< Sound sequence command: Set volume to 7
+                                   ///< (maximum).
 };
 
 /**
  * @brief Speaker volume levels (0 = mute to 7 = maximum volume).
  */
 enum MiPVolume : uint8_t {
-  MIP_VOLUME_OFF = 0,  ///< Speaker output disabled (Mute / Volume 0).
-  MIP_VOLUME_1 = 1,    ///< Speaker volume level 1.
-  MIP_VOLUME_2 = 2,    ///< Speaker volume level 2.
-  MIP_VOLUME_3 = 3,    ///< Speaker volume level 3.
-  MIP_VOLUME_4 = 4,    ///< Speaker volume level 4.
-  MIP_VOLUME_5 = 5,    ///< Speaker volume level 5.
-  MIP_VOLUME_6 = 6,    ///< Speaker volume level 6.
-  MIP_VOLUME_7 = 7,    ///< Speaker volume level 7 (Maximum volume).
-  MIP_VOLUME_DEFAULT =
-      0xFF  ///< Special flag to maintain current volume setting.
+  MIP_VOLUME_OFF = 0,        ///< Speaker output disabled (Mute / Volume 0).
+  MIP_VOLUME_1 = 1,          ///< Speaker volume level 1.
+  MIP_VOLUME_2 = 2,          ///< Speaker volume level 2.
+  MIP_VOLUME_3 = 3,          ///< Speaker volume level 3.
+  MIP_VOLUME_4 = 4,          ///< Speaker volume level 4.
+  MIP_VOLUME_5 = 5,          ///< Speaker volume level 5.
+  MIP_VOLUME_6 = 6,          ///< Speaker volume level 6.
+  MIP_VOLUME_7 = 7,          ///< Speaker volume level 7 (Maximum volume).
+  MIP_VOLUME_DEFAULT = 0xFF  ///< Special flag to maintain current volume
+                             ///< setting.
 };
 
 /**
@@ -164,7 +164,7 @@ enum MiPVolume : uint8_t {
  * levels.
  */
 class MiP_Sound {
- public:
+public:
   /**
    * @brief Starts a new sound list sequence.
    *
@@ -188,8 +188,7 @@ class MiP_Sound {
    * @param volume    Inline volume for this sound, or MIP_VOLUME_DEFAULT to
    * maintain active volume.
    */
-  void addEntryToList(MiPSoundIndex sound,
-                      uint16_t delayTime = 0,
+  void addEntryToList(MiPSoundIndex sound, uint16_t delayTime = 0,
                       MiPVolume volume = MIP_VOLUME_DEFAULT);
 
   /**
@@ -242,7 +241,7 @@ class MiP_Sound {
    */
   void end();
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte to play a sound effect or sound sequence.
    */
@@ -258,7 +257,7 @@ class MiP_Sound {
    */
   static constexpr uint8_t MIP_CMD_GET_VOLUME = 0x16;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
@@ -270,9 +269,9 @@ class MiP_Sound {
   int8_t rawGetVolume(uint8_t& volume);
   void rawSetVolume(uint8_t volume);
 
-  MiP& m_mip;  // Stores a reference to the main MiP class.
-  uint8_t
-      m_playCommand[1 + 18];  // Buffer storing play command and 8 sound entries
+  MiP& m_mip;                     // Stores a reference to the main MiP class.
+  uint8_t m_playCommand[1 + 18];  // Buffer storing play command and 8 sound
+                                  // entries
   int8_t m_soundIndex;
   uint8_t m_playVolume;
 

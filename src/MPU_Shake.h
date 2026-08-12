@@ -28,7 +28,7 @@ class MiP;
  * accelerometers and maintains internal state flags for one-shot event reading.
  */
 class MiP_Shake {
- public:
+public:
   /**
    * @brief Checks whether MiP has been shaken since the last call.
    *
@@ -39,7 +39,7 @@ class MiP_Shake {
    */
   bool read();
 
- protected:
+protected:
   /**
    * @brief MiP protocol notification byte received when a physical shake event
    * occurs.
@@ -49,7 +49,7 @@ class MiP_Shake {
    */
   static constexpr uint8_t MIP_CMD_SHAKE_RESPONSE = 0x1A;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
@@ -61,8 +61,8 @@ class MiP_Shake {
   MiP& m_mip;  // Stores a reference to the main MiP class.
 
   /**
-   * @brief Allows MiP and transport components to access private constructor and
-   * protected protocol bytes.
+   * @brief Allows MiP and transport components to access private constructor
+   * and protected protocol bytes.
    */
   friend class MiP;
   friend class MiP_Serial;

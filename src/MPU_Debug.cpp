@@ -22,7 +22,8 @@ void MiPDebug::begin(const String& hostname, uint8_t startingDebugLevel) {
   m_bufferPrint.reserve(BUFFER_PRINT);
 
 #ifdef CLIENT_BUFFERING
-  m_bufferSend.reserve(MAX_SIZE_SEND); // <--- FIXED: Now correctly reserves m_bufferSend
+  m_bufferSend.reserve(MAX_SIZE_SEND);  // <--- FIXED: Now correctly reserves
+                                        // m_bufferSend
 #endif
 
   m_hostname = hostname;
@@ -31,9 +32,7 @@ void MiPDebug::begin(const String& hostname, uint8_t startingDebugLevel) {
 }
 
 void MiPDebug::stop() {
-  if (telnetClient && telnetClient.connected()) {
-    telnetClient.stop();
-  }
+  if (telnetClient && telnetClient.connected()) { telnetClient.stop(); }
   telnetServer.stop();
 }
 
@@ -61,8 +60,7 @@ void MiPDebug::handle() {
       m_levelProfilerDisable = millis() + 1000;
       if (m_connected) {
         telnetClient.printf(
-            "* Debug level profile is now active - time between handles: %u\r\n",
-            diff);
+          "* Debug level profile is now active - time between handles: %u\r\n", diff);
       }
     }
     lastTime = millis();
@@ -103,9 +101,7 @@ void MiPDebug::handle() {
 #endif
 
     delay(100);
-    while (telnetClient.available()) {
-      telnetClient.read();
-    }
+    while (telnetClient.available()) { telnetClient.read(); }
   }
 
   m_connected = (telnetClient && telnetClient.connected());
@@ -131,8 +127,7 @@ void MiPDebug::handle() {
     }
 
 #ifdef CLIENT_BUFFERING
-    if ((millis() - m_lastTimeSend) >= DELAY_TO_SEND ||
-        m_sizeBufferSend >= MAX_SIZE_SEND) {
+    if ((millis() - m_lastTimeSend) >= DELAY_TO_SEND || m_sizeBufferSend >= MAX_SIZE_SEND) {
       telnetClient.print(m_bufferSend);
       m_bufferSend = "";
       m_sizeBufferSend = 0;
@@ -184,9 +179,7 @@ void MiPDebug::showColors(bool show) {
 
 bool MiPDebug::isActive(uint8_t debugLevel) {
   bool ret = (debugLevel >= m_clientDebugLevel && (m_connected || m_serialEnabled));
-  if (ret) {
-    m_lastDebugLevel = debugLevel;
-  }
+  if (ret) { m_lastDebugLevel = debugLevel; }
   return ret;
 }
 
@@ -199,9 +192,7 @@ void MiPDebug::setCallBackProjectCmds(void (*callback)()) {
 }
 
 size_t MiPDebug::write(const uint8_t* buffer, size_t size) {
-  for (size_t i = 0; i < size; i++) {
-    write(buffer[i]);
-  }
+  for (size_t i = 0; i < size; i++) { write(buffer[i]); }
   return size;
 }
 
@@ -216,24 +207,34 @@ size_t MiPDebug::write(uint8_t character) {
       if (!m_showColors) {
         switch (m_lastDebugLevel) {
           case PROFILER: show = "P"; break;
-          case VERBOSE:  show = "v"; break;
-          case DEBUG:    show = "d"; break;
-          case INFO:     show = "i"; break;
-          case WARNING:  show = "w"; break;
-          case ERROR:    show = "e"; break;
+          case VERBOSE: show = "v"; break;
+          case DEBUG: show = "d"; break;
+          case INFO: show = "i"; break;
+          case WARNING: show = "w"; break;
+          case ERROR: show = "e"; break;
         }
       } else {
         switch (m_lastDebugLevel) {
           case PROFILER: show = "P"; break;
-          case VERBOSE:  show = "v"; break;
-          case DEBUG:    show = COLOR_BACKGROUND_GREEN; show += "d"; break;
-          case INFO:     show = COLOR_BACKGROUND_WHITE; show += "i"; break;
-          case WARNING:  show = COLOR_BACKGROUND_YELLOW; show += "w"; break;
-          case ERROR:    show = COLOR_BACKGROUND_RED; show += "e"; break;
+          case VERBOSE: show = "v"; break;
+          case DEBUG:
+            show = COLOR_BACKGROUND_GREEN;
+            show += "d";
+            break;
+          case INFO:
+            show = COLOR_BACKGROUND_WHITE;
+            show += "i";
+            break;
+          case WARNING:
+            show = COLOR_BACKGROUND_YELLOW;
+            show += "w";
+            break;
+          case ERROR:
+            show = COLOR_BACKGROUND_RED;
+            show += "e";
+            break;
         }
-        if (show.length() > 1) {
-          show += COLOR_RESET;
-        }
+        if (show.length() > 1) { show += COLOR_RESET; }
       }
     }
 
@@ -250,29 +251,29 @@ size_t MiPDebug::write(uint8_t character) {
       if (show != "") show += " ";
       if (m_showColors) {
         if (elapsed >= 5000) {
-          show += COLOR_BACKGROUND_RED; resetColors = true;
+          show += COLOR_BACKGROUND_RED;
+          resetColors = true;
         } else if (elapsed >= 3000) {
-          show += COLOR_BACKGROUND_MAGENTA; resetColors = true;
+          show += COLOR_BACKGROUND_MAGENTA;
+          resetColors = true;
         } else if (elapsed >= 1000) {
-          show += COLOR_BACKGROUND_YELLOW; resetColors = true;
+          show += COLOR_BACKGROUND_YELLOW;
+          resetColors = true;
         } else if (elapsed >= 250) {
-          show += COLOR_BACKGROUND_CYAN; resetColors = true;
+          show += COLOR_BACKGROUND_CYAN;
+          resetColors = true;
         }
       }
       show += "p:^";
       show += formatNumber(elapsed, 4);
       show += "ms";
-      if (resetColors) {
-        show += COLOR_RESET;
-      }
+      if (resetColors) { show += COLOR_RESET; }
       m_lastTimePrint = millis();
     }
 
     if (show != "") {
       String send = "(" + show + ") ";
-      if (m_connected || m_serialEnabled) {
-        m_bufferPrint = send;
-      }
+      if (m_connected || m_serialEnabled) { m_bufferPrint = send; }
     }
     m_newLine = false;
   }
@@ -297,9 +298,7 @@ size_t MiPDebug::write(uint8_t character) {
     } else if (m_filterActive) {
       String aux = m_bufferPrint;
       aux.toLowerCase();
-      if (aux.indexOf(m_filter) == -1) {
-        noPrint = true;
-      }
+      if (aux.indexOf(m_filter) == -1) { noPrint = true; }
     }
 
     if (!noPrint) {
@@ -327,9 +326,7 @@ size_t MiPDebug::write(uint8_t character) {
 #endif
       }
 
-      if (m_serialEnabled) {
-        Serial1.print(m_bufferPrint);
-      }
+      if (m_serialEnabled) { Serial1.print(m_bufferPrint); }
     }
 
     ret = m_bufferPrint.length();
@@ -414,9 +411,7 @@ void MiPDebug::processCommand() {
 
   String options = "";
   int pos = m_command.indexOf(' ');
-  if (pos > 0) {
-    options = m_command.substring(pos + 1);
-  }
+  if (pos > 0) { options = m_command.substring(pos + 1); }
 
   m_lastTimeCommand = millis();
 
@@ -465,41 +460,33 @@ void MiPDebug::processCommand() {
       if (aux > 0) {
         m_showProfiler = true;
         m_minTimeShowProfiler = aux;
-        telnetClient.printf("* Show profiler: on (with minimal time: %u)\r\n",
-                            m_minTimeShowProfiler);
+        telnetClient.printf("* Show profiler: on (with minimal time: %u)\r\n", m_minTimeShowProfiler);
       }
     }
   } else if (m_command == "P") {
     m_levelBeforeProfiler = m_clientDebugLevel;
     m_clientDebugLevel = PROFILER;
 
-    if (!m_showProfiler) {
-      m_showProfiler = true;
-    }
+    if (!m_showProfiler) { m_showProfiler = true; }
 
     uint32_t duration = 1000;
     if (options.length() > 0) {
       int32_t aux = options.toInt();
-      if (aux > 0) {
-        duration = aux;
-      }
+      if (aux > 0) { duration = aux; }
     }
-    m_levelProfilerDisable = millis() + duration; // <--- FIXED: Now correctly calculates disable threshold
+    m_levelProfilerDisable = millis() + duration;  // <--- FIXED: Now correctly
+                                                   // calculates disable
+                                                   // threshold
 
-    telnetClient.printf(
-        "* Debug level set to Profiler (disable in %u millis)\r\n",
-        duration);
+    telnetClient.printf("* Debug level set to Profiler (disable in %u millis)\r\n", duration);
   } else if (m_command == "A") {
     m_autoLevelProfiler = 1000;
     if (options.length() > 0) {
       int32_t aux = options.toInt();
-      if (aux > 0) {
-        m_autoLevelProfiler = aux;
-      }
+      if (aux > 0) { m_autoLevelProfiler = aux; }
     }
     telnetClient.printf(
-        "* Auto profiler debug level active (time >= %u millis)\r\n",
-        m_autoLevelProfiler);
+      "* Auto profiler debug level active (time >= %u millis)\r\n", m_autoLevelProfiler);
   } else if (m_command == "c") {
     m_showColors = !m_showColors;
     telnetClient.printf("* Show colors: %s\r\n", m_showColors ? "on" : "off");
@@ -508,15 +495,14 @@ void MiPDebug::processCommand() {
   } else if (m_command == "nofilter") {
     setNoFilter();
   } else if (m_command == "reset" && m_resetCommandEnabled) {
-    telnetClient.println(F("* Reset...\r\n* Closing telnet connection...\r\n* Resetting the D1 mini Pack..."));
+    telnetClient.println(
+      F("* Reset...\r\n* Closing telnet connection...\r\n* Resetting the D1 mini Pack..."));
     telnetClient.stop();
     telnetServer.stop();
     delay(500);
     ESP.restart();
   } else {
-    if (m_callbackProjectCmds) {
-      m_callbackProjectCmds();
-    }
+    if (m_callbackProjectCmds) { m_callbackProjectCmds(); }
   }
 }
 
@@ -542,12 +528,10 @@ String MiPDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
 
   for (uint8_t i = 1; i <= size; i++) {
     if (value < limit) {
-      for (uint8_t j = (size - i); j > 0; j--) {
-        ret += insert;
-      }
+      for (uint8_t j = (size - i); j > 0; j--) { ret += insert; }
       break;
     }
-    limit *= 10; // Fast integer power of 10
+    limit *= 10;  // Fast integer power of 10
   }
 
   ret += value;

@@ -25,21 +25,23 @@ class MiP;
  * @brief Manages access to MiP's non-volatile user EEPROM memory.
  */
 class MiP_EEPROM {
- public:
+public:
   /**
    * @brief Base starting address of MiP's user EEPROM storage area (0x20).
    */
   static constexpr uint8_t BASE_EEPROM_ADDRESS = 0x20;
 
   /**
-   * @brief Last addressable byte location in MiP's user EEPROM storage area (0x2F).
+   * @brief Last addressable byte location in MiP's user EEPROM storage area
+   * (0x2F).
    */
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
   /**
    * @brief Reads a byte from MiP's EEPROM storage area.
    *
-   * @details Performs a verified read with automatic retries on communication errors.
+   * @details Performs a verified read with automatic retries on communication
+   * errors.
    *
    * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
    * @return uint8_t The stored byte value, or 0 on communication error.
@@ -50,14 +52,15 @@ class MiP_EEPROM {
    * @brief Writes a byte to MiP's EEPROM area and verifies it.
    *
    * @details Performs a verified write: sends the byte data, reads it back,
-   * and retries automatically if the read-back value fails to match or an error occurs.
+   * and retries automatically if the read-back value fails to match or an error
+   * occurs.
    *
    * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
    * @param userData      Byte value to store (0-255).
    */
   void write(uint8_t addressOffset, uint8_t userData);
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte to write user data to EEPROM.
    */
@@ -68,7 +71,7 @@ class MiP_EEPROM {
    */
   static constexpr uint8_t MIP_CMD_GET_USER_DATA = 0x13;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

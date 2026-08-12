@@ -27,9 +27,9 @@ class MiP;
  * @brief Gesture or Radar operating mode states.
  */
 enum MiPGestureMode : uint8_t {
-  MIP_GESTURE_RADAR_DISABLED =
-      0x00,  ///< Both gesture detection and radar tracking modes are disabled.
-  MIP_GESTURE = 0x02  ///< Gesture detection mode is active.
+  MIP_GESTURE_RADAR_DISABLED = 0x00,  ///< Both gesture detection and radar
+                                      ///< tracking modes are disabled.
+  MIP_GESTURE = 0x02                  ///< Gesture detection mode is active.
 };
 
 /**
@@ -37,21 +37,28 @@ enum MiPGestureMode : uint8_t {
  * sensors.
  */
 enum MiPGesture : uint8_t {
-  MIP_GESTURE_LEFT = 0x0A,               ///< Hand swiped from right to left in front of MiP.
-  MIP_GESTURE_RIGHT = 0x0B,              ///< Hand swiped from left to right in front of MiP.
-  MIP_GESTURE_CENTER_SWEEP_LEFT = 0x0C,  ///< Center sweep gesture toward the left.
-  MIP_GESTURE_CENTER_SWEEP_RIGHT = 0x0D, ///< Center sweep gesture toward the right.
-  MIP_GESTURE_CENTER_HOLD = 0x0E,        ///< Hand held steady in front of MiP's center IR sensor.
-  MIP_GESTURE_FORWARD = 0x0F,            ///< Hand moved closer toward MiP (forward gesture).
-  MIP_GESTURE_BACKWARD = 0x10,           ///< Hand pulled away from MiP (backward gesture).
-  MIP_GESTURE_INVALID = 0xFF             ///< Value returned when no valid gesture event is available.
+  MIP_GESTURE_LEFT = 0x0A,  ///< Hand swiped from right to left in front of MiP.
+  MIP_GESTURE_RIGHT = 0x0B,  ///< Hand swiped from left to right in front of
+                             ///< MiP.
+  MIP_GESTURE_CENTER_SWEEP_LEFT = 0x0C,   ///< Center sweep gesture toward the
+                                          ///< left.
+  MIP_GESTURE_CENTER_SWEEP_RIGHT = 0x0D,  ///< Center sweep gesture toward the
+                                          ///< right.
+  MIP_GESTURE_CENTER_HOLD = 0x0E,  ///< Hand held steady in front of MiP's
+                                   ///< center IR sensor.
+  MIP_GESTURE_FORWARD = 0x0F,      ///< Hand moved closer toward MiP (forward
+                                   ///< gesture).
+  MIP_GESTURE_BACKWARD = 0x10,     ///< Hand pulled away from MiP (backward
+                                   ///< gesture).
+  MIP_GESTURE_INVALID = 0xFF  ///< Value returned when no valid gesture event is
+                              ///< available.
 };
 
 /**
  * @brief Manages MiP's gesture detection subsystem and event queue.
  */
 class MiP_Gesture {
- public:
+public:
   /**
    * @brief Enables gesture detection mode on MiP.
    *
@@ -107,9 +114,10 @@ class MiP_Gesture {
    */
   bool areGestureAndRadarModesDisabled();
 
- protected:
+protected:
   /**
-   * @brief MiP protocol command byte to query current gesture/radar operating mode.
+   * @brief MiP protocol command byte to query current gesture/radar operating
+   * mode.
    */
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RADAR_MODE = 0x0D;
 
@@ -119,17 +127,19 @@ class MiP_Gesture {
   static constexpr uint8_t MIP_CMD_SET_GESTURE_RADAR_MODE = 0x0C;
 
   /**
-   * @brief MiP protocol notification byte received when a gesture is recognized.
+   * @brief MiP protocol notification byte received when a gesture is
+   * recognized.
    */
   static constexpr uint8_t MIP_CMD_GET_GESTURE_RESPONSE = 0x0A;
 
   void clear();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
-   * @param mip Reference to the main MiP object to access core communication services.
+   * @param mip Reference to the main MiP object to access core communication
+   * services.
    */
   explicit MiP_Gesture(MiP& mip);
 
@@ -140,7 +150,8 @@ class MiP_Gesture {
   int8_t rawGet(MiPGestureMode& mode);
 
   /**
-   * @brief Handles an incoming gesture OOB event notification from the transport layer.
+   * @brief Handles an incoming gesture OOB event notification from the
+   * transport layer.
    *
    * @param gestureCode Raw gesture direction byte received from MiP.
    */
@@ -150,7 +161,8 @@ class MiP_Gesture {
   mip_detail::CircularQueue<MiPGesture, 8> m_gestureEvents;
 
   /**
-   * @brief Allows MiP and transport components to access protected protocol bytes.
+   * @brief Allows MiP and transport components to access protected protocol
+   * bytes.
    */
   friend class MiP;
   friend class MiP_Serial;

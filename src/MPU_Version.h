@@ -31,7 +31,7 @@ class MiP;
  * query.
  */
 class MiPSoftwareVersion {
- public:
+public:
   /**
    * @brief Constructs a new MiPSoftwareVersion instance.
    *
@@ -64,7 +64,7 @@ class MiPSoftwareVersion {
  * hardware revision numbers returned by MiP's hardware info query.
  */
 class MiPHardwareInfo {
- public:
+public:
   /**
    * @brief Constructs a new MiPHardwareInfo instance.
    *
@@ -91,7 +91,7 @@ class MiPHardwareInfo {
  * versioning.
  */
 class MiP_Version {
- public:
+public:
   /**
    * @brief Reads MiP's software/firmware version details.
    *
@@ -132,7 +132,7 @@ class MiP_Version {
    */
   uint32_t readMPUNumber() const;
 
- protected:
+protected:
   /**
    * @brief Protocol command byte to query MiP's firmware software version date.
    */
@@ -144,7 +144,7 @@ class MiP_Version {
    */
   static constexpr uint8_t MIP_CMD_GET_HARDWARE_INFO = 0x19;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

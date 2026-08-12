@@ -26,7 +26,7 @@ class MiP;
  * @brief Manages reading weight data measured by MiP.
  */
 class MiP_Weight {
- public:
+public:
   /**
    * @brief Reads the current weight on MiP's weight sensor.
    *
@@ -38,7 +38,7 @@ class MiP_Weight {
    */
   int8_t read();
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte used to request the current payload
    * weight.
@@ -53,7 +53,7 @@ class MiP_Weight {
 
   void clear();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

@@ -45,7 +45,7 @@ void MiP_Odometer::reset() {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Odometer->reset()"));
 
-  uint8_t command[1] = {MIP_CMD_RESET_ODOMETER};
+  uint8_t command[1] = { MIP_CMD_RESET_ODOMETER };
 
   // Send this command blindly with no error checking since there is no robust
   // way to determine if it has failed.
@@ -60,25 +60,20 @@ void MiP_Odometer::reset() {
 // This internal protected method sends the read odometer command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP_Odometer::rawRead(float& distanceInCm) {
-  const uint8_t readOdometer[1] = {MIP_CMD_READ_ODOMETER};
+  const uint8_t readOdometer[1] = { MIP_CMD_READ_ODOMETER };
   uint8_t response[1 + 4];
   size_t responseLength = 0;
-  int8_t result = m_mip.serial.rawReceive(readOdometer,
-                                          sizeof(readOdometer),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
-  if (result)
-    return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_READ_ODOMETER) {
+  int8_t result = m_mip.serial.rawReceive(
+    readOdometer, sizeof(readOdometer), response, sizeof(response), responseLength);
+  if (result) return result;
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_READ_ODOMETER) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
 
   // Tick count is stored as big-endian in response buffer.
-  uint32_t ticks = (static_cast<uint32_t>(response[1]) << 24) |
-                   (static_cast<uint32_t>(response[2]) << 16) |
-                   (static_cast<uint32_t>(response[3]) << 8) | response[4];
+  uint32_t ticks = (static_cast<uint32_t>(response[1]) << 24)
+                   | (static_cast<uint32_t>(response[2]) << 16)
+                   | (static_cast<uint32_t>(response[3]) << 8) | response[4];
 
   // Odometer has 48.5 ticks / cm.
   distanceInCm = static_cast<float>(ticks) / TICKS_PER_CM;

@@ -29,7 +29,7 @@ class MiP;
  * LED.
  */
 class MiPChestLED {
- public:
+public:
   /**
    * @brief Constructs a new MiPChestLED configuration object.
    *
@@ -52,29 +52,32 @@ class MiPChestLED {
     blue = 0;
   }
 
-  uint16_t onTime;  ///< Flash ON duration in milliseconds.
-  uint16_t offTime; ///< Flash OFF duration in milliseconds.
-  uint8_t red;      ///< Red channel intensity (0-255).
-  uint8_t green;    ///< Green channel intensity (0-255).
-  uint8_t blue;     ///< Blue channel intensity (0-255; hardware truncates lower 2 bits).
+  uint16_t onTime;   ///< Flash ON duration in milliseconds.
+  uint16_t offTime;  ///< Flash OFF duration in milliseconds.
+  uint8_t red;       ///< Red channel intensity (0-255).
+  uint8_t green;     ///< Green channel intensity (0-255).
+  uint8_t blue;  ///< Blue channel intensity (0-255; hardware truncates lower 2
+                 ///< bits).
 };
 
 /**
  * @brief Manages MiP's three-color chest LED.
  */
 class MiP_ChestLED {
- public:
+public:
   /**
    * @brief Reads the current RGB state and flash timings of MiP's chest LED.
    *
-   * @param[out] chestLED Reference to a MiPChestLED object where retrieved data will be stored.
+   * @param[out] chestLED Reference to a MiPChestLED object where retrieved data
+   * will be stored.
    */
   void read(MiPChestLED& chestLED);
 
   /**
    * @brief Sets MiP's chest LED to a solid RGB color and verifies the change.
    *
-   * @details Sends the set command and reads back the state from MiP to confirm the color was updated.
+   * @details Sends the set command and reads back the state from MiP to confirm
+   * the color was updated.
    *
    * @param red   Red channel intensity (0-255).
    * @param green Green channel intensity (0-255).
@@ -83,29 +86,30 @@ class MiP_ChestLED {
   void write(uint8_t red, uint8_t green, uint8_t blue);
 
   /**
-   * @brief Sets MiP's chest LED to flash an RGB color at a specific interval and verifies the change.
+   * @brief Sets MiP's chest LED to flash an RGB color at a specific interval
+   * and verifies the change.
    *
    * @param red     Red channel intensity (0-255).
    * @param green   Green channel intensity (0-255).
    * @param blue    Blue channel intensity (0-255).
-   * @param onTime  Duration in milliseconds the LED stays on (converted to 20ms ticks).
-   * @param offTime Duration in milliseconds the LED stays off (converted to 20ms ticks).
+   * @param onTime  Duration in milliseconds the LED stays on (converted to 20ms
+   * ticks).
+   * @param offTime Duration in milliseconds the LED stays off (converted to
+   * 20ms ticks).
    */
-  void write(uint8_t red,
-             uint8_t green,
-             uint8_t blue,
-             uint16_t onTime,
-             uint16_t offTime);
+  void write(uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime);
 
   /**
-   * @brief Sets MiP's chest LED using a MiPChestLED object and verifies the change.
+   * @brief Sets MiP's chest LED using a MiPChestLED object and verifies the
+   * change.
    *
    * @param chestLED Reference to a MiPChestLED configuration object.
    */
   void write(const MiPChestLED& chestLED);
 
   /**
-   * @brief Sets MiP's chest LED to a solid RGB color without verification (fire-and-forget).
+   * @brief Sets MiP's chest LED to a solid RGB color without verification
+   * (fire-and-forget).
    *
    * @param red   Red channel intensity (0-255).
    * @param green Green channel intensity (0-255).
@@ -114,7 +118,8 @@ class MiP_ChestLED {
   void unverifiedWrite(uint8_t red, uint8_t green, uint8_t blue);
 
   /**
-   * @brief Sets MiP's chest LED to flash an RGB color without verification (fire-and-forget).
+   * @brief Sets MiP's chest LED to flash an RGB color without verification
+   * (fire-and-forget).
    *
    * @param red     Red channel intensity (0-255).
    * @param green   Green channel intensity (0-255).
@@ -122,39 +127,41 @@ class MiP_ChestLED {
    * @param onTime  Duration in milliseconds the LED stays on.
    * @param offTime Duration in milliseconds the LED stays off.
    */
-  void unverifiedWrite(uint8_t red,
-                       uint8_t green,
-                       uint8_t blue,
-                       uint16_t onTime,
-                       uint16_t offTime);
+  void unverifiedWrite(
+    uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime);
 
   /**
-   * @brief Sets MiP's chest LED using a MiPChestLED object without verification (fire-and-forget).
+   * @brief Sets MiP's chest LED using a MiPChestLED object without verification
+   * (fire-and-forget).
    *
    * @param chestLED Reference to a MiPChestLED configuration object.
    */
   void unverifiedWrite(const MiPChestLED& chestLED);
 
- protected:
-  static constexpr uint8_t MIP_CMD_GET_CHEST_LED = 0x83;   ///< Protocol command byte to query chest LED state.
-  static constexpr uint8_t MIP_CMD_SET_CHEST_LED = 0x84;   ///< Protocol command byte to set solid chest LED.
-  static constexpr uint8_t MIP_CMD_FLASH_CHEST_LED = 0x89; ///< Protocol command byte to flash chest LED.
+protected:
+  static constexpr uint8_t MIP_CMD_GET_CHEST_LED = 0x83;  ///< Protocol command
+                                                          ///< byte to query
+                                                          ///< chest LED state.
+  static constexpr uint8_t MIP_CMD_SET_CHEST_LED = 0x84;  ///< Protocol command
+                                                          ///< byte to set solid
+                                                          ///< chest LED.
+  static constexpr uint8_t MIP_CMD_FLASH_CHEST_LED = 0x89;  ///< Protocol
+                                                            ///< command byte to
+                                                            ///< flash chest
+                                                            ///< LED.
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
-   * @param mip Reference to the main MiP object for core communication services.
+   * @param mip Reference to the main MiP object for core communication
+   * services.
    */
   explicit MiP_ChestLED(MiP& mip);
 
   int8_t rawGet(MiPChestLED& chestLED);
   void rawSet(uint8_t red, uint8_t green, uint8_t blue);
-  void rawFlash(uint8_t red,
-                uint8_t green,
-                uint8_t blue,
-                uint8_t onTicks,
-                uint8_t offTicks);
+  void rawFlash(uint8_t red, uint8_t green, uint8_t blue, uint8_t onTicks, uint8_t offTicks);
 
   MiP& m_mip;
 

@@ -25,7 +25,7 @@ class MiP;
  * voltage.
  */
 class MiP_Battery {
- public:
+public:
   /**
    * @brief Reads MiP's cached battery voltage.
    *
@@ -33,12 +33,12 @@ class MiP_Battery {
    * cached voltage data without transmitting a new request to MiP. The cached
    * value is updated from periodic status updates.
    *
-   * @return float Battery voltage in Volts, typically 4.0V (low) to 6.4V (fully charged).
-   *         Returns 0.0f if MiP is uninitialized.
+   * @return float Battery voltage in Volts, typically 4.0V (low) to 6.4V (fully
+   * charged). Returns 0.0f if MiP is uninitialized.
    */
   float readVoltage();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    * @param mip A reference to the main MiP object to access core services.

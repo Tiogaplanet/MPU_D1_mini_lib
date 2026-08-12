@@ -32,8 +32,7 @@ void MiP_Sound::beginList() {
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
-void MiP_Sound::addEntryToList(MiPSoundIndex sound,
-                               uint16_t delayTime /* = 0 */,
+void MiP_Sound::addEntryToList(MiPSoundIndex sound, uint16_t delayTime /* = 0 */,
                                MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
   // Must call beginSoundList() before calling this function.
   m_mip.MIP_ASSERT(m_soundIndex != -1);
@@ -61,8 +60,7 @@ void MiP_Sound::addEntryToList(MiPSoundIndex sound,
   // The sound list can only hold 8 sound entries.
   m_mip.MIP_ASSERT(m_soundIndex < 8);
   m_playCommand[1 + m_soundIndex * 2] = sound;
-  m_playCommand[1 + m_soundIndex * 2 + 1] =
-      static_cast<uint8_t>(delayTime / 30);
+  m_playCommand[1 + m_soundIndex * 2 + 1] = static_cast<uint8_t>(delayTime / 30);
   m_soundIndex++;
 
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
@@ -97,8 +95,8 @@ void MiP_Sound::playList(uint8_t repeatCount) {
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
-void MiP_Sound::play(MiPSoundIndex sound,
-                     MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
+void MiP_Sound::play(
+  MiPSoundIndex sound, MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->play()"));
 
@@ -180,16 +178,15 @@ void MiP_Sound::end() {
 // This internal protected method sends the get volume command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP_Sound::rawGetVolume(uint8_t& volume) {
-  const uint8_t getVolume[1] = {MIP_CMD_GET_VOLUME};
+  const uint8_t getVolume[1] = { MIP_CMD_GET_VOLUME };
   uint8_t response[1 + 1];
   size_t responseLength = 0;
   volume = 0;
   int8_t result = m_mip.serial.rawReceive(
-      getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
-  if (result != MiP::MIP_ERROR_NONE)
-    return result;
-  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_VOLUME ||
-      response[1] > 7) {
+    getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
+  if (result != MiP::MIP_ERROR_NONE) return result;
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_VOLUME
+      || response[1] > 7) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   volume = response[1];
@@ -201,6 +198,6 @@ int8_t MiP_Sound::rawGetVolume(uint8_t& volume) {
 // driver.
 void MiP_Sound::rawSetVolume(uint8_t volume) {
   m_mip.MIP_ASSERT(volume <= 7);
-  uint8_t command[1 + 1] = {MIP_CMD_SET_VOLUME, volume};
+  uint8_t command[1 + 1] = { MIP_CMD_SET_VOLUME, volume };
   m_mip.serial.rawSend(command, sizeof(command));
 }

@@ -116,8 +116,7 @@ bool MiP_Radar::check(MiPRadarMode expectedMode) {
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     MiPRadarMode currentMode;
     result = rawGet(currentMode);
-    if (result == MiP::MIP_ERROR_NONE)
-      return currentMode == expectedMode;
+    if (result == MiP::MIP_ERROR_NONE) return currentMode == expectedMode;
 
     // An error was encountered so we will loop around and try again.
     // Wait for a bit before the next retry.
@@ -131,19 +130,15 @@ bool MiP_Radar::check(MiPRadarMode expectedMode) {
 // minimal error handling. The error recovery happens at a higher level of the
 // driver.
 int8_t MiP_Radar::rawGet(MiPRadarMode& mode) {
-  const uint8_t getGestureRadarMode[1] = {MIP_CMD_GET_GESTURE_RADAR_MODE};
+  const uint8_t getGestureRadarMode[1] = { MIP_CMD_GET_GESTURE_RADAR_MODE };
   uint8_t response[1 + 1];
   size_t responseLength = 0;
-  int8_t result = m_mip.serial.rawReceive(getGestureRadarMode,
-                                          sizeof(getGestureRadarMode),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
-  if (result)
-    return result;
-  if (responseLength != 2 || response[0] != MIP_CMD_GET_GESTURE_RADAR_MODE ||
-      (response[1] != MIP_GESTURE_RADAR_DISABLED &&
-       response[1] != MIP_GESTURE && response[1] != MIP_RADAR)) {
+  int8_t result = m_mip.serial.rawReceive(
+    getGestureRadarMode, sizeof(getGestureRadarMode), response, sizeof(response), responseLength);
+  if (result) return result;
+  if (responseLength != 2 || response[0] != MIP_CMD_GET_GESTURE_RADAR_MODE
+      || (response[1] != MIP_GESTURE_RADAR_DISABLED
+          && response[1] != MIP_GESTURE && response[1] != MIP_RADAR)) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   mode = static_cast<MiPRadarMode>(response[1]);
@@ -154,6 +149,6 @@ int8_t MiP_Radar::rawGet(MiPRadarMode& mode) {
 // no error checking. The error handling / recovery happens at a higher level of
 // the driver.
 void MiP_Radar::rawSet(MiPRadarMode mode) {
-  uint8_t command[1 + 1] = {MIP_CMD_SET_GESTURE_RADAR_MODE, mode};
+  uint8_t command[1 + 1] = { MIP_CMD_SET_GESTURE_RADAR_MODE, mode };
   m_mip.serial.rawSend(command, sizeof(command));
 }

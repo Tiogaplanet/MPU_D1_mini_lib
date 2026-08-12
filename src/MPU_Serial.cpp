@@ -28,14 +28,11 @@ void MiP_Serial::rawSend(const uint8_t request[], size_t requestLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_NO_RESPONSE);
 }
 
-uint8_t MiP_Serial::rawReceive(const uint8_t request[],
-                               size_t requestLength,
-                               uint8_t responseBuffer[],
-                               size_t responseBufferSize,
-                               size_t& responseLength) {
+uint8_t MiP_Serial::rawReceive(
+  const uint8_t request[], size_t requestLength, uint8_t responseBuffer[],
+  size_t responseBufferSize, size_t& responseLength) {
   transportSendRequest(request, requestLength, MIP_EXPECT_RESPONSE);
-  return transportGetResponse(
-      responseBuffer, responseBufferSize, &responseLength);
+  return transportGetResponse(responseBuffer, responseBufferSize, &responseLength);
 }
 
 bool MiP_Serial::processAllResponseData() {
@@ -49,17 +46,14 @@ bool MiP_Serial::processAllResponseData() {
     // byte.
     uint8_t highNibble = Serial.read();
     uint8_t lowNibble = Serial.read();
-    uint8_t commandByte =
-        (parseHexDigit(highNibble) << 4) | parseHexDigit(lowNibble);
+    uint8_t commandByte = (parseHexDigit(highNibble) << 4) | parseHexDigit(lowNibble);
 
-    if (m_expectedResponseCommand != 0 &&
-        commandByte == m_expectedResponseCommand) {
+    if (m_expectedResponseCommand != 0 && commandByte == m_expectedResponseCommand) {
       // This is the reply we are waiting for.
       m_responseBuffer[0] = commandByte;
 
       bytesToRead = m_expectedResponseSize - 1;
-      bytesRead =
-          Serial.readBytes(reinterpret_cast<char*>(buffer), bytesToRead * 2);
+      bytesRead = Serial.readBytes(reinterpret_cast<char*>(buffer), bytesToRead * 2);
 
       if (bytesRead == bytesToRead * 2) {
         copyHexTextToBinary(&m_responseBuffer[1], buffer, bytesToRead);
@@ -100,9 +94,8 @@ void MiP_Serial::clear() {
   memset(m_responseBuffer, 0, sizeof(m_responseBuffer));
 }
 
-uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
-                                         size_t responseBufferSize,
-                                         size_t* pResponseLength) {
+uint8_t MiP_Serial::transportGetResponse(
+  uint8_t* pResponseBuffer, size_t responseBufferSize, size_t* pResponseLength) {
   m_mip.MIP_ASSERT(m_mip.isInitialized());
   m_mip.MIP_ASSERT(responseBufferSize <= MIP_RESPONSE_MAX_LEN);
   m_mip.MIP_ASSERT(m_expectedResponseCommand != 0);
@@ -133,15 +126,12 @@ uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
   return MiP::MIP_ERROR_NONE;
 }
 
-void MiP_Serial::transportSendRequest(const uint8_t* pRequest,
-                                      size_t requestLength,
-                                      int expectResponse) {
+void MiP_Serial::transportSendRequest(
+  const uint8_t* pRequest, size_t requestLength, int expectResponse) {
   m_mip.MIP_ASSERT(m_mip.isInitialized());
 
   // Honour the minimum inter-request delay.
-  while (millis() - m_lastRequestTime < MIP_REQUEST_DELAY) {
-    delay(1);
-  }
+  while (millis() - m_lastRequestTime < MIP_REQUEST_DELAY) { delay(1); }
 
   if (expectResponse) {
     m_expectedResponseCommand = pRequest[0];
@@ -154,9 +144,7 @@ void MiP_Serial::transportSendRequest(const uint8_t* pRequest,
 
   // Transmit the raw bytes (MiP expects plain binary on the wire,
   // but higher layers already supply the correct binary command bytes).
-  while (requestLength-- > 0) {
-    Serial.write(*pRequest++);
-  }
+  while (requestLength-- > 0) { Serial.write(*pRequest++); }
 
   m_lastRequestTime = millis();
 }
@@ -171,34 +159,27 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
     case MiP_Gesture::MIP_CMD_GET_GESTURE_RESPONSE:
     case MiP_Clap::MIP_CMD_CLAP_RESPONSE:
     case MiP_Weight::MIP_CMD_GET_WEIGHT:
-    case MiP_Infrared::MIP_CMD_GET_DETECTED_MIP:
-      length = 1;
-      break;
+    case MiP_Infrared::MIP_CMD_GET_DETECTED_MIP: length = 1; break;
 
-    case MiP_Shake::MIP_CMD_SHAKE_RESPONSE:
-      length = 0;
-      break;
+    case MiP_Shake::MIP_CMD_SHAKE_RESPONSE: length = 0; break;
 
-    case MiP::MIP_CMD_GET_STATUS:
-      length = 2;
-      break;
+    case MiP::MIP_CMD_GET_STATUS: length = 2; break;
 
     case MiP_Infrared::MIP_CMD_RECEIVE_IR_DONGLE_CODE:
       // Variable-length message – length is the next byte.
-      if (!readIrLength(length)) {
-        return;
-      }
+      if (!readIrLength(length)) { return; }
       break;
 
-    default: {
-      [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
-      MIP_DEBUG_ERROR_PREFIX();
-      MIP_DEBUG_ERROR_PRINT(F("MiP: Bad OOB command byte: 0x"));
-      MIP_DEBUG_ERROR_PRINT(commandByte, HEX);
-      MIP_DEBUG_ERROR_PRINT(F(" (discarded "));
-      MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(discarded));
-      MIP_DEBUG_ERROR_PRINTLN(F(" bytes)"));
-    }
+    default:
+      {
+        [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
+        MIP_DEBUG_ERROR_PREFIX();
+        MIP_DEBUG_ERROR_PRINT(F("MiP: Bad OOB command byte: 0x"));
+        MIP_DEBUG_ERROR_PRINT(commandByte, HEX);
+        MIP_DEBUG_ERROR_PRINT(F(" (discarded "));
+        MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(discarded));
+        MIP_DEBUG_ERROR_PRINTLN(F(" bytes)"));
+      }
       return;
   }
 
@@ -225,8 +206,7 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
 
 bool MiP_Serial::readIrLength(size_t& length) {
   uint8_t nibbles[2];
-  if (Serial.readBytes(reinterpret_cast<char*>(nibbles), sizeof(nibbles)) !=
-      sizeof(nibbles)) {
+  if (Serial.readBytes(reinterpret_cast<char*>(nibbles), sizeof(nibbles)) != sizeof(nibbles)) {
     MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINTLN(F("MiP: Missing IR code length"));
     return false;
@@ -263,9 +243,7 @@ uint8_t MiP_Serial::discardUnexpectedSerialData() {
   return discarded;
 }
 
-void MiP_Serial::copyHexTextToBinary(uint8_t* pDest,
-                                     uint8_t* pSrc,
-                                     uint8_t length) {
+void MiP_Serial::copyHexTextToBinary(uint8_t* pDest, uint8_t* pSrc, uint8_t length) {
   while (length-- > 0) {
     *pDest++ = (parseHexDigit(pSrc[0]) << 4) | parseHexDigit(pSrc[1]);
     pSrc += 2;
@@ -273,11 +251,8 @@ void MiP_Serial::copyHexTextToBinary(uint8_t* pDest,
 }
 
 uint8_t MiP_Serial::parseHexDigit(uint8_t digit) {
-  if (digit >= '0' && digit <= '9')
-    return digit - '0';
-  if (digit >= 'a' && digit <= 'f')
-    return digit - 'a' + 10;
-  if (digit >= 'A' && digit <= 'F')
-    return digit - 'A' + 10;
+  if (digit >= '0' && digit <= '9') return digit - '0';
+  if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
+  if (digit >= 'A' && digit <= 'F') return digit - 'A' + 10;
   return 0;
 }

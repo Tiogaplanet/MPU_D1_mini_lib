@@ -39,10 +39,7 @@ void MiP_HeadLEDs::read(MiPHeadLEDs& headLEDs) {
   m_mip.m_lastError = result;
 }
 
-void MiP_HeadLEDs::write(MiPHeadLED led1,
-                         MiPHeadLED led2,
-                         MiPHeadLED led3,
-                         MiPHeadLED led4) {
+void MiP_HeadLEDs::write(MiPHeadLED led1, MiPHeadLED led2, MiPHeadLED led3, MiPHeadLED led4) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->write()"));
   int8_t result = MiP::MIP_ERROR_NONE;
@@ -55,9 +52,8 @@ void MiP_HeadLEDs::write(MiPHeadLED led1,
     // Read back and make sure that it was set as expected.
     MiPHeadLEDs headLEDs;
     result = rawGet(headLEDs);
-    if (result == MiP::MIP_ERROR_NONE && headLEDs.led1 == led1 &&
-        headLEDs.led2 == led2 && headLEDs.led3 == led3 &&
-        headLEDs.led4 == led4) {
+    if (result == MiP::MIP_ERROR_NONE && headLEDs.led1 == led1 && headLEDs.led2 == led2
+        && headLEDs.led3 == led3 && headLEDs.led4 == led4) {
       // The set was successful so return immediately.
       m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       return;
@@ -84,10 +80,8 @@ void MiP_HeadLEDs::write(const MiPHeadLEDs& headLEDs) {
   write(headLEDs.led1, headLEDs.led2, headLEDs.led3, headLEDs.led4);
 }
 
-void MiP_HeadLEDs::unverifiedWrite(MiPHeadLED led1,
-                                   MiPHeadLED led2,
-                                   MiPHeadLED led3,
-                                   MiPHeadLED led4) {
+void MiP_HeadLEDs::unverifiedWrite(
+  MiPHeadLED led1, MiPHeadLED led2, MiPHeadLED led3, MiPHeadLED led4) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->HeadLEDs->unverifiedWrite()"));
   rawSet(led1, led2, led3, led4);
@@ -106,20 +100,15 @@ void MiP_HeadLEDs::unverifiedWrite(const MiPHeadLEDs& headLEDs) {
 // This internal protected method sends the get head LEDs command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP_HeadLEDs::rawGet(MiPHeadLEDs& headLEDs) {
-  const uint8_t getHeadLEDs[1] = {MIP_CMD_GET_HEAD_LEDS};
+  const uint8_t getHeadLEDs[1] = { MIP_CMD_GET_HEAD_LEDS };
   uint8_t response[1 + 4];
   size_t responseLength = 0;
-  int8_t result = m_mip.serial.rawReceive(getHeadLEDs,
-                                          sizeof(getHeadLEDs),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
-  if (result)
-    return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_HEAD_LEDS || !isValidSingleLED(response[1]) ||
-      !isValidSingleLED(response[2]) || !isValidSingleLED(response[3]) ||
-      !isValidSingleLED(response[4])) {
+  int8_t result = m_mip.serial.rawReceive(
+    getHeadLEDs, sizeof(getHeadLEDs), response, sizeof(response), responseLength);
+  if (result) return result;
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_HEAD_LEDS
+      || !isValidSingleLED(response[1]) || !isValidSingleLED(response[2])
+      || !isValidSingleLED(response[3]) || !isValidSingleLED(response[4])) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   headLEDs.led1 = static_cast<MiPHeadLED>(response[1]);
@@ -132,11 +121,8 @@ int8_t MiP_HeadLEDs::rawGet(MiPHeadLEDs& headLEDs) {
 // This internal protected method sends the set head LEDs command with no error
 // checking. The error handling / recovery happens at a higher level of the
 // driver.
-void MiP_HeadLEDs::rawSet(MiPHeadLED led1,
-                          MiPHeadLED led2,
-                          MiPHeadLED led3,
-                          MiPHeadLED led4) {
-  uint8_t command[1 + 4] = {MIP_CMD_SET_HEAD_LEDS, led1, led2, led3, led4};
+void MiP_HeadLEDs::rawSet(MiPHeadLED led1, MiPHeadLED led2, MiPHeadLED led3, MiPHeadLED led4) {
+  uint8_t command[1 + 4] = { MIP_CMD_SET_HEAD_LEDS, led1, led2, led3, led4 };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 

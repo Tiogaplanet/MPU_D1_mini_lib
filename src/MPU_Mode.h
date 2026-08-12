@@ -25,28 +25,28 @@ class MiP;
  * @brief Game and App operating modes for MiP.
  */
 enum MiPGameMode : uint8_t {
-  MIP_APP_MODE =
-      0x01,  ///< App Mode (default for external control via UART/Bluetooth).
-  MIP_CAGE_MODE =
-      0x02,  ///< Cage Game Mode (robot stays inside an enclosed virtual cage).
-  MIP_TRACKING_MODE =
-      0x03,  ///< Tracking Mode (robot tracks and follows objects/hands).
-  MIP_DANCE_MODE =
-      0x04,  ///< Dance Mode (robot performs built-in dance routines).
-  MIP_DEFAULT_MODE = 0x05,  ///< Default Operating Mode.
-  MIP_STACK_MODE =
-      0x06,  ///< Stack Game Mode (balancing objects on MiP's tray).
-  MIP_TRICK_MODE =
-      0x07,  ///< Trick Programming Mode (executing learned gesture sequences).
-  MIP_ROAM_MODE =
-      0x08,  ///< Roam Mode (autonomous obstacle avoidance navigation).
+  MIP_APP_MODE = 0x01,       ///< App Mode (default for external control via
+                             ///< UART/Bluetooth).
+  MIP_CAGE_MODE = 0x02,      ///< Cage Game Mode (robot stays inside an enclosed
+                             ///< virtual cage).
+  MIP_TRACKING_MODE = 0x03,  ///< Tracking Mode (robot tracks and follows
+                             ///< objects/hands).
+  MIP_DANCE_MODE = 0x04,     ///< Dance Mode (robot performs built-in dance
+                             ///< routines).
+  MIP_DEFAULT_MODE = 0x05,   ///< Default Operating Mode.
+  MIP_STACK_MODE = 0x06,     ///< Stack Game Mode (balancing objects on MiP's
+                             ///< tray).
+  MIP_TRICK_MODE = 0x07,  ///< Trick Programming Mode (executing learned gesture
+                          ///< sequences).
+  MIP_ROAM_MODE = 0x08,   ///< Roam Mode (autonomous obstacle avoidance
+                          ///< navigation).
 };
 
 /**
  * @brief Manages MiP's built-in game and application operating modes.
  */
 class MiP_Mode {
- public:
+public:
   /**
    * @brief Switches MiP into App Mode.
    *
@@ -137,7 +137,7 @@ class MiP_Mode {
    */
   bool isRoamEnabled();
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte to configure MiP's active game/app
    * operating mode.
@@ -150,7 +150,7 @@ class MiP_Mode {
    */
   static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

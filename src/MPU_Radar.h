@@ -25,30 +25,29 @@ class MiP;
  * @brief Proximity distance range intervals reported by MiP's front IR sensors.
  */
 enum MiPRadar : uint8_t {
-  MIP_RADAR_NONE =
-      0x01,  ///< No obstacle detected within radar tracking range.
-  MIP_RADAR_10CM_30CM =
-      0x02,  ///< Obstacle detected between 10cm and 30cm in front of MiP.
-  MIP_RADAR_0CM_10CM =
-      0x03,  ///< Obstacle detected between 0cm and 10cm in front of MiP.
-  MIP_RADAR_INVALID =
-      0xFF  ///< Initialized default state prior to receiving any radar event.
+  MIP_RADAR_NONE = 0x01,  ///< No obstacle detected within radar tracking range.
+  MIP_RADAR_10CM_30CM = 0x02,  ///< Obstacle detected between 10cm and 30cm in
+                               ///< front of MiP.
+  MIP_RADAR_0CM_10CM = 0x03,   ///< Obstacle detected between 0cm and 10cm in
+                               ///< front of MiP.
+  MIP_RADAR_INVALID = 0xFF     ///< Initialized default state prior to receiving
+                               ///< any radar event.
 };
 
 /**
  * @brief Gesture or Radar operating mode states.
  */
 enum MiPRadarMode : uint8_t {
-  MIP_RADAR_DISABLED =
-      0x00,  ///< Both radar tracking and gesture detection modes are disabled.
-  MIP_RADAR = 0x04  ///< Radar proximity tracking mode is active.
+  MIP_RADAR_DISABLED = 0x00,  ///< Both radar tracking and gesture detection
+                              ///< modes are disabled.
+  MIP_RADAR = 0x04            ///< Radar proximity tracking mode is active.
 };
 
 /**
  * @brief Manages MiP's radar proximity tracking system.
  */
 class MiP_Radar {
- public:
+public:
   /**
    * @brief Resets cached radar tracking data back to MIP_RADAR_INVALID.
    */
@@ -89,7 +88,7 @@ class MiP_Radar {
    */
   MiPRadar read();
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte to query the current gesture/radar
    * operating mode.
@@ -108,7 +107,7 @@ class MiP_Radar {
    */
   static constexpr uint8_t MIP_CMD_GET_RADAR_RESPONSE = 0x0C;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
@@ -137,8 +136,8 @@ class MiP_Radar {
   MiPRadar m_lastRadar;
 
   /**
-   * @brief Allows MiP and transport components to access private constructor and
-   * protected protocol bytes.
+   * @brief Allows MiP and transport components to access private constructor
+   * and protected protocol bytes.
    */
   friend class MiP;
   friend class MiP_Serial;

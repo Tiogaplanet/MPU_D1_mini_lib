@@ -25,10 +25,10 @@ class MiP;
  * @brief Individual head LED lighting and blinking patterns.
  */
 enum MiPHeadLED : uint8_t {
-  MIP_HEAD_LED_OFF = 0,        ///< Head LED is turned off.
-  MIP_HEAD_LED_ON = 1,         ///< Head LED is continuously turned on.
-  MIP_HEAD_LED_BLINK_SLOW = 2, ///< Head LED blinks at a slow rate.
-  MIP_HEAD_LED_BLINK_FAST = 3, ///< Head LED blinks at a fast rate.
+  MIP_HEAD_LED_OFF = 0,         ///< Head LED is turned off.
+  MIP_HEAD_LED_ON = 1,          ///< Head LED is continuously turned on.
+  MIP_HEAD_LED_BLINK_SLOW = 2,  ///< Head LED blinks at a slow rate.
+  MIP_HEAD_LED_BLINK_FAST = 3,  ///< Head LED blinks at a fast rate.
 };
 
 /**
@@ -38,7 +38,7 @@ enum MiPHeadLED : uint8_t {
  * (LED 1 through LED 4).
  */
 class MiPHeadLEDs {
- public:
+public:
   /**
    * @brief Constructs a new MiPHeadLEDs container and initializes all LEDs to
    * off.
@@ -60,17 +60,17 @@ class MiPHeadLEDs {
     led4 = MIP_HEAD_LED_OFF;
   }
 
-  MiPHeadLED led1; ///< Pattern state for Head LED 1.
-  MiPHeadLED led2; ///< Pattern state for Head LED 2.
-  MiPHeadLED led3; ///< Pattern state for Head LED 3.
-  MiPHeadLED led4; ///< Pattern state for Head LED 4.
+  MiPHeadLED led1;  ///< Pattern state for Head LED 1.
+  MiPHeadLED led2;  ///< Pattern state for Head LED 2.
+  MiPHeadLED led3;  ///< Pattern state for Head LED 3.
+  MiPHeadLED led4;  ///< Pattern state for Head LED 4.
 };
 
 /**
  * @brief Manages MiP's eye/head LEDs.
  */
 class MiP_HeadLEDs {
- public:
+public:
   /**
    * @brief Reads the current state of all four head LEDs.
    *
@@ -94,10 +94,7 @@ class MiP_HeadLEDs {
    * @param led3 Head LED 3 pattern.
    * @param led4 Head LED 4 pattern.
    */
-  void write(MiPHeadLED led1,
-             MiPHeadLED led2,
-             MiPHeadLED led3,
-             MiPHeadLED led4);
+  void write(MiPHeadLED led1, MiPHeadLED led2, MiPHeadLED led3, MiPHeadLED led4);
 
   /**
    * @brief Sets all four head LEDs using a struct and verifies the change.
@@ -121,10 +118,7 @@ class MiP_HeadLEDs {
    * @param led3 Head LED 3 pattern.
    * @param led4 Head LED 4 pattern.
    */
-  void unverifiedWrite(MiPHeadLED led1,
-                       MiPHeadLED led2,
-                       MiPHeadLED led3,
-                       MiPHeadLED led4);
+  void unverifiedWrite(MiPHeadLED led1, MiPHeadLED led2, MiPHeadLED led3, MiPHeadLED led4);
 
   /**
    * @brief Sets all four head LEDs using a struct without verification
@@ -138,7 +132,7 @@ class MiP_HeadLEDs {
    */
   void unverifiedWrite(const MiPHeadLEDs& headLEDs);
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte to set the patterns of all four head LEDs.
    */
@@ -150,7 +144,7 @@ class MiP_HeadLEDs {
    */
   static constexpr uint8_t MIP_CMD_GET_HEAD_LEDS = 0x8B;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
@@ -160,10 +154,7 @@ class MiP_HeadLEDs {
   explicit MiP_HeadLEDs(MiP& mip);
 
   int8_t rawGet(MiPHeadLEDs& headLEDs);
-  void rawSet(MiPHeadLED led1,
-              MiPHeadLED led2,
-              MiPHeadLED led3,
-              MiPHeadLED led4);
+  void rawSet(MiPHeadLED led1, MiPHeadLED led2, MiPHeadLED led3, MiPHeadLED led4);
   bool isValidSingleLED(uint8_t led);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.

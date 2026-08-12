@@ -47,9 +47,8 @@
 #define MPU_D1_MINI_VERSION "2.0.1"
 
 // Combined numerical value for preprocessor version checks (2.0.1 -> 20001)
-#define MPU_D1_MINI_VERSION_NUMBER                                       \
-  (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + \
-   MPU_D1_MINI_VERSION_PATCH)
+#define MPU_D1_MINI_VERSION_NUMBER \
+  (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + MPU_D1_MINI_VERSION_PATCH)
 
 // Setup some debug levels for reporting library status via Serial1.
 #define MIP_DEBUG_NONE 0
@@ -106,7 +105,7 @@
  * @brief MiP's current stance position and battery voltage.
  */
 class MiPStatus {
- public:
+public:
   /**
    * @brief Constructs a new MiPStatus object and resets values to default.
    */
@@ -133,16 +132,18 @@ class MiPStatus {
  * over UART from a WeMos D1 mini (or compatible ESP8266 board).
  */
 class MiP {
- public:
-  static constexpr uint8_t MIP_ERROR_NONE = 0;  ///< Operation succeeded.
-  static constexpr uint8_t MIP_ERROR_TIMEOUT =
-      1;  ///< Timed out waiting for response from MiP.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT =
-      2;  ///< No event has arrived from MiP yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
-      3;  ///< Unexpected response received from MiP.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
-      4;  ///< Exceeded maximum retries communicating with MiP.
+public:
+  static constexpr uint8_t MIP_ERROR_NONE = 0;      ///< Operation succeeded.
+  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;   ///< Timed out waiting for
+                                                    ///< response from MiP.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;  ///< No event has arrived
+                                                    ///< from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;  ///< Unexpected response
+                                                        ///< received from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;   ///< Exceeded maximum
+                                                        ///< retries
+                                                        ///< communicating with
+                                                        ///< MiP.
 
   // Core lifecycle functions.
 
@@ -257,8 +258,8 @@ class MiP {
    */
   uint32_t getBaudRate() const;
 
-  MiP_Battery
-      battery;  ///< Interface for battery voltage queries (see MPU_Battery.h).
+  MiP_Battery battery;    ///< Interface for battery voltage queries (see
+                          ///< MPU_Battery.h).
   MiP_ChestLED chestLED;  ///< Interface for chest LED RGB/flash control (see
                           ///< MPU_ChestLED.h).
   MiP_Clap clap;  ///< Interface for clap detection and delay configuration (see
@@ -271,18 +272,18 @@ class MiP {
                           ///< (see MPU_HeadLEDs.h).
   MiP_Infrared infrared;  ///< Interface for IR remote control and MiP detection
                           ///< (see MPU_Infrared.h).
-  MiP_Mode
-      mode;  ///< Interface for game and app mode selection (see MPU_Mode.h).
+  MiP_Mode mode;          ///< Interface for game and app mode selection (see
+                          ///< MPU_Mode.h).
   MiP_Motion motion;  ///< Interface for drive, turn, and posture control (see
                       ///< MPU_Motion.h).
   MiP_Odometer odometer;  ///< Interface for reading and resetting distance
                           ///< odometer (see MPU_Odometer.h).
   MiP_Position position;  ///< Interface for position and orientation state
                           ///< checks (see MPU_Position.h).
-  MiP_Radar
-      radar;  ///< Interface for IR radar proximity tracking (see MPU_Radar.h).
-  MiP_Serial serial;  ///< Interface for low-level UART transport and event
-                      ///< parsing (see MPU_Serial.h).
+  MiP_Radar radar;        ///< Interface for IR radar proximity tracking (see
+                          ///< MPU_Radar.h).
+  MiP_Serial serial;      ///< Interface for low-level UART transport and event
+                          ///< parsing (see MPU_Serial.h).
   MiP_Shake shake;  ///< Interface for shake event detection (see MPU_Shake.h).
   MiP_Sound sound;  ///< Interface for sound effects and volume control (see
                     ///< MPU_Sound.h).
@@ -293,23 +294,25 @@ class MiP {
   MiP_WiFi wifi;  ///< Interface for WiFi, OTA, and network management (see
                   ///< MPU_WiFi.h).
 
- protected:
-  static constexpr uint8_t MIP_CMD_DISCONNECT_APP =
-      0xFE;                                       ///< Disconnect command byte.
-  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;  ///< Sleep command byte.
-  static constexpr uint8_t MIP_CMD_GET_STATUS =
-      0x79;  ///< Status query command byte.
+protected:
+  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;  ///< Disconnect
+                                                           ///< command byte.
+  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;       ///< Sleep command byte.
+  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;  ///< Status query command
+                                                       ///< byte.
 
-  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES =
-      5;  ///< Max retries in begin().
-  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT =
-      500;  ///< Delay between retries in begin() (ms).
-  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE =
-      74880;  ///< ESP8266 bootloader debug rate.
-  static constexpr uint32_t MIP_FAST_BAUD_RATE =
-      115200;  ///< High-speed UART link rate.
-  static constexpr uint32_t MIP_SLOW_BAUD_RATE =
-      9600;  ///< Low-speed UART link rate.
+  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES = 5;    ///< Max retries in
+                                                         ///< begin().
+  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT = 500;  ///< Delay between
+                                                         ///< retries in begin()
+                                                         ///< (ms).
+  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE = 74880;  ///< ESP8266
+                                                              ///< bootloader
+                                                              ///< debug rate.
+  static constexpr uint32_t MIP_FAST_BAUD_RATE = 115200;  ///< High-speed UART
+                                                          ///< link rate.
+  static constexpr uint32_t MIP_SLOW_BAUD_RATE = 9600;  ///< Low-speed UART link
+                                                        ///< rate.
 
   void clear();
 
@@ -337,9 +340,7 @@ class MiP {
   void mipAssert(bool condition, uint32_t lineNumber, const char* fileName);
 
   int8_t rawGetStatus(MiPStatus& status);
-  int8_t parseStatus(MiPStatus& status,
-                     const uint8_t response[],
-                     size_t responseLength);
+  int8_t parseStatus(MiPStatus& status, const uint8_t response[], size_t responseLength);
 
   friend class MiP_Battery;
   friend class MiP_ChestLED;

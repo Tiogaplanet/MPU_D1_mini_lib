@@ -99,28 +99,21 @@ bool MiP_Infrared::isRemoteControlEnabled() {
   return remoteControl == MIP_IR_REMOTE_CONTROL_ENABLE;
 }
 
-void MiP_Infrared::sendDongleCode(const MiPIRDongleCode& irCode,
-                                  uint8_t transmitPower) {
+void MiP_Infrared::sendDongleCode(const MiPIRDongleCode& irCode, uint8_t transmitPower) {
   sendDongleCode(irCode.code, irCode.length, transmitPower);
 }
 
-void MiP_Infrared::sendDongleCode(uint32_t code,
-                                  uint8_t length,
-                                  uint8_t transmitPower) {
+void MiP_Infrared::sendDongleCode(uint32_t code, uint8_t length, uint8_t transmitPower) {
   MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->sendDongleCode()"));
   m_mip.MIP_ASSERT(transmitPower >= 1 && transmitPower <= 120);
   m_mip.MIP_ASSERT(length >= 2 && length <= 4);
 
-  if (length < 2)
-    length = 2;
-  if (length > 4)
-    length = 4;
+  if (length < 2) length = 2;
+  if (length > 4) length = 4;
 
   // Mask to the requested width (right-aligned in the 32-bit field).
-  if (length < 4) {
-    code &= (1UL << (length * 8)) - 1UL;
-  }
+  if (length < 4) { code &= (1UL << (length * 8)) - 1UL; }
 
   uint8_t command[1 + 4 + 1 + 1];
   command[0] = MIP_CMD_SEND_IR_DONGLE_CODE;
@@ -163,27 +156,24 @@ uint8_t MiP_Infrared::availableCodeEvents() {
   return m_irCodeEvents.available();
 }
 
-void MiP_Infrared::processEvent(uint8_t command,
-                                const uint8_t* payload,
-                                size_t length) {
+void MiP_Infrared::processEvent(uint8_t command, const uint8_t* payload, size_t length) {
   switch (command) {
     case MIP_CMD_GET_DETECTED_MIP:
-      if (length >= 2) {
-        m_detectedMiPEvents.push(payload[1]);
-      }
+      if (length >= 2) { m_detectedMiPEvents.push(payload[1]); }
       break;
 
-    case MIP_CMD_RECEIVE_IR_DONGLE_CODE: {
-      uint8_t codeLen = static_cast<uint8_t>(length - 1);
-      if (codeLen >= 2 && codeLen <= 4) {
-        uint32_t parsedCode = 0;
-        for (size_t i = 1; i < length; i++) {
-          parsedCode = (parsedCode << 8) | payload[i];
+    case MIP_CMD_RECEIVE_IR_DONGLE_CODE:
+      {
+        uint8_t codeLen = static_cast<uint8_t>(length - 1);
+        if (codeLen >= 2 && codeLen <= 4) {
+          uint32_t parsedCode = 0;
+          for (size_t i = 1; i < length; i++) {
+            parsedCode = (parsedCode << 8) | payload[i];
+          }
+          m_irCodeEvents.push(MiPIRDongleCode(parsedCode, codeLen));
         }
-        m_irCodeEvents.push(MiPIRDongleCode(parsedCode, codeLen));
+        break;
       }
-      break;
-    }
 
     default:
       MIP_DEBUG_WARN_PREFIX();
@@ -201,7 +191,7 @@ void MiP_Infrared::processEvent(uint8_t command,
 // driver.
 void MiP_Infrared::rawSetMiPDetectionMode(uint8_t id, uint8_t txPower) {
   m_mip.MIP_ASSERT(0x01 <= txPower && txPower <= 0x78);
-  uint8_t command[1 + 2] = {MIP_CMD_SET_DETECTION_MODE, id, txPower};
+  uint8_t command[1 + 2] = { MIP_CMD_SET_DETECTION_MODE, id, txPower };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 
@@ -214,8 +204,7 @@ void MiP_Infrared::verifiedRemoteControl(uint8_t desiredRemoteControlMode) {
 
     // Read back and make sure that it was set as expected.
     result = rawGetRemoteControl(actualMode);
-    if (result == MiP::MIP_ERROR_NONE &&
-        actualMode == desiredRemoteControlMode) {
+    if (result == MiP::MIP_ERROR_NONE && actualMode == desiredRemoteControlMode) {
       // The set was successful so return immediately.
       m_mip.m_lastError = MiP::MIP_ERROR_NONE;
       return;
@@ -240,18 +229,13 @@ void MiP_Infrared::verifiedRemoteControl(uint8_t desiredRemoteControlMode) {
 // command with minimal error handling. The error recovery happens at a higher
 // level of the driver.
 int8_t MiP_Infrared::rawGetRemoteControl(uint8_t& remoteControl) {
-  const uint8_t getIRRemoteControl[1] = {MIP_CMD_GET_IR_REMOTE_CONTROL};
+  const uint8_t getIRRemoteControl[1] = { MIP_CMD_GET_IR_REMOTE_CONTROL };
   uint8_t response[1 + 1];
   size_t responseLength = 0;
-  int8_t result = m_mip.serial.rawReceive(getIRRemoteControl,
-                                          sizeof(getIRRemoteControl),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
-  if (result != MiP::MIP_ERROR_NONE)
-    return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_IR_REMOTE_CONTROL) {
+  int8_t result = m_mip.serial.rawReceive(
+    getIRRemoteControl, sizeof(getIRRemoteControl), response, sizeof(response), responseLength);
+  if (result != MiP::MIP_ERROR_NONE) return result;
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_IR_REMOTE_CONTROL) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   remoteControl = response[1];
@@ -262,8 +246,8 @@ int8_t MiP_Infrared::rawGetRemoteControl(uint8_t& remoteControl) {
 // minimal error handling. The error recovery happens at a higher level of the
 // driver.
 void MiP_Infrared::rawSetRemoteControl(uint8_t remoteControl) {
-  m_mip.MIP_ASSERT(remoteControl == MIP_IR_REMOTE_CONTROL_ENABLE ||
-                   remoteControl == MIP_IR_REMOTE_CONTROL_DISABLE);
-  uint8_t command[1 + 1] = {MIP_CMD_SET_IR_REMOTE_CONTROL, remoteControl};
+  m_mip.MIP_ASSERT(remoteControl == MIP_IR_REMOTE_CONTROL_ENABLE
+                   || remoteControl == MIP_IR_REMOTE_CONTROL_DISABLE);
+  uint8_t command[1 + 1] = { MIP_CMD_SET_IR_REMOTE_CONTROL, remoteControl };
   m_mip.serial.rawSend(command, sizeof(command));
 }

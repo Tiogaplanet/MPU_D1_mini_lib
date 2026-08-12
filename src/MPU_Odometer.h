@@ -25,7 +25,7 @@ class MiP;
  * @brief Manages MiP's odometer tracking and distance measurement.
  */
 class MiP_Odometer {
- public:
+public:
   /**
    * @brief Reads MiP's total distance travelled.
    *
@@ -46,7 +46,7 @@ class MiP_Odometer {
    */
   void reset();
 
- protected:
+protected:
   /**
    * @brief MiP protocol command byte to read the accumulated wheel tick
    * odometer count.
@@ -64,7 +64,7 @@ class MiP_Odometer {
    */
   static constexpr float TICKS_PER_CM = 48.5f;
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

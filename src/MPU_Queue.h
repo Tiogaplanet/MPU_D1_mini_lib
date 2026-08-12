@@ -32,11 +32,10 @@ namespace mip_detail {
  * @tparam ElementType Type of elements stored in the queue.
  * @tparam Size        Maximum number of elements the queue can hold.
  */
-template <class ElementType, uint8_t Size>
-class CircularQueue {
+template<class ElementType, uint8_t Size> class CircularQueue {
   static_assert(Size > 0, "CircularQueue Size must be greater than 0");
 
- public:
+public:
   /**
    * @brief Constructs a new CircularQueue object and initializes internal
    * state.
@@ -119,9 +118,7 @@ class CircularQueue {
    * empty.
    */
   bool pop(ElementType& element) {
-    if (isEmpty()) {
-      return false;
-    }
+    if (isEmpty()) { return false; }
 
     // Pop the oldest element from the circular queue.
     element = m_elements[m_readIndex];
@@ -130,7 +127,7 @@ class CircularQueue {
     return true;
   }
 
- private:
+private:
   void advanceWriteIndex() {
     if (m_writeIndex == Size - 1) {
       // Wrap around to beginning of circular queue.

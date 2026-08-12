@@ -38,7 +38,7 @@ enum MiPClapEnabled : uint8_t {
  * along with the minimum delay threshold configured between clap reports.
  */
 class MiPClapSettings {
- public:
+public:
   /**
    * @brief Constructs a new MiPClapSettings object and initializes default
    * values.
@@ -66,7 +66,7 @@ class MiPClapSettings {
  * to delay configuration and event reading.
  */
 class MiP_Clap {
- public:
+public:
   /**
    * @brief Enables MiP's clap event reporting.
    *
@@ -112,7 +112,8 @@ class MiP_Clap {
   /**
    * @brief Reads the current clap delay setting.
    *
-   * @return uint16_t The delay in milliseconds between clap events, or 0 on error.
+   * @return uint16_t The delay in milliseconds between clap events, or 0 on
+   * error.
    */
   uint16_t readDelay();
 
@@ -126,15 +127,26 @@ class MiP_Clap {
    */
   void writeDelay(uint16_t delay);
 
- protected:
-  static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;       ///< Protocol command to enable/disable clap system.
-  static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;      ///< Protocol notification byte reporting detected claps.
-  static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;     ///< Protocol command to set inter-clap delay.
-  static constexpr uint8_t MIP_CMD_GET_CLAP_SETTINGS = 0x1F;  ///< Protocol command to query clap settings.
+protected:
+  static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;  ///< Protocol command to
+                                                        ///< enable/disable clap
+                                                        ///< system.
+  static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;  ///< Protocol
+                                                          ///< notification byte
+                                                          ///< reporting
+                                                          ///< detected claps.
+  static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;  ///< Protocol command
+                                                           ///< to set
+                                                           ///< inter-clap
+                                                           ///< delay.
+  static constexpr uint8_t MIP_CMD_GET_CLAP_SETTINGS = 0x1F;  ///< Protocol
+                                                              ///< command to
+                                                              ///< query clap
+                                                              ///< settings.
 
   void clear();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
@@ -149,7 +161,8 @@ class MiP_Clap {
   int8_t rawGetSettings(MiPClapSettings& settings);
 
   /**
-   * @brief Handles an incoming clap event notification from the transport layer.
+   * @brief Handles an incoming clap event notification from the transport
+   * layer.
    *
    * @param clapCode Raw clap count/code received from MiP.
    */

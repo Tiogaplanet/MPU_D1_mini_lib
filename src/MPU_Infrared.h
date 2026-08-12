@@ -65,7 +65,7 @@ struct MiPIRDongleCode {
  * control.
  */
 class MiP_Infrared {
- public:
+public:
   /**
    * @brief Enables MiP detection mode (allows detecting other MiPs via IR).
    *
@@ -200,7 +200,7 @@ class MiP_Infrared {
    */
   void processEvent(uint8_t command, const uint8_t* payload, size_t length);
 
- protected:
+protected:
   /**
    * @brief Protocol command byte received when an IR dongle code is detected.
    */
@@ -249,7 +249,7 @@ class MiP_Infrared {
 
   void clear();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
