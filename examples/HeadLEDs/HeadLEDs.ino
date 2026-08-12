@@ -1,6 +1,6 @@
 /**
  * @file HeadLEDs.ino
- * @brief Example sketch demonstrating MiP head LED control and queries.
+ * @brief Example sketch demonstrating MiP's head LED control and queries.
  *
  * @details This sketch shows how to use the MiP library to set and read MiP's
  * head (eye) LEDs using both verified and unverified APIs. It:
