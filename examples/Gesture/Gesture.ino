@@ -1,6 +1,6 @@
 /**
  * @file Gesture.ino
- * @brief Example sketch demonstrating MiP gesture detection and reporting.
+ * @brief Example sketch demonstrating MiP's gesture detection and reporting.
  *
  * @details This sketch shows how to use the MiP library's gesture detection
  * APIs to enable gesture mode, poll for gesture events, and report the
