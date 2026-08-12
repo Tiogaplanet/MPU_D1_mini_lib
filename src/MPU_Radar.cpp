@@ -25,22 +25,30 @@ void MiP_Radar::clear() {
 }
 
 void MiP_Radar::enable() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Radar->enable()"));
+
   verifiedSet(MIP_RADAR);
 }
 
 void MiP_Radar::disable() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Radar->disable()"));
+
   verifiedSet(MIP_RADAR_DISABLED);
 }
 
 bool MiP_Radar::isEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Radar->isEnabled()"));
+
   return check(MIP_RADAR);
 }
 
 MiPRadar MiP_Radar::read() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Radar->read()"));
+
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   m_mip.serial.processAllResponseData();
@@ -53,16 +61,16 @@ MiPRadar MiP_Radar::read() {
   return m_lastRadar;
 }
 
+// ==========================================================================
+// Protected / Private functions.
+// ==========================================================================
+
 void MiP_Radar::processEvent(uint8_t radarCode) {
   if (radarCode >= MIP_RADAR_NONE && radarCode <= MIP_RADAR_0CM_10CM) {
     m_lastRadar = static_cast<MiPRadar>(radarCode);
     m_mip.m_flags |= MiP::MIP_FLAG_RADAR_VALID;
   }
 }
-
-// ==========================================================================
-// Protected / Private functions.
-// ==========================================================================
 
 // This internal protected method sends the command to change the radar/gesture
 // mode and then sends a request to get the new state. If this request fails or

@@ -24,7 +24,9 @@ MiP_Sound::MiP_Sound(MiP& mip) : m_mip(mip) {
 }
 
 void MiP_Sound::beginList() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->beginList()"));
+
   m_soundIndex = 0;
   m_playVolume = MIP_VOLUME_DEFAULT;
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
@@ -67,8 +69,10 @@ void MiP_Sound::addEntryToList(MiPSoundIndex sound,
 }
 
 void MiP_Sound::playList(uint8_t repeatCount) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->playList()"));
-  // Must call beginSoundList() and addEntryToSoundList() before calling this
+
+  // Must call beginList() and addEntryToList() before calling this
   // function.
   m_mip.MIP_ASSERT(m_soundIndex >= 1);
   m_playCommand[0] = MIP_CMD_PLAY_SOUND;
@@ -95,14 +99,18 @@ void MiP_Sound::playList(uint8_t repeatCount) {
 
 void MiP_Sound::play(MiPSoundIndex sound,
                      MiPVolume volume /* = MIP_VOLUME_DEFAULT */) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->play()"));
+
   beginList();
   addEntryToList(sound, 0, volume);
   playList();
 }
 
 uint8_t MiP_Sound::readVolume() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->readVolume()"));
+
   int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
@@ -124,7 +132,9 @@ uint8_t MiP_Sound::readVolume() {
 }
 
 void MiP_Sound::writeVolume(uint8_t volume) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->writeVolume()"));
+
   int8_t result = MiP::MIP_ERROR_NONE;
 
   // Send the set command and then issue the corresponding get command. Retry if
@@ -157,7 +167,9 @@ void MiP_Sound::writeVolume(uint8_t volume) {
 }
 
 void MiP_Sound::end() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Sound->end()"));
+
   writeVolume(MIP_VOLUME_7);
 }
 
@@ -176,8 +188,8 @@ int8_t MiP_Sound::rawGetVolume(uint8_t& volume) {
       getVolume, sizeof(getVolume), response, sizeof(response), responseLength);
   if (result != MiP::MIP_ERROR_NONE)
     return result;
-  if (responseLength != sizeof(response) ||
-      response[0] != MIP_CMD_GET_VOLUME || response[1] > 7) {
+  if (responseLength != sizeof(response) || response[0] != MIP_CMD_GET_VOLUME ||
+      response[1] > 7) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
   volume = response[1];

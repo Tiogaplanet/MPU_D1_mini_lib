@@ -21,6 +21,9 @@ MiP_Motion::MiP_Motion(MiP& mip) : m_mip(mip) {
 }
 
 void MiP_Motion::continuousDrive(int8_t velocity, int8_t turnRate) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->continuousDrive()"));
+
   uint8_t command[1 + 2];
 
   m_mip.MIP_ASSERT(velocity >= -32 && velocity <= 32);
@@ -52,6 +55,9 @@ void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection,
                                uint8_t cm,
                                MiPTurnDirection turnDirection,
                                uint16_t degrees) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->distanceDrive()"));
+
   uint8_t command[1 + 5];
   m_mip.MIP_ASSERT(degrees <= 360);
 
@@ -69,6 +75,9 @@ void MiP_Motion::distanceDrive(MiPDriveDirection driveDirection,
 }
 
 void MiP_Motion::driveForward(uint8_t speed, uint16_t time) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->driveForward()"));
+
   // The time parameter is in units of 7 milliseconds.
   uint8_t command[1 + 2];
 
@@ -90,6 +99,9 @@ void MiP_Motion::driveForward(uint8_t speed, uint16_t time) {
 }
 
 void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->driveBackward()"));
+
   // The time parameter is in units of 7 milliseconds.
   uint8_t command[1 + 2];
 
@@ -111,6 +123,9 @@ void MiP_Motion::driveBackward(uint8_t speed, uint16_t time) {
 }
 
 void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->turnLeft()"));
+
   // The turn command is in units of 5 degrees.
   m_mip.MIP_ASSERT(degrees <= 255 * 5);
   m_mip.MIP_ASSERT(speed <= 24);
@@ -133,6 +148,9 @@ void MiP_Motion::turnLeft(uint16_t degrees, uint8_t speed) {
 }
 
 void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->turnRight()"));
+
   // The turn command is in units of 5 degrees.
   m_mip.MIP_ASSERT(degrees <= 255 * 5);
   m_mip.MIP_ASSERT(speed <= 24);
@@ -155,6 +173,9 @@ void MiP_Motion::turnRight(uint16_t degrees, uint8_t speed) {
 }
 
 void MiP_Motion::stop() {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->stop()"));
+
   uint8_t command[1] = {MIP_CMD_STOP};
 
   // Send this command blindly with no error checking since there is no way to
@@ -164,16 +185,25 @@ void MiP_Motion::stop() {
 }
 
 void MiP_Motion::fallForward() {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->fallForward()"));
+
   fallDown(MIP_FALL_FACE_DOWN);
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::fallBackward() {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->fallBackward()"));
+
   fallDown(MIP_FALL_ON_BACK);
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
 void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Motion->getUp()"));
+
   uint8_t command[1 + 1];
   command[0] = MIP_CMD_GET_UP;
   command[1] = static_cast<uint8_t>(getup);

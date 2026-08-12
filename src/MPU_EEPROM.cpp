@@ -20,6 +20,7 @@
 MiP_EEPROM::MiP_EEPROM(MiP& mip) : m_mip(mip) {}
 
 uint8_t MiP_EEPROM::read(uint8_t addressOffset) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->EEPROM->read()"));
   uint8_t address = BASE_EEPROM_ADDRESS + addressOffset;
 
@@ -47,6 +48,7 @@ uint8_t MiP_EEPROM::read(uint8_t addressOffset) {
 }
 
 void MiP_EEPROM::write(uint8_t addressOffset, uint8_t userData) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->EEPROM->write()"));
   uint8_t address = BASE_EEPROM_ADDRESS + addressOffset;
 

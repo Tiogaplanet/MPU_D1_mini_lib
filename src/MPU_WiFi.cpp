@@ -61,6 +61,7 @@ uint8_t MiP_WiFi::disableAirplaneMode() {
 uint8_t MiP_WiFi::connect() {
   // Safety check: ensure we have a valid SSID configured
   if (m_ssid[0] == '\0' || strlen(m_ssid) == 0) {
+    MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINTLN(
         F("MiP: No SSID configured. Call wifi.begin() first."));
     return WL_DISCONNECTED;
@@ -96,6 +97,7 @@ uint8_t MiP_WiFi::connect() {
         direction = true;
     }
 
+    MIP_DEBUG_WARN_PREFIX();
     MIP_DEBUG_WARN_PRINTLN(F("MiP: WiFi connection attempt..."));
     delay(ANIMATION_DELAY_MS);
     attempts++;
@@ -109,14 +111,18 @@ uint8_t MiP_WiFi::connect() {
 
   uint8_t connectStatus = WiFi.status();
   if (connectStatus == WL_CONNECTED) {
+    MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("MiP: WiFi connected successfully"));
 
     if (!MDNS.begin(m_hostname)) {
+      MIP_DEBUG_ERROR_PREFIX();
       MIP_DEBUG_ERROR_PRINTLN(F("MiP: Error setting up mDNS responder."));
     } else {
-      MIP_DEBUG_INFO_PRINTF(
-          "MiP: mDNS responder started with hostname of %s.local\r\n",
-          m_hostname);
+      MIP_DEBUG_INFO_PREFIX();
+      MIP_DEBUG_INFO_PRINT(F("MiP: mDNS responder started with hostname of "));
+      MIP_DEBUG_INFO_PRINT(m_hostname);
+      MIP_DEBUG_INFO_PRINTLN(F(".local"));
+      MIP_DEBUG_INFO_PREFIX();
       MIP_DEBUG_INFO_PRINT(F("MiP: IP address: "));
       MIP_DEBUG_INFO_PRINTLN(WiFi.localIP().toString());
     }
@@ -125,6 +131,7 @@ uint8_t MiP_WiFi::connect() {
     ArduinoOTA.onStart([]() {
       String type =
           (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
+      MIP_DEBUG_INFO_PREFIX();
       MIP_DEBUG_INFO_PRINT(F("MiP: Start updating "));
       MIP_DEBUG_INFO_PRINTLN(type);
     });
@@ -132,22 +139,36 @@ uint8_t MiP_WiFi::connect() {
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
       if (total == 0)
         return;
-      MIP_DEBUG_INFO_PRINTF("Progress: %u%%\r", (progress * 100) / total);
+      MIP_DEBUG_INFO_PREFIX();
+      MIP_DEBUG_INFO_PRINT(F("Progress: "));
+      MIP_DEBUG_INFO_PRINT((progress * 100) / total);
+      MIP_DEBUG_INFO_PRINT(F("%\r"));
     });
 
-    ArduinoOTA.onEnd([]() { MIP_DEBUG_INFO_PRINTLN(F("End")); });
+    ArduinoOTA.onEnd([]() {
+      MIP_DEBUG_INFO_PREFIX();
+      MIP_DEBUG_INFO_PRINTLN(F("End"));
+    });
 
     ArduinoOTA.onError([](ota_error_t error) {
-      MIP_DEBUG_ERROR_PRINTF("Error[%u]: ", error);
+      MIP_DEBUG_ERROR_PREFIX();
+      MIP_DEBUG_ERROR_PRINT(F("Error["));
+      MIP_DEBUG_ERROR_PRINT(error);
+      MIP_DEBUG_ERROR_PRINT(F("]: "));
       if (error == OTA_AUTH_ERROR) {
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("Auth Failed"));
       } else if (error == OTA_BEGIN_ERROR) {
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("Begin Failed"));
       } else if (error == OTA_CONNECT_ERROR) {
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("Connect Failed"));
       } else if (error == OTA_RECEIVE_ERROR) {
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("Receive Failed"));
       } else if (error == OTA_END_ERROR) {
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("End Failed"));
       }
     });
@@ -155,6 +176,7 @@ uint8_t MiP_WiFi::connect() {
     ArduinoOTA.begin();
     return WL_CONNECTED;
   } else {
+    MIP_DEBUG_WARN_PREFIX();
     MIP_DEBUG_WARN_PRINTLN(
         F("MiP: WiFi connection failed after maximum attempts"));
     // Pulse slow red on chest LED to indicate connection failure

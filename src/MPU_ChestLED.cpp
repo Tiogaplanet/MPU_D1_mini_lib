@@ -19,6 +19,7 @@
 MiP_ChestLED::MiP_ChestLED(MiP& mip) : m_mip(mip) {}
 
 void MiP_ChestLED::read(MiPChestLED& chestLED) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->read()"));
   int8_t result;
 
@@ -35,6 +36,7 @@ void MiP_ChestLED::read(MiPChestLED& chestLED) {
 }
 
 void MiP_ChestLED::write(uint8_t red, uint8_t green, uint8_t blue) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write()"));
   int8_t result;
 
@@ -54,7 +56,8 @@ void MiP_ChestLED::write(uint8_t red, uint8_t green, uint8_t blue) {
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError =
+      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 void MiP_ChestLED::write(uint8_t red,
@@ -62,6 +65,7 @@ void MiP_ChestLED::write(uint8_t red,
                          uint8_t blue,
                          uint16_t onTime,
                          uint16_t offTime) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write(flash)"));
   int8_t result;
 
@@ -88,10 +92,12 @@ void MiP_ChestLED::write(uint8_t red,
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError =
+      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 void MiP_ChestLED::write(const MiPChestLED& chestLED) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->write()"));
   write(chestLED.red,
         chestLED.green,
@@ -101,6 +107,7 @@ void MiP_ChestLED::write(const MiPChestLED& chestLED) {
 }
 
 void MiP_ChestLED::unverifiedWrite(uint8_t red, uint8_t green, uint8_t blue) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
   rawSet(red, green, blue);
 }
@@ -110,7 +117,8 @@ void MiP_ChestLED::unverifiedWrite(uint8_t red,
                                    uint8_t blue,
                                    uint16_t onTime,
                                    uint16_t offTime) {
-  MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite(flash)"));
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
   m_mip.MIP_ASSERT(onTime / 20 <= 255 && offTime / 20 <= 255);
   uint8_t onTicks = static_cast<uint8_t>((onTime + 10) / 20);
   uint8_t offTicks = static_cast<uint8_t>((offTime + 10) / 20);
@@ -118,6 +126,7 @@ void MiP_ChestLED::unverifiedWrite(uint8_t red,
 }
 
 void MiP_ChestLED::unverifiedWrite(const MiPChestLED& chestLED) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->ChestLED->unverifiedWrite()"));
   unverifiedWrite(chestLED.red,
                   chestLED.green,

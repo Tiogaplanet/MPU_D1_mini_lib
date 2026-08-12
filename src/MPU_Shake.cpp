@@ -19,7 +19,9 @@
 MiP_Shake::MiP_Shake(MiP& mip) : m_mip(mip) {}
 
 bool MiP_Shake::read() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Shake->read()"));
+
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   m_mip.serial.processAllResponseData();

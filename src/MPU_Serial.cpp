@@ -58,7 +58,8 @@ bool MiP_Serial::processAllResponseData() {
       m_responseBuffer[0] = commandByte;
 
       bytesToRead = m_expectedResponseSize - 1;
-      bytesRead = Serial.readBytes(reinterpret_cast<char*>(buffer), bytesToRead * 2);
+      bytesRead =
+          Serial.readBytes(reinterpret_cast<char*>(buffer), bytesToRead * 2);
 
       if (bytesRead == bytesToRead * 2) {
         copyHexTextToBinary(&m_responseBuffer[1], buffer, bytesToRead);
@@ -71,10 +72,12 @@ bool MiP_Serial::processAllResponseData() {
         m_responseBuffer[0] = 0;
         discardUnexpectedSerialData();
 
-        MIP_DEBUG_ERROR_PRINTF(
-            "MiP: Response too short: %u, expected %u\r\n",
-            static_cast<unsigned>(bytesRead),
-            static_cast<unsigned>(bytesToRead * 2));
+        // Incomplete response.
+        MIP_DEBUG_ERROR_PREFIX();
+        MIP_DEBUG_ERROR_PRINT(F("MiP: Response too short: "));
+        MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(bytesRead));
+        MIP_DEBUG_ERROR_PRINT(F(", expected "));
+        MIP_DEBUG_ERROR_PRINTLN(static_cast<unsigned>(bytesToRead * 2));
         break;
       }
     } else {
@@ -114,6 +117,8 @@ uint8_t MiP_Serial::transportGetResponse(uint8_t* pResponseBuffer,
   } while (!responseFound && (millis() - startTime) < MIP_RESPONSE_TIMEOUT);
 
   if (!responseFound) {
+    // Timeout.
+    MIP_DEBUG_WARN_PREFIX();
     MIP_DEBUG_WARN_PRINTLN(F("MiP: Response timeout"));
     return MiP::MIP_ERROR_TIMEOUT;
   }
@@ -187,10 +192,12 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
 
     default: {
       [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
-      MIP_DEBUG_ERROR_PRINTF(
-          "MiP: Bad OOB command byte: 0x%02x (discarded %u bytes)\r\n",
-          commandByte,
-          static_cast<unsigned>(discarded));
+      MIP_DEBUG_ERROR_PREFIX();
+      MIP_DEBUG_ERROR_PRINT(F("MiP: Bad OOB command byte: 0x"));
+      MIP_DEBUG_ERROR_PRINT(commandByte, HEX);
+      MIP_DEBUG_ERROR_PRINT(F(" (discarded "));
+      MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(discarded));
+      MIP_DEBUG_ERROR_PRINTLN(F(" bytes)"));
     }
       return;
   }
@@ -199,10 +206,12 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
   uint8_t buffer[4 * 2];  // max payload for IR dongle code is 4 bytes
   bytesRead = Serial.readBytes(reinterpret_cast<char*>(buffer), length * 2);
   if (bytesRead != length * 2) {
-    MIP_DEBUG_ERROR_PRINTF(
-        "MiP: OOB too short: %u, expected %u\r\n",
-        static_cast<unsigned>(bytesRead),
-        static_cast<unsigned>(length * 2));
+    // OOB too short
+    MIP_DEBUG_ERROR_PREFIX();
+    MIP_DEBUG_ERROR_PRINT(F("MiP: OOB too short: "));
+    MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(bytesRead));
+    MIP_DEBUG_ERROR_PRINT(F(", expected "));
+    MIP_DEBUG_ERROR_PRINTLN(static_cast<unsigned>(length * 2));
     return;
   }
 
@@ -216,7 +225,10 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
 
 bool MiP_Serial::readIrLength(size_t& length) {
   uint8_t nibbles[2];
-  if (Serial.readBytes(reinterpret_cast<char*>(nibbles), sizeof(nibbles)) != sizeof(nibbles)) {
+  if (Serial.readBytes(reinterpret_cast<char*>(nibbles), sizeof(nibbles)) !=
+      sizeof(nibbles)) {
+    // Missing IR length.
+    MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINTLN(F("MiP: Missing IR code length"));
     return false;
   }
@@ -225,10 +237,12 @@ bool MiP_Serial::readIrLength(size_t& length) {
 
   if (length < 2 || length > 4) {
     [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
-    MIP_DEBUG_ERROR_PRINTF(
-        "MiP: Bad IR code length: 0x%02x (discarded %u bytes)\r\n",
-        static_cast<unsigned>(length),
-        static_cast<unsigned>(discarded));
+    // OOB too short
+    MIP_DEBUG_ERROR_PREFIX();
+    MIP_DEBUG_ERROR_PRINT(F("MiP: OOB too short: "));
+    MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(bytesRead));
+    MIP_DEBUG_ERROR_PRINT(F(", expected "));
+    MIP_DEBUG_ERROR_PRINTLN(static_cast<unsigned>(length * 2));
     return false;
   }
   return true;

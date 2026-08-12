@@ -19,61 +19,73 @@
 MiP_Mode::MiP_Mode(MiP& mip) : m_mip(mip) {}
 
 void MiP_Mode::enableApp() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableApp()"));
   verifiedSet(MIP_APP_MODE);
 }
 
 void MiP_Mode::enableCage() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableCage()"));
   verifiedSet(MIP_CAGE_MODE);
 }
 
 void MiP_Mode::enableDance() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableDance()"));
   verifiedSet(MIP_DANCE_MODE);
 }
 
 void MiP_Mode::enableStack() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableStack()"));
   verifiedSet(MIP_STACK_MODE);
 }
 
 void MiP_Mode::enableTrick() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableTrick()"));
   verifiedSet(MIP_TRICK_MODE);
 }
 
 void MiP_Mode::enableRoam() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableRoam()"));
   verifiedSet(MIP_ROAM_MODE);
 }
 
 bool MiP_Mode::isAppEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isAppEnabled()"));
   return check(MIP_APP_MODE);
 }
 
 bool MiP_Mode::isCageEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isCageEnabled()"));
   return check(MIP_CAGE_MODE);
 }
 
 bool MiP_Mode::isDanceEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isDanceEnabled()"));
   return check(MIP_DANCE_MODE);
 }
 
 bool MiP_Mode::isStackEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isStackEnabled()"));
   return check(MIP_STACK_MODE);
 }
 
 bool MiP_Mode::isTrickEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isTrickEnabled()"));
   return check(MIP_TRICK_MODE);
 }
 
 bool MiP_Mode::isRoamEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isRoamEnabled()"));
   return check(MIP_ROAM_MODE);
 }
@@ -83,6 +95,7 @@ bool MiP_Mode::isRoamEnabled() {
 // ==========================================================================
 
 bool MiP_Mode::check(MiPGameMode expectedMode) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->check()"));
   int8_t result = MiP::MIP_ERROR_NONE;
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {

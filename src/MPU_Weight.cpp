@@ -31,7 +31,9 @@ void MiP_Weight::clear() {
 }
 
 int8_t MiP_Weight::read() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Weight->read()"));
+
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   m_mip.serial.processAllResponseData();

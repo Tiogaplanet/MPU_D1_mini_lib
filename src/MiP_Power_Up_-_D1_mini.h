@@ -62,51 +62,40 @@
 #define MIP_DEBUG_LEVEL MIP_DEBUG_NONE
 #endif
 
-// Create the macros for conditional printing of debug messages via Serial1.
+// ---------------------------------------------------------------------------
+// Debug macros — prefix is printed once via *_PREFIX(), then stream with
+// *_PRINT / *_PRINTLN.  Never call *_PREFIX more than once for a single
+// logical message.  No *PRINTF variants (portable to AVR and ESP cores).
+// ---------------------------------------------------------------------------
+
 #if MIP_DEBUG_LEVEL >= MIP_DEBUG_ERROR
-#define MIP_DEBUG_ERROR_PRINT(...) \
-  Serial1.print(F("[ERROR] "));    \
-  Serial1.print(__VA_ARGS__)
-#define MIP_DEBUG_ERROR_PRINTLN(...) \
-  Serial1.print(F("[ERROR] "));      \
-  Serial1.println(__VA_ARGS__)
-#define MIP_DEBUG_ERROR_PRINTF(...) \
-  Serial1.print(F("[ERROR] "));     \
-  Serial1.printf(__VA_ARGS__)
+#define MIP_DEBUG_ERROR_PREFIX() Serial1.print(F("[ERROR] "))
+#define MIP_DEBUG_ERROR_PRINT(...) Serial1.print(__VA_ARGS__)
+#define MIP_DEBUG_ERROR_PRINTLN(...) Serial1.println(__VA_ARGS__)
 #else
+#define MIP_DEBUG_ERROR_PREFIX()
 #define MIP_DEBUG_ERROR_PRINT(...)
 #define MIP_DEBUG_ERROR_PRINTLN(...)
-#define MIP_DEBUG_ERROR_PRINTF(...)
 #endif
+
 #if MIP_DEBUG_LEVEL >= MIP_DEBUG_WARN
-#define MIP_DEBUG_WARN_PRINT(...) \
-  Serial1.print(F("[WARN] "));    \
-  Serial1.print(__VA_ARGS__)
-#define MIP_DEBUG_WARN_PRINTLN(...) \
-  Serial1.print(F("[WARN] "));      \
-  Serial1.println(__VA_ARGS__)
-#define MIP_DEBUG_WARN_PRINTF(...) \
-  Serial1.print(F("[WARN] "));     \
-  Serial1.printf(__VA_ARGS__)
+#define MIP_DEBUG_WARN_PREFIX() Serial1.print(F("[WARN] "))
+#define MIP_DEBUG_WARN_PRINT(...) Serial1.print(__VA_ARGS__)
+#define MIP_DEBUG_WARN_PRINTLN(...) Serial1.println(__VA_ARGS__)
 #else
+#define MIP_DEBUG_WARN_PREFIX()
 #define MIP_DEBUG_WARN_PRINT(...)
 #define MIP_DEBUG_WARN_PRINTLN(...)
-#define MIP_DEBUG_WARN_PRINTF(...)
 #endif
+
 #if MIP_DEBUG_LEVEL >= MIP_DEBUG_INFO
-#define MIP_DEBUG_INFO_PRINT(...) \
-  Serial1.print(F("[INFO] "));    \
-  Serial1.print(__VA_ARGS__)
-#define MIP_DEBUG_INFO_PRINTLN(...) \
-  Serial1.print(F("[INFO] "));      \
-  Serial1.println(__VA_ARGS__)
-#define MIP_DEBUG_INFO_PRINTF(...) \
-  Serial1.print(F("[INFO] "));     \
-  Serial1.printf(__VA_ARGS__)
+#define MIP_DEBUG_INFO_PREFIX() Serial1.print(F("[INFO] "))
+#define MIP_DEBUG_INFO_PRINT(...) Serial1.print(__VA_ARGS__)
+#define MIP_DEBUG_INFO_PRINTLN(...) Serial1.println(__VA_ARGS__)
 #else
+#define MIP_DEBUG_INFO_PREFIX()
 #define MIP_DEBUG_INFO_PRINT(...)
 #define MIP_DEBUG_INFO_PRINTLN(...)
-#define MIP_DEBUG_INFO_PRINTF(...)
 #endif
 
 // Define an assert mechanism that can be used to log and halt when the user is
@@ -145,11 +134,15 @@ class MiPStatus {
  */
 class MiP {
  public:
-  static constexpr uint8_t MIP_ERROR_NONE = 0;         ///< Operation succeeded.
-  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;      ///< Timed out waiting for response from MiP.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;     ///< No event has arrived from MiP yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3; ///< Unexpected response received from MiP.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;  ///< Exceeded maximum retries communicating with MiP.
+  static constexpr uint8_t MIP_ERROR_NONE = 0;  ///< Operation succeeded.
+  static constexpr uint8_t MIP_ERROR_TIMEOUT =
+      1;  ///< Timed out waiting for response from MiP.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT =
+      2;  ///< No event has arrived from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
+      3;  ///< Unexpected response received from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
+      4;  ///< Exceeded maximum retries communicating with MiP.
 
   // Core lifecycle functions.
 
@@ -301,15 +294,22 @@ class MiP {
                   ///< MPU_WiFi.h).
 
  protected:
-  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;  ///< Disconnect command byte.
-  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;           ///< Sleep command byte.
-  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;      ///< Status query command byte.
+  static constexpr uint8_t MIP_CMD_DISCONNECT_APP =
+      0xFE;                                       ///< Disconnect command byte.
+  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;  ///< Sleep command byte.
+  static constexpr uint8_t MIP_CMD_GET_STATUS =
+      0x79;  ///< Status query command byte.
 
-  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES = 5;       ///< Max retries in begin().
-  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT = 500;    ///< Delay between retries in begin() (ms).
-  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE = 74880;///< ESP8266 bootloader debug rate.
-  static constexpr uint32_t MIP_FAST_BAUD_RATE = 115200;   ///< High-speed UART link rate.
-  static constexpr uint32_t MIP_SLOW_BAUD_RATE = 9600;     ///< Low-speed UART link rate.
+  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES =
+      5;  ///< Max retries in begin().
+  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT =
+      500;  ///< Delay between retries in begin() (ms).
+  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE =
+      74880;  ///< ESP8266 bootloader debug rate.
+  static constexpr uint32_t MIP_FAST_BAUD_RATE =
+      115200;  ///< High-speed UART link rate.
+  static constexpr uint32_t MIP_SLOW_BAUD_RATE =
+      9600;  ///< Low-speed UART link rate.
 
   void clear();
 

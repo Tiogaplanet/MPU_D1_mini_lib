@@ -20,16 +20,19 @@ MiP_Clap::MiP_Clap(MiP& mip) : m_mip(mip) {
 }
 
 void MiP_Clap::enableEvents() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->enableClapEvents()"));
   checkedEnableEvents(MIP_CLAP_ENABLED);
 }
 
 void MiP_Clap::disableEvents() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->disableEvents()"));
   checkedEnableEvents(MIP_CLAP_DISABLED);
 }
 
 bool MiP_Clap::areEventsEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->areEventsEnabled()"));
   MiPClapSettings settings;
   int8_t result = readSettings(settings);
@@ -42,6 +45,7 @@ bool MiP_Clap::areEventsEnabled() {
 }
 
 uint8_t MiP_Clap::availableEvents() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->availableEvents()"));
   m_mip.serial.processAllResponseData();
 
@@ -50,6 +54,7 @@ uint8_t MiP_Clap::availableEvents() {
 }
 
 uint8_t MiP_Clap::readEvent() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->readEvent()"));
   m_mip.serial.processAllResponseData();
 
@@ -67,6 +72,7 @@ void MiP_Clap::processEvent(uint8_t clapCode) {
 }
 
 uint16_t MiP_Clap::readDelay() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->readDelay()"));
   MiPClapSettings settings;
   int8_t result = readSettings(settings);
@@ -79,6 +85,7 @@ uint16_t MiP_Clap::readDelay() {
 }
 
 void MiP_Clap::writeDelay(uint16_t delayTime) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Clap->writeDelay()"));
   int8_t result = MiP::MIP_ERROR_NONE;
 
@@ -94,7 +101,8 @@ void MiP_Clap::writeDelay(uint16_t delayTime) {
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError =
+      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 void MiP_Clap::clear() {
@@ -115,7 +123,8 @@ void MiP_Clap::checkedEnableEvents(MiPClapEnabled enabled) {
     delay(MiP_Serial::MIP_RETRY_WAIT);
   }
 
-  m_mip.m_lastError = (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
+  m_mip.m_lastError =
+      (result != MiP::MIP_ERROR_NONE) ? result : MiP::MIP_ERROR_MAX_RETRIES;
 }
 
 int8_t MiP_Clap::readSettings(MiPClapSettings& settings) {
@@ -138,10 +147,9 @@ void MiP_Clap::rawEnable(MiPClapEnabled enabled) {
 }
 
 void MiP_Clap::rawSetDelay(uint16_t delay) {
-  uint8_t command[1 + 2] = {
-      MIP_CMD_SET_CLAP_DELAY,
-      static_cast<uint8_t>(delay >> 8),
-      static_cast<uint8_t>(delay & 0xFF)};
+  uint8_t command[1 + 2] = {MIP_CMD_SET_CLAP_DELAY,
+                            static_cast<uint8_t>(delay >> 8),
+                            static_cast<uint8_t>(delay & 0xFF)};
   m_mip.serial.rawSend(command, sizeof(command));
 }
 

@@ -25,13 +25,15 @@ MiP_Battery::MiP_Battery(MiP& mip) : m_mip(mip) {}
  * This function processes any pending Out-Of-Band status events to keep the
  * cache up to date. It does not transmit a new request to MiP.
  *
- * @return float Battery voltage in Volts, typically 4.0V (low) to 6.4V (fully charged).
- *         Returns 0.0f if MiP is uninitialized.
+ * @return float Battery voltage in Volts, typically 4.0V (low) to 6.4V (fully
+ * charged). Returns 0.0f if MiP is uninitialized.
  */
 float MiP_Battery::readVoltage() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Battery->readVoltage()"));
 
-  // Fetch bytes from the Serial receive buffer and process any event data found within.
+  // Fetch bytes from the Serial receive buffer and process any event data found
+  // within.
   m_mip.serial.processAllResponseData();
 
   if (!m_mip.isInitialized()) {

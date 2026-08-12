@@ -28,12 +28,14 @@ void MiP_Infrared::clear() {
 }
 
 void MiP_Infrared::enableMiPDetectionMode(uint8_t id, uint8_t txPower) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->enableMiPDetectionMode()"));
   m_irId = id;
   rawSetMiPDetectionMode(id, txPower);
 }
 
 void MiP_Infrared::disableMiPDetectionMode() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->disableMiPDetectionMode()"));
   m_irId = MIP_IR_DETECTION_MODE_DISABLE;
 
@@ -43,11 +45,13 @@ void MiP_Infrared::disableMiPDetectionMode() {
 }
 
 bool MiP_Infrared::isMiPDetectionModeEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->isMiPDetectionModeEnabled()"));
   return m_irId > MIP_IR_DETECTION_MODE_DISABLE;
 }
 
 uint8_t MiP_Infrared::readDetectedMiP() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->readDetectedMiP()"));
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
@@ -62,6 +66,7 @@ uint8_t MiP_Infrared::readDetectedMiP() {
 }
 
 uint8_t MiP_Infrared::availableDetectedMiPEvents() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->availableDetectedMiPEvents()"));
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
@@ -71,17 +76,19 @@ uint8_t MiP_Infrared::availableDetectedMiPEvents() {
 }
 
 void MiP_Infrared::enableRemoteControl() {
-  MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->enableIRRemoteControl()"));
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->enableRemoteControl()"));
   verifiedRemoteControl(MIP_IR_REMOTE_CONTROL_ENABLE);
 }
 
 void MiP_Infrared::disableRemoteControl() {
-  MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->disableIRRemoteControl()"));
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->disableRemoteControl()"));
   verifiedRemoteControl(MIP_IR_REMOTE_CONTROL_DISABLE);
 }
 
 bool MiP_Infrared::isRemoteControlEnabled() {
-  MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->isIRRemoteControlEnabled()"));
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->isRemoteControlEnabled()"));
   uint8_t remoteControl = MIP_IR_REMOTE_CONTROL_DISABLE;
   int8_t result = rawGetRemoteControl(remoteControl);
   if (result != MiP::MIP_ERROR_NONE) {
@@ -100,12 +107,15 @@ void MiP_Infrared::sendDongleCode(const MiPIRDongleCode& irCode,
 void MiP_Infrared::sendDongleCode(uint32_t code,
                                   uint8_t length,
                                   uint8_t transmitPower) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->sendDongleCode()"));
   m_mip.MIP_ASSERT(transmitPower >= 1 && transmitPower <= 120);
   m_mip.MIP_ASSERT(length >= 2 && length <= 4);
 
-  if (length < 2) length = 2;
-  if (length > 4) length = 4;
+  if (length < 2)
+    length = 2;
+  if (length > 4)
+    length = 4;
 
   // Mask to the requested width (right-aligned in the 32-bit field).
   if (length < 4) {
@@ -129,6 +139,7 @@ void MiP_Infrared::sendDongleCode(uint32_t code,
 }
 
 MiPIRDongleCode MiP_Infrared::readDongleCode() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->readDongleCode()"));
   m_mip.serial.processAllResponseData();
 
@@ -143,6 +154,7 @@ MiPIRDongleCode MiP_Infrared::readDongleCode() {
 }
 
 uint8_t MiP_Infrared::availableCodeEvents() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Infrared->availableCodeEvents()"));
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
@@ -174,7 +186,8 @@ void MiP_Infrared::processEvent(uint8_t command,
     }
 
     default:
-      MIP_DEBUG_WARN_PRINTLN(m_mip, F("MiP: Unknown IR event"));
+      MIP_DEBUG_WARN_PREFIX();
+      MIP_DEBUG_WARN_PRINTLN(F("MiP: Unknown IR event"));
       break;
   }
 }

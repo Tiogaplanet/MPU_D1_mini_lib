@@ -57,10 +57,12 @@ bool MiP::begin() {
   // power-up doing other things like attempting to balance.
   for (int8_t retry = 0; retry < MIP_MAX_BEGIN_RETRIES; retry++) {
     // Try to connect at 115200 baud, the rate used by some MiPs.
+    MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 115200"));
     if (attemptMiPConnection(MIP_FAST_BAUD_RATE) == MIP_ERROR_NONE)
       return true;
     // Try to connect at 9600 baud if the fast attempt failed.
+    MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 9600"));
     if (attemptMiPConnection(MIP_SLOW_BAUD_RATE) == MIP_ERROR_NONE)
       return true;
@@ -183,8 +185,10 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
 
   int8_t result = rawGetStatus(m_lastStatus);
   if (result == MIP_ERROR_NONE) {
-    MIP_DEBUG_INFO_PRINTF("MiP: Connected at %lu baud\r\n",
-                          (unsigned long)baudRate);
+    MIP_DEBUG_INFO_PREFIX();
+    MIP_DEBUG_INFO_PRINT(F("MiP: Connected at "));
+    MIP_DEBUG_INFO_PRINT((unsigned long)baudRate);
+    MIP_DEBUG_INFO_PRINTLN(F(" baud"));
     m_baudRate = baudRate;
     // Leave UART open on alternate pins.
     return result;
@@ -209,6 +213,7 @@ void MiP::dispatchEvent(uint8_t command,
       break;
     case MiP_Weight::MIP_CMD_GET_WEIGHT:
       // A weight event was found. Dispatch it to the Weight component.
+      MIP_DEBUG_INFO_PREFIX();
       MIP_DEBUG_INFO_PRINT(
           "MiP->Core->dispatchEvent(), in weight case. payload[1]: ");
       MIP_DEBUG_INFO_PRINTLN(payload[1]);
@@ -244,7 +249,9 @@ void MiP::dispatchEvent(uint8_t command,
       break;
     default:
       // An unknown OOB event was received.
-      MIP_DEBUG_WARN_PRINTF("MiP: Unknown OOB Event: 0x%02X\n", command);
+      MIP_DEBUG_WARN_PREFIX();
+      MIP_DEBUG_WARN_PRINT(F("MiP: Unknown OOB Event: 0x"));
+      MIP_DEBUG_WARN_PRINTLN(command, HEX);
       break;
   }
 }
@@ -286,8 +293,11 @@ void MiP::mipAssert(bool condition, uint32_t lineNumber, const char* fileName) {
   (void)lineNumber;
   (void)fileName;
   if (!condition) {
-    MIP_DEBUG_ERROR_PRINTF(
-        "MiP: Assert failed in file %s at line: %d\n", fileName, lineNumber);
+    MIP_DEBUG_ERROR_PREFIX();
+    MIP_DEBUG_ERROR_PRINT(F("MiP: Assert failed in file "));
+    MIP_DEBUG_ERROR_PRINT(fileName);
+    MIP_DEBUG_ERROR_PRINT(F(" at line: "));
+    MIP_DEBUG_ERROR_PRINTLN(lineNumber);
     while (true) {
       delay(100);
     }

@@ -32,29 +32,35 @@ void MiP_Gesture::processEvent(uint8_t gestureCode) {
 }
 
 void MiP_Gesture::enable() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Gesture->enable()"));
   verifiedSet(MIP_GESTURE);
 }
 
 void MiP_Gesture::disable() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Gesture->disable()"));
   verifiedSet(MIP_GESTURE_RADAR_DISABLED);
 }
 
 bool MiP_Gesture::isEnabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Gesture->isEnabled()"));
   return check(MIP_GESTURE);
 }
 
 uint8_t MiP_Gesture::availableEvents() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Gesture->availableEvents()"));
-  // Fetch bytes from the Serial receive buffer and process any event data found within.
+  // Fetch bytes from the Serial receive buffer and process any event data found
+  // within.
   m_mip.serial.processAllResponseData();
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
   return m_gestureEvents.available();
 }
 
 MiPGesture MiP_Gesture::readEvent() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Gesture->readEvent()"));
   m_mip.serial.processAllResponseData();
   MiPGesture gestureEvent = MIP_GESTURE_INVALID;
@@ -67,6 +73,7 @@ MiPGesture MiP_Gesture::readEvent() {
 }
 
 bool MiP_Gesture::areGestureAndRadarModesDisabled() {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Gesture->areGestureAndRadarModesDisabled()"));
   return check(MIP_GESTURE_RADAR_DISABLED);
 }

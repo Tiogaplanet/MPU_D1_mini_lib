@@ -20,7 +20,9 @@
 MiP_Version::MiP_Version(MiP& mip) : m_mip(mip) {}
 
 void MiP_Version::readHardware(MiPHardwareInfo& hardware) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Version->readHardware()"));
+
   int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
@@ -39,7 +41,9 @@ void MiP_Version::readHardware(MiPHardwareInfo& hardware) {
 }
 
 void MiP_Version::readSoftware(MiPSoftwareVersion& software) {
+  MIP_DEBUG_INFO_PREFIX();
   MIP_DEBUG_INFO_PRINTLN(F("MiP->Version->readSoftware()"));
+
   int8_t result = MiP::MIP_ERROR_NONE;
 
   // Retry the read if it should fail on the first attempt.
