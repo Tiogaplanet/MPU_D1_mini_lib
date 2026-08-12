@@ -136,14 +136,15 @@ uint8_t MiP_WiFi::connect() {
       MIP_DEBUG_INFO_PRINTLN(type);
     });
 
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-      if (total == 0)
-        return;
-      MIP_DEBUG_INFO_PREFIX();
-      MIP_DEBUG_INFO_PRINT(F("Progress: "));
-      MIP_DEBUG_INFO_PRINT((progress * 100) / total);
-      MIP_DEBUG_INFO_PRINT(F("%\r"));
-    });
+    ArduinoOTA.onProgress(
+        []([[maybe_unused]] unsigned int progress, unsigned int total) {
+          if (total == 0)
+            return;
+          MIP_DEBUG_INFO_PREFIX();
+          MIP_DEBUG_INFO_PRINT(F("Progress: "));
+          MIP_DEBUG_INFO_PRINT((progress * 100) / total);
+          MIP_DEBUG_INFO_PRINT(F("%\r"));
+        });
 
     ArduinoOTA.onEnd([]() {
       MIP_DEBUG_INFO_PREFIX();
