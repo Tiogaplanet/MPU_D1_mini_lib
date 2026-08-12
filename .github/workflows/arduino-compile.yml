@@ -2,7 +2,7 @@ name: Arduino Library CI
 
 on:
   push:
-    branches: [ "master", "bug-hunt", "preflight-checklist", "release-script-fixes" ]
+    branches: [ "master", "minor-edits", "bug-hunt", "preflight-checklist", "release-script-fixes" ]
   pull_request:
     branches: [ "master", "minor-edits", "bug-hunt", "preflight-checklist", "release-script-fixes" ]
 
