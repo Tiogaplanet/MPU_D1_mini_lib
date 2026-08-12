@@ -1,6 +1,6 @@
 /**
  * @file Volume.ino
- * @brief Example sketch demonstrating reading and writing MiP audio volume.
+ * @brief Example sketch demonstrating reading and writing MiP's audio volume.
  *
  * @details
  * This sketch connects to MiP and demonstrates how to set speaker volume using
