@@ -1,8 +1,8 @@
 /**
  * @file EnableMiPDetectionMode.ino
- * @brief Example sketch demonstrating MiP IR-based detection mode.
+ * @brief Example sketch demonstrating MiP's IR-based detection mode.
  *
- * @details This sketch shows how to enable and disable the MiP detection mode
+ * @details This sketch shows how to enable and disable MiP's detection mode
  * which allows one MiP to discover another using infrared. It
  * demonstrates the infrared.enableMiPDetectionMode(),
  * infrared.disableMiPDetectionMode(), infrared.isMiPDetectionModeEnabled(),
