@@ -45,10 +45,12 @@ bool MiP::begin() {
     // Try to connect at 115200 baud, the rate used by some MiPs.
     MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 115200"));
+
     if (attemptMiPConnection(MIP_FAST_BAUD_RATE) == MIP_ERROR_NONE) return true;
     // Try to connect at 9600 baud if the fast attempt failed.
     MIP_DEBUG_INFO_PREFIX();
     MIP_DEBUG_INFO_PRINTLN(F("Attempting 9600"));
+
     if (attemptMiPConnection(MIP_SLOW_BAUD_RATE) == MIP_ERROR_NONE) return true;
   }
 
@@ -96,22 +98,35 @@ bool MiP::didLastCallFail() const {
 
 void MiP::printLastCallResult() {
   if (m_lastError != MIP_ERROR_NONE) {
+    MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINT(F("MiP: API returned "));
+    
     switch (m_lastError) {
       case MIP_ERROR_TIMEOUT:
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_TIMEOUT (Timed out waiting for response)"));
+
         break;
       case MIP_ERROR_NO_EVENT:
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_NO_EVENT (No event has arrived from MiP yet)"));
+
         break;
       case MIP_ERROR_BAD_RESPONSE:
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
+
         break;
       case MIP_ERROR_MAX_RETRIES:
+        MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(
           F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
+        
         break;
-      default: MIP_DEBUG_ERROR_PRINTLN(F("unknown error")); break;
+      default: 
+        MIP_DEBUG_ERROR_PREFIX();
+        MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));
+        break;
     }
   }
 }
@@ -166,6 +181,7 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
     MIP_DEBUG_INFO_PRINT(F("MiP: Connected at "));
     MIP_DEBUG_INFO_PRINT((unsigned long)baudRate);
     MIP_DEBUG_INFO_PRINTLN(F(" baud"));
+
     m_baudRate = baudRate;
     // Leave UART open on alternate pins.
     return result;
@@ -189,6 +205,7 @@ void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) 
       MIP_DEBUG_INFO_PREFIX();
       MIP_DEBUG_INFO_PRINT("MiP->Core->dispatchEvent(), in weight case. payload[1]: ");
       MIP_DEBUG_INFO_PRINTLN(payload[1]);
+  
       if (length >= 2) { weight.processEvent(payload[1]); }
       break;
     case MiP_Gesture::MIP_CMD_GET_GESTURE_RESPONSE:
@@ -218,6 +235,7 @@ void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) 
       MIP_DEBUG_WARN_PREFIX();
       MIP_DEBUG_WARN_PRINT(F("MiP: Unknown OOB Event: 0x"));
       MIP_DEBUG_WARN_PRINTLN(command, HEX);
+  
       break;
   }
 }
@@ -260,6 +278,7 @@ void MiP::mipAssert(bool condition, uint32_t lineNumber, const char* fileName) {
     MIP_DEBUG_ERROR_PRINT(fileName);
     MIP_DEBUG_ERROR_PRINT(F(" at line: "));
     MIP_DEBUG_ERROR_PRINTLN(lineNumber);
+
     while (true) { delay(100); }
   }
 }
