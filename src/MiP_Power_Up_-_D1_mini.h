@@ -351,7 +351,6 @@ protected:
   friend class MiP_Infrared;
   friend class MiP_Mode;
   friend class MiP_Motion;
-  friend class MiP_WiFi;
   friend class MiP_Odometer;
   friend class MiP_Position;
   friend class MiP_Radar;
@@ -360,6 +359,7 @@ protected:
   friend class MiP_Sound;
   friend class MiP_Version;
   friend class MiP_Weight;
+  friend class MiP_WiFi;
 
   // Bits that can be set in m_flags bitfield.
   enum FlagBits : uint8_t {
