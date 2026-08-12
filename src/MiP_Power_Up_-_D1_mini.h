@@ -13,8 +13,8 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#ifndef MPU_D1_MINI_H
-#define MPU_D1_MINI_H
+#ifndef MIP_POWER_UP_D1_MINI_H
+#define MIP_POWER_UP_D1_MINI_H
 
 #include <Arduino.h>
 
@@ -375,4 +375,4 @@ protected:
   MiPStatus m_lastStatus;
 };
 
-#endif  // MPU_D1_MINI_H
+#endif  // MIP_POWER_UP_D1_MINI_H
