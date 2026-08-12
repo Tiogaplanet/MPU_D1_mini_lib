@@ -1,6 +1,6 @@
 /**
  * @file PlaySound.ino
- * @brief Example sketch demonstrating MiP sound playback and sound lists.
+ * @brief Example sketch demonstrating MiP's sound playback and sound lists.
  *
  * @details This sketch shows how to use the MiP library to play single sounds
  * and to build and play sound lists (sequences). It demonstrates playing a
