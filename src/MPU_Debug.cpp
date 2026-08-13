@@ -5,12 +5,13 @@
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)
  * @copyright Copyright (C) 2018-2026 Samuel Trassare
- * Licensed under the Apache License, Version 2.0.
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.00.
  */
 #include "MPU_Debug.h"
-#include <Arduino.h>
-
-static constexpr const char* DEBUG_VERSION = "2.0.1";
+#include "MiP_Power_Up_-_D1_mini.h"
 
 WiFiServer telnetServer(MiPDebug::TELNET_PORT);
 WiFiClient telnetClient;
@@ -22,8 +23,7 @@ void MiPDebug::begin(const String& hostname, uint8_t startingDebugLevel) {
   m_bufferPrint.reserve(BUFFER_PRINT);
 
 #ifdef CLIENT_BUFFERING
-  m_bufferSend.reserve(MAX_SIZE_SEND);  // <--- FIXED: Now correctly reserves
-                                        // m_bufferSend
+  m_bufferSend.reserve(MAX_SIZE_SEND);
 #endif
 
   m_hostname = hostname;
@@ -347,7 +347,7 @@ void MiPDebug::showHelp() {
   String help = "";
 
   help += "*** Welcome to MiP's debug terminal. This is version ";
-  help += DEBUG_VERSION;
+  help += MPU_D1_MINI_VERSION;
   help += ".\r\n* Hostname: ";
   help += m_hostname;
   help += "\r\n* IP: ";
@@ -474,9 +474,7 @@ void MiPDebug::processCommand() {
       int32_t aux = options.toInt();
       if (aux > 0) { duration = aux; }
     }
-    m_levelProfilerDisable = millis() + duration;  // <--- FIXED: Now correctly
-                                                   // calculates disable
-                                                   // threshold
+    m_levelProfilerDisable = millis() + duration;
 
     telnetClient.printf("* Debug level set to Profiler (disable in %u millis)\r\n", duration);
   } else if (m_command == "A") {
@@ -528,16 +526,4 @@ String MiPDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
 
   for (uint8_t i = 1; i <= size; i++) {
     if (value < limit) {
-      for (uint8_t j = (size - i); j > 0; j--) { ret += insert; }
-      break;
-    }
-    limit *= 10;  // Fast integer power of 10
-  }
-
-  ret += value;
-  return ret;
-}
-
-bool MiPDebug::isCRLF(char character) {
-  return (character == '\r' || character == '\n');
-}
+      for (uint8_t j = (size - i); j > 0; j--) { ret += 
