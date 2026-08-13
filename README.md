@@ -3,14 +3,14 @@
 
 ![MiP Power Up mounted on MiP](https://github.com/Tiogaplanet/Experimenting-with-the-MiP/raw/master/images/IMG_5967_medium.JPG)
 
-This Arduino library gives you full programmatic control of [WowWee Labs’ MiP](https://wowwee.com/mip) — the self-balancing, hacker-friendly robot. Pair it with an ESP8266-based board (Wemos D1 mini, Pro Mini variants, or compatible modules) and you unlock motion, lights, sound, sensors, and wireless connectivity in a clean, modular API.
+This Arduino library gives you control of [WowWee Labs’ MiP](https://wowwee.com/mip) — the self-balancing, hacker-friendly robot. Pair it with an ESP8266-based board (Wemos D1 mini or compatible modules) and you unlock motion, lights, sound, sensors, and wireless connectivity in a clean, modular API.
 
 MiP already ships with a 4-pin hacker port and a published [BLE protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol). This library sits on top of that protocol and turns the robot into something you can actually *program*.
 
 ## Why this library?
-- **Modular by design** — Clear, focused classes for motion, LEDs, sensors, audio, odometer, battery, network, and more. No more monolithic “god class.”
+- **Modular by design** — Clear, focused classes for motion, LEDs, sensors, audio, odometer, battery, network, and more.
 - **Reliable commands** — Verified write/read paths with automatic retries so your robot does what you asked.
-- **Cloud-ready** — Built-in Wi-Fi, OTA updates, mDNS, and remote debug over telnet.
+- **Cloud-ready** — Built-in WiFi, OTA updates, mDNS, and remote debug over telnet.
 - **Familiar Arduino feel** — Simple `begin()`, intuitive method names, and solid error reporting.
 
 ## What you can do
@@ -18,14 +18,13 @@ MiP already ships with a 4-pin hacker port and a published [BLE protocol](https:
 - Control the four head LEDs individually (on / off / blink) and the full RGB chest LED (color + flash timing).
 - Play any of the 100+ built-in sounds or build custom sound lists.
 - Read radar distance, detect hand gestures, listen for claps, and check pose / weight / shake events.
-- Track distance traveled with the wheel odometer (read + verified reset).
-- Monitor battery voltage and store small amounts of user data in EEPROM.
-- Connect to Wi-Fi, push OTA firmware updates, and debug wirelessly.
+- Track distance traveled with the wheel odometer.
+- Monitor battery voltage and store user data in EEPROM.
+- Connect to WiFi, push OTA firmware updates, and debug wirelessly.
 
 ## Hardware
 Works with any ESP8266 board that can talk UART to MiP’s hacker port. The most popular options are:
 - [Wemos D1 mini](https://wiki.wemos.cc/products:d1:d1_mini) (or clones)
-- Pro Mini–style ESP8266 modules
 - The dedicated [MiP Power Up adapter boards](https://github.com/Tiogaplanet) that mount cleanly on MiP’s battery compartment
 
 A simple breadboard connection works too if you prefer.
@@ -37,7 +36,7 @@ A simple breadboard connection works too if you prefer.
 
 ## Quick start
 ```cpp
-#include <MiP_Power_Up.h>   // or the Pro Mini equivalent header
+#include <MiP_Power_Up_-_D1_mini.h>
 
 MiP mip;
 
