@@ -1,11 +1,11 @@
-# MiP Power Up Library
+# MiP Power Up - D1 mini library
 **Turn your WowWee MiP into a cloud-connected, autonomous robot.**
 
 ![MiP Power Up mounted on MiP](https://github.com/Tiogaplanet/Experimenting-with-the-MiP/raw/master/images/IMG_5967_medium.JPG)
 
 This Arduino library gives you control of [WowWee Labs’ MiP](https://wowwee.com/mip) — the self-balancing, hacker-friendly robot. Pair it with an ESP8266-based board (Wemos D1 mini or compatible modules) and you unlock motion, lights, sound, sensors, and wireless connectivity in a clean, modular API.
 
-MiP already ships with a 4-pin hacker port and a published [BLE protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol). This library sits on top of that protocol and turns the robot into something you can actually *program*.
+MiP ships with a 4-pin hacker port and a published [BLE protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol). This library sits on top of that protocol and turns the robot into something you can actually *program*.
 
 ## Why this library?
 - **Modular by design** — Clear, focused classes for motion, LEDs, sensors, audio, odometer, battery, network, and more.
