@@ -526,4 +526,16 @@ String MiPDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
 
   for (uint8_t i = 1; i <= size; i++) {
     if (value < limit) {
-      for (uint8_t j = (size - i); j > 0; j--) { ret += 
+      for (uint8_t j = (size - i); j > 0; j--) { ret += insert; }
+      break;
+    }
+    limit *= 10;  // Fast integer power of 10
+  }
+
+  ret += value;
+  return ret;
+}
+
+bool MiPDebug::isCRLF(char character) {
+  return (character == '\r' || character == '\n');
+}
