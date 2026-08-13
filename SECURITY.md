@@ -31,16 +31,16 @@ Instead, use one of the following private channels:
 
 ### What to expect
 
-- You should receive an initial acknowledgement within a few days (this is a volunteer-maintained project).
+- You should receive an initial acknowledgment within a few days (this is a volunteer-maintained project).
 - We will investigate and keep you informed of progress.
-- Once a fix is ready we will coordinate a public disclosure and credit the reporter (unless you prefer to remain anonymous).
+- Once a fix is ready, we will coordinate a public disclosure and credit the reporter (unless you prefer to remain anonymous).
 
 ## Scope
 
 The following are considered in scope:
 
 - Vulnerabilities in the library’s network, OTA, mDNS, or remote-debug functionality
-- Memory-safety or buffer issues that could lead to crashes or unexpected behaviour on the ESP8266
+- Memory-safety or buffer issues that could lead to crashes or unexpected behavior on the ESP8266
 - Logic flaws that could cause the robot to move or act in an unsafe or unintended way when the library is used as documented
 - Supply-chain concerns in the published library packages
 
@@ -51,7 +51,7 @@ The following are generally **out of scope**:
 - Physical safety of the MiP robot itself (balancing, tipping, etc.) when the library is used correctly
 - Social-engineering or physical-access attacks
 
-## Safe Harbour
+## Safe Harbor
 
 We will not take legal action against researchers who:
 
