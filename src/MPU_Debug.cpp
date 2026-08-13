@@ -1,6 +1,7 @@
 /**
  * @file MPU_Debug.cpp
- * @brief Implements the debug functionality for the MPU-D1 mini.
+ * @brief Defines the debug functionality and telnet logging interface for the
+ * MiP library.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)
