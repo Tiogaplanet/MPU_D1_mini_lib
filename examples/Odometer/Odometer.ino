@@ -75,7 +75,6 @@ void setup() {
   Serial1.print(distanceCm);
   Serial1.println(F(" cm since the last reset."));
 
-  Serial1.println();
   Serial1.println(F("Odometer.ino: Done."));
 }
 

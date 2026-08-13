@@ -41,8 +41,8 @@ public:
   /**
    * @brief Resets the odometer distance counter back to zero.
    *
-   * @details Sends the reset command to MiP to zero out internal wheel tick
-   * registers.
+   * @details Sends the reset command, then reads the odometer back and verifies
+   * that the reported distance is essentially zero. Retries on failure.
    */
   void reset();
 
@@ -64,6 +64,12 @@ protected:
    */
   static constexpr float TICKS_PER_CM = 48.5f;
 
+  /**
+   * @brief Tolerance (cm) used when verifying that a reset succeeded.
+   * Allows for minor floating-point / timing noise after the reset command.
+   */
+  static constexpr float RESET_VERIFY_EPSILON_CM = 0.5f;
+
 private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
@@ -72,6 +78,17 @@ private:
    * services.
    */
   explicit MiP_Odometer(MiP& mip);
+
+  /**
+   * @brief Low-level send of the reset command (no verification).
+   */
+  void rawReset();
+
+  /**
+   * @brief Sends reset, then reads the odometer and checks that the value is
+   * near zero. Returns MIP_ERROR_NONE on success.
+   */
+  int8_t verifiedReset();
 
   int8_t rawRead(float& distanceInCm);
 
