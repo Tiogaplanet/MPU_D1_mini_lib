@@ -1,29 +1,30 @@
 /**
  * @file MPU_Debug.cpp
- * @brief Implements the debug functionality for the MPU-D1 mini.
+ * @brief Defines the debug functionality and telnet logging interface for the
+ * MiP library.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)
  * @copyright Copyright (C) 2018-2026 Samuel Trassare
- * Licensed under the Apache License, Version 2.0.
+ * (https://github.com/Tiogaplanet) Licensed under the MIT License
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * https://opensource.org/licenses/MIT.
  */
 #include "MPU_Debug.h"
-#include <Arduino.h>
+#include "MiP_Power_Up_-_D1_mini.h"
 
-static constexpr const char* DEBUG_VERSION = "2.0.1";
-
-WiFiServer telnetServer(MiPDebug::TELNET_PORT);
+WiFiServer telnetServer(MiP_Debug::TELNET_PORT);
 WiFiClient telnetClient;
 
-void MiPDebug::begin(const String& hostname, uint8_t startingDebugLevel) {
+void MiP_Debug::begin(const String& hostname, uint8_t startingDebugLevel) {
   telnetServer.begin();
   telnetServer.setNoDelay(true);
 
   m_bufferPrint.reserve(BUFFER_PRINT);
 
 #ifdef CLIENT_BUFFERING
-  m_bufferSend.reserve(MAX_SIZE_SEND);  // <--- FIXED: Now correctly reserves
-                                        // m_bufferSend
+  m_bufferSend.reserve(MAX_SIZE_SEND);
 #endif
 
   m_hostname = hostname;
@@ -31,12 +32,12 @@ void MiPDebug::begin(const String& hostname, uint8_t startingDebugLevel) {
   m_lastDebugLevel = startingDebugLevel;
 }
 
-void MiPDebug::stop() {
+void MiP_Debug::stop() {
   if (telnetClient && telnetClient.connected()) { telnetClient.stop(); }
   telnetServer.stop();
 }
 
-void MiPDebug::handle() {
+void MiP_Debug::handle() {
 #ifdef ALPHA_VERSION
   static uint32_t lastTime = millis();
 #endif
@@ -145,58 +146,58 @@ void MiPDebug::handle() {
   }
 }
 
-void MiPDebug::setSerialEnabled(bool enable) {
+void MiP_Debug::setSerialEnabled(bool enable) {
   m_serialEnabled = enable;
   m_showColors = false;
 }
 
-void MiPDebug::setResetCmdEnabled(bool enable) {
+void MiP_Debug::setResetCmdEnabled(bool enable) {
   m_resetCommandEnabled = enable;
 }
 
-void MiPDebug::showTime(bool show) {
+void MiP_Debug::showTime(bool show) {
   m_showTime = show;
 }
 
-void MiPDebug::showProfiler(bool show, uint32_t minTime) {
+void MiP_Debug::showProfiler(bool show, uint32_t minTime) {
   m_showProfiler = show;
   m_minTimeShowProfiler = minTime;
 }
 
 #ifdef ALPHA_VERSION
-void MiPDebug::autoProfilerLevel(uint32_t millisElapsed) {
+void MiP_Debug::autoProfilerLevel(uint32_t millisElapsed) {
   m_autoLevelProfiler = millisElapsed;
 }
 #endif
 
-void MiPDebug::showDebugLevel(bool show) {
+void MiP_Debug::showDebugLevel(bool show) {
   m_showDebugLevel = show;
 }
 
-void MiPDebug::showColors(bool show) {
+void MiP_Debug::showColors(bool show) {
   m_showColors = (!m_serialEnabled) ? show : false;
 }
 
-bool MiPDebug::isActive(uint8_t debugLevel) {
+bool MiP_Debug::isActive(uint8_t debugLevel) {
   bool ret = (debugLevel >= m_clientDebugLevel && (m_connected || m_serialEnabled));
   if (ret) { m_lastDebugLevel = debugLevel; }
   return ret;
 }
 
-void MiPDebug::setHelpProjectsCmds(const String& help) {
+void MiP_Debug::setHelpProjectsCmds(const String& help) {
   m_helpProjectCmds = help;
 }
 
-void MiPDebug::setCallBackProjectCmds(void (*callback)()) {
+void MiP_Debug::setCallBackProjectCmds(void (*callback)()) {
   m_callbackProjectCmds = callback;
 }
 
-size_t MiPDebug::write(const uint8_t* buffer, size_t size) {
+size_t MiP_Debug::write(const uint8_t* buffer, size_t size) {
   for (size_t i = 0; i < size; i++) { write(buffer[i]); }
   return size;
 }
 
-size_t MiPDebug::write(uint8_t character) {
+size_t MiP_Debug::write(uint8_t character) {
   uint32_t elapsed = 0;
   size_t ret = 0;
 
@@ -336,18 +337,18 @@ size_t MiPDebug::write(uint8_t character) {
   return ret;
 }
 
-String MiPDebug::expand(const String& string) {
+String MiP_Debug::expand(const String& string) {
   String temp = string;
   temp.replace("\r", "\\r");
   temp.replace("\n", "\\n");
   return temp;
 }
 
-void MiPDebug::showHelp() {
+void MiP_Debug::showHelp() {
   String help = "";
 
   help += "*** Welcome to MiP's debug terminal. This is version ";
-  help += DEBUG_VERSION;
+  help += MPU_D1_MINI_VERSION;
   help += ".\r\n* Hostname: ";
   help += m_hostname;
   help += "\r\n* IP: ";
@@ -397,15 +398,15 @@ void MiPDebug::showHelp() {
   telnetClient.print(help);
 }
 
-String MiPDebug::getLastCommand() const {
+String MiP_Debug::getLastCommand() const {
   return m_lastCommand;
 }
 
-void MiPDebug::clearLastCommand() {
+void MiP_Debug::clearLastCommand() {
   m_lastCommand = "";
 }
 
-void MiPDebug::processCommand() {
+void MiP_Debug::processCommand() {
   telnetClient.print(F("* Debug: Command received: "));
   telnetClient.println(m_command);
 
@@ -474,9 +475,7 @@ void MiPDebug::processCommand() {
       int32_t aux = options.toInt();
       if (aux > 0) { duration = aux; }
     }
-    m_levelProfilerDisable = millis() + duration;  // <--- FIXED: Now correctly
-                                                   // calculates disable
-                                                   // threshold
+    m_levelProfilerDisable = millis() + duration;
 
     telnetClient.printf("* Debug level set to Profiler (disable in %u millis)\r\n", duration);
   } else if (m_command == "A") {
@@ -506,7 +505,7 @@ void MiPDebug::processCommand() {
   }
 }
 
-void MiPDebug::setFilter(const String& filter) {
+void MiP_Debug::setFilter(const String& filter) {
   m_filter = filter;
   m_filter.toLowerCase();
   m_filterActive = true;
@@ -515,14 +514,14 @@ void MiPDebug::setFilter(const String& filter) {
   telnetClient.println(m_filter);
 }
 
-void MiPDebug::setNoFilter() {
+void MiP_Debug::setNoFilter() {
   m_filter = "";
   m_filterActive = false;
   telnetClient.println(F("* Debug: Filter disabled"));
 }
 
 // Fast integer power of 10 formatting helper (replaces floating-point pow())
-String MiPDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
+String MiP_Debug::formatNumber(uint32_t value, uint8_t size, char insert) {
   String ret = "";
   uint32_t limit = 10;
 
@@ -538,6 +537,6 @@ String MiPDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
   return ret;
 }
 
-bool MiPDebug::isCRLF(char character) {
+bool MiP_Debug::isCRLF(char character) {
   return (character == '\r' || character == '\n');
 }

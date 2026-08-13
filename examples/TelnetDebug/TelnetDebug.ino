@@ -4,8 +4,8 @@
  * ESP8266.
  *
  * @details
- * This sketch shows how to initialize a MiP connection over Wi‑Fi on an ESP8266
- * (MPU: D1 mini), enable a telnet debug service (MiPDebug), and emit debug
+ * This sketch shows how to initialize a MiP connection over WiFi on an ESP8266
+ * (MPU-D1 mini), enable a telnet debug service (MiP_Debug), and emit debug
  * messages at different verbosity levels. It also demonstrates enabling an
  * OTA handler so the device can be reprogrammed over the network while the
  * telnet debug service is running.
@@ -23,9 +23,9 @@
  *
  * API usage demonstrated:
  *   - MiP::wifi.begin(ssid, password, hostname)
- *   - MiPDebug::begin(hostname)
- *   - MiPDebug::setResetCmdEnabled()
- *   - MiPDebug::handle()
+ *   - MiP_Debug::begin(hostname)
+ *   - MiP_Debug::setResetCmdEnabled()
+ *   - MiP_Debug::handle()
  *   - ArduinoOTA::handle()
  *   - mDebug, mDebugV, mDebugD, mDebugI, mDebugW, mDebugE macros
  *
@@ -45,7 +45,7 @@
 #include <MPU_Debug.h>
 
 /**
- * @brief Wi‑Fi SSID to join.
+ * @brief WiFi SSID to join.
  *
  * @note Replace the placeholder with your network SSID before uploading.
  */
@@ -82,10 +82,10 @@ bool connectResult;
 /**
  * @brief Telnet debug helper instance.
  *
- * @details MiPDebug provides a telnet server that receives debug messages and
+ * @details MiP_Debug provides a telnet server that receives debug messages and
  * accepts simple commands (for example, a reset command when enabled).
  */
-MiPDebug debug;
+MiP_Debug debug;
 
 /**
  * @brief Timestamp of the last periodic debug emission in milliseconds.
@@ -117,7 +117,7 @@ bool runOnce = true;
  *
  * @details
  * - Attempts to initialize communication with MiP via mip.begin().
- * - Attempts to connect to Wi‑Fi using mip.wifi.begin(ssid, password,
+ * - Attempts to connect to WiFi using mip.wifi.begin(ssid, password,
  * hostname).
  * - If either connection fails, prints an error to Serial1 and returns early.
  * - Starts the telnet debug server via debug.begin(hostname).

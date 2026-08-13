@@ -1,32 +1,69 @@
 # MiP Power Up - D1 mini library
-![The MiP Power Up - D1 mini mounted on MiP](https://github.com/Tiogaplanet/Experimenting-with-the-MiP/raw/master/images/IMG_5967_medium.JPG)
+**Turn your WowWee MiP into a cloud-connected, autonomous robot.**
 
-This library for the Arduino IDE, together with the [MiP Power Up - D1 mini](https://github.com/Tiogaplanet/MPU_D1_mini), allows you to take control of [WowWee Labs'](https://github.com/WowWeeLabs/)  [MiP](https://wowwee.com/mip) and turn it into an autonomous, cloud-connected robot. 
+![MiP Power Up mounted on MiP](https://github.com/Tiogaplanet/Experimenting-with-the-MiP/raw/master/images/IMG_5967_medium.JPG)
 
-MiP is a hacker-friendly self-balancing robot. WowWee provides the [MiP Protocol Specification on GitHub](https://github.com/WowWeeLabs/MiP-BLE-Protocol), and a [4-pin hacker port](https://cdn.sparkfun.com/assets/learn_tutorials/2/8/5/HackingPortAnnotated.png), complete with JST connector, right on the mainboard. The connector makes it easy to connect an external controller such as the [D1 mini](https://wiki.wemos.cc/products:d1:d1_mini) or compatible boards and take control of your MiP. Once connected, you can:
-*   Command the speed and direction of motion for the gravity-defying MiP.
-*   Command the individual control (on, off, blink) of the four LED eye segments on the head.
-*   Take full control of the RGB LED in MiP's chest.
-*   Command the playback of sound lists using the >100 built-in sounds.
-*   Use the head-mounted IR sensors to read 'radar' distance measurements or detect user hand gestures.
-*   Detect user claps with the built-in microphone.
-*   Detect the MiP's current pose via its inertial sensors, the same sensors that make its balancing magic possible.
-*   And more!
-  
-Be sure to check out the [MiP Power Up - D1 mini](https://github.com/Tiogaplanet/MiP_Power_Up_D1_mini) which conveniently allows you to mount a D1 mini to MiP's battery compartment.
+This Arduino library gives you control of [WowWee Labs’ MiP](https://wowwee.com/mip) — the self-balancing, hacker-friendly robot. Pair it with an ESP8266-based board (Wemos D1 mini or compatible modules) and you unlock motion, lights, sound, sensors, and wireless connectivity in a clean, modular API.
 
-## Acknowledgements
-*   This library is a port of adamgreen's [MiP_ProMini Pack](https://github.com/adamgreen/MiP_ProMini-Pack).  Here you will find all the  same functionality as his original library but with cloud connectivity added.
-*   JoaoLopesF developed the highly valuable [RemoteDebug](https://github.com/JoaoLopesF/RemoteDebug) library which makes debugging MiP wireless and easy.
-*   Without the esp8266's [Arduino](https://github.com/esp8266/Arduino) library, none of this would be possible.
+MiP ships with a 4-pin hacker port and a published [BLE protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol). This library sits on top of that protocol and turns the robot into something you can actually *program*.
+
+## Why this library?
+- **Modular by design** — Clear, focused classes for motion, LEDs, sensors, audio, odometer, battery, network, and more.
+- **Reliable commands** — Verified write/read paths with automatic retries so your robot does what you asked.
+- **Cloud-ready** — Built-in WiFi, OTA updates, mDNS, and remote debug over telnet.
+- **Familiar Arduino feel** — Simple `begin()`, intuitive method names, and solid error reporting.
+
+## What you can do
+- Drive with continuous or distance-based commands (forward, reverse, turn, get-up, fall).
+- Control the four head LEDs individually (on / off / blink) and the full RGB chest LED (color + flash timing).
+- Play any of the 100+ built-in sounds or build custom sound lists.
+- Read radar distance, detect hand gestures, listen for claps, and check pose / weight / shake events.
+- Track distance traveled with the wheel odometer.
+- Monitor battery voltage and store user data in EEPROM.
+- Connect to WiFi, push OTA firmware updates, and debug wirelessly.
+
+## Hardware
+Works with any ESP8266 board that can talk UART to MiP’s hacker port. The most popular options are:
+- [Wemos D1 mini](https://wiki.wemos.cc/products:d1:d1_mini) (or clones)
+- The dedicated [MiP Power Up adapter boards](https://github.com/Tiogaplanet) that mount cleanly on MiP’s battery compartment
+
+A simple breadboard connection works too if you prefer.
 
 ## Installation
-1.  The esp8266 [Arduino](https://github.com/esp8266/Arduino) library should be installed prior to using this library.
-2.  The MiP Power Up - D1 mini library is intended for use with the Arduino IDE.  Installation is the same as for other libraries.  Download the zip and select `Sketch->Include Library->Add .ZIP Library...`.  Browse to the downloaded zip file and the Arduino IDE will do the rest.
+1. Install the [ESP8266 Arduino core](https://github.com/esp8266/Arduino) first.
+2. In the Arduino IDE: **Sketch → Include Library → Add .ZIP Library…** and select the downloaded release.
+3. Or clone / copy the library folder into your `Arduino/libraries` directory.
 
-## Usage
-*   A very thorough guide to installing and using library is provided in the [wiki](https://github.com/Tiogaplanet/MPU_D1_mini_lib/wiki).
-*   A D1 mini can be connected to MiP using a breadboard.  Even better, use the [MiP Power Up - D1 mini](https://github.com/Tiogaplanet/MiP_Power_up_D1_mini) adapter board.
+## Quick start
+```cpp
+#include <MiP_Power_Up_-_D1_mini.h>
+
+MiP mip;
+
+void setup() {
+  Serial.begin(115200);
+  mip.begin("your-ssid", "your-password", "mip-robot");  // Wi-Fi + OTA ready
+}
+
+void loop() {
+  mip.network().handle();          // keep OTA / debug alive
+  mip.chestLED().write(0, 255, 0); // green chest
+  mip.motion().distanceDrive(20, 0); // 20 cm forward
+  delay(2000);
+}
+```
+
+Full examples and a detailed guide live in the [wiki](https://github.com/Tiogaplanet/MPU_D1_mini_lib/wiki).
+
+## Acknowledgements
+- Original protocol work and ProMini library by [Adam Green](https://github.com/adamgreen/MiP_ProMini-Pack).
+- Remote debugging foundation from [JoaoLopesF’s RemoteDebug](https://github.com/JoaoLopesF/RemoteDebug).
+- The entire ESP8266 Arduino community that makes wireless robotics this accessible.
 
 ## Contributing
-This project is intended to make programming MiP easy and fun.  To that end, contributions are highly encouraged!  Please see [CONTRIBUTING.md](https://github.com/Tiogaplanet/MiP_ESP8266_Library/blob/master/CONTRIBUTING.md) for more information.
+This project exists to make programming MiP fun and approachable. Bug reports, new features, documentation improvements, and hardware variants are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
+
+---
+
+**Ready to make MiP do something cool?**  
+Grab the latest release, flash your board, and start hacking.
