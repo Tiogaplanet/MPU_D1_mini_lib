@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - minor-edits
+      - v2.0.2-rc
 
 jobs:
   deploy-wiki:
