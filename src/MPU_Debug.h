@@ -121,30 +121,6 @@ extern "C" {
  * - **Interactive Terminal Commands:** Allows changing logging levels, viewing free heap, switching CPU clock speeds (80/160 MHz), or resetting the controller remotely over Telnet.
  * - **Performance Profiling:** Tracks execution time delta (in milliseconds) between log messages to identify slow code blocks or blocking loops.
  * - **Dual Output Mode:** Can route log output simultaneously over WiFi Telnet and Hardware Serial (`Serial1`).
- *
- * ### Typical Usage Example:
- * @code```
- * #include <MiP_Power_Up_-_D1_mini.h>
- * #include <MPU_Debug.h>
- *
- * MiP_Debug debug;
- *
- * void setup() {
- *   // Connect to WiFi first, then start debug server
- *   WiFi.begin("SSID", "PASSWORD");
- *   while (WiFi.status() != WL_CONNECTED) { delay(500); }
- *
- *   debug.begin("MiP-DebugTerminal", MiP_Debug::INFO);
- *   debug.setResetCmdEnabled(true);
- *   mDebugI("System started successfully on IP: %s\n", WiFi.localIP().toString().c_str());
- * }
- *
- * void loop() {
- *   debug.handle(); // Must be called frequently in loop() to process Telnet connections
- *   mDebugD("Loop execution active...\n");
- *   delay(1000);
- * }```
- * @endcode
  */
 class MiP_Debug : public Print {
 public:
