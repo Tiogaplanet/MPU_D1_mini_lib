@@ -13,16 +13,10 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#ifndef MPU_D1_MINI_H
-#define MPU_D1_MINI_H
+#ifndef MIP_POWER_UP_D1_MINI_H
+#define MIP_POWER_UP_D1_MINI_H
 
 #include <Arduino.h>
-#include <ArduinoOTA.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 #include "MPU_Battery.h"
 #include "MPU_ChestLED.h"
@@ -54,8 +48,7 @@
 
 // Combined numerical value for preprocessor version checks (2.0.1 -> 20001)
 #define MPU_D1_MINI_VERSION_NUMBER \
-  (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + \
-   MPU_D1_MINI_VERSION_PATCH)
+  (MPU_D1_MINI_VERSION_MAJOR * 10000 + MPU_D1_MINI_VERSION_MINOR * 100 + MPU_D1_MINI_VERSION_PATCH)
 
 // Setup some debug levels for reporting library status via Serial1.
 #define MIP_DEBUG_NONE 0
@@ -68,51 +61,40 @@
 #define MIP_DEBUG_LEVEL MIP_DEBUG_NONE
 #endif
 
-// Create the macros for conditional printing of debug messages via Serial1.
+// ---------------------------------------------------------------------------
+// Debug macros — prefix is printed once via *_PREFIX(), then stream with
+// *_PRINT / *_PRINTLN.  Never call *_PREFIX more than once for a single
+// logical message.  No *PRINTF variants (portable to AVR and ESP cores).
+// ---------------------------------------------------------------------------
+
 #if MIP_DEBUG_LEVEL >= MIP_DEBUG_ERROR
-#define MIP_DEBUG_ERROR_PRINT(...) \
-  Serial1.print(F("[ERROR] "));    \
-  Serial1.print(__VA_ARGS__)
-#define MIP_DEBUG_ERROR_PRINTLN(...) \
-  Serial1.print(F("[ERROR] "));      \
-  Serial1.println(__VA_ARGS__)
-#define MIP_DEBUG_ERROR_PRINTF(...) \
-  Serial1.print(F("[ERROR] "));     \
-  Serial1.printf(__VA_ARGS__)
+#define MIP_DEBUG_ERROR_PREFIX() Serial1.print(F("[ERROR] "))
+#define MIP_DEBUG_ERROR_PRINT(...) Serial1.print(__VA_ARGS__)
+#define MIP_DEBUG_ERROR_PRINTLN(...) Serial1.println(__VA_ARGS__)
 #else
+#define MIP_DEBUG_ERROR_PREFIX()
 #define MIP_DEBUG_ERROR_PRINT(...)
 #define MIP_DEBUG_ERROR_PRINTLN(...)
-#define MIP_DEBUG_ERROR_PRINTF(...)
 #endif
+
 #if MIP_DEBUG_LEVEL >= MIP_DEBUG_WARN
-#define MIP_DEBUG_WARN_PRINT(...) \
-  Serial1.print(F("[WARN] "));    \
-  Serial1.print(__VA_ARGS__)
-#define MIP_DEBUG_WARN_PRINTLN(...) \
-  Serial1.print(F("[WARN] "));      \
-  Serial1.println(__VA_ARGS__)
-#define MIP_DEBUG_WARN_PRINTF(...) \
-  Serial1.print(F("[WARN] "));     \
-  Serial1.printf(__VA_ARGS__)
+#define MIP_DEBUG_WARN_PREFIX() Serial1.print(F("[WARN] "))
+#define MIP_DEBUG_WARN_PRINT(...) Serial1.print(__VA_ARGS__)
+#define MIP_DEBUG_WARN_PRINTLN(...) Serial1.println(__VA_ARGS__)
 #else
+#define MIP_DEBUG_WARN_PREFIX()
 #define MIP_DEBUG_WARN_PRINT(...)
 #define MIP_DEBUG_WARN_PRINTLN(...)
-#define MIP_DEBUG_WARN_PRINTF(...)
 #endif
+
 #if MIP_DEBUG_LEVEL >= MIP_DEBUG_INFO
-#define MIP_DEBUG_INFO_PRINT(...) \
-  Serial1.print(F("[INFO] "));    \
-  Serial1.print(__VA_ARGS__)
-#define MIP_DEBUG_INFO_PRINTLN(...) \
-  Serial1.print(F("[INFO] "));      \
-  Serial1.println(__VA_ARGS__)
-#define MIP_DEBUG_INFO_PRINTF(...) \
-  Serial1.print(F("[INFO] "));     \
-  Serial1.printf(__VA_ARGS__)
+#define MIP_DEBUG_INFO_PREFIX() Serial1.print(F("[INFO] "))
+#define MIP_DEBUG_INFO_PRINT(...) Serial1.print(__VA_ARGS__)
+#define MIP_DEBUG_INFO_PRINTLN(...) Serial1.println(__VA_ARGS__)
 #else
+#define MIP_DEBUG_INFO_PREFIX()
 #define MIP_DEBUG_INFO_PRINT(...)
 #define MIP_DEBUG_INFO_PRINTLN(...)
-#define MIP_DEBUG_INFO_PRINTF(...)
 #endif
 
 // Define an assert mechanism that can be used to log and halt when the user is
@@ -120,65 +102,68 @@
 #define MIP_ASSERT(EXPRESSION) mipAssert((EXPRESSION), __LINE__, __FILE__)
 
 /**
- * @brief MiP's current position and battery voltage.
+ * @brief MiP's current stance position and battery voltage.
  */
 class MiPStatus {
- public:
+public:
+  /**
+   * @brief Constructs a new MiPStatus object and resets values to default.
+   */
   MiPStatus() {
     clear();
   }
 
+  /**
+   * @brief Resets battery voltage to 0.0V and position to default stance.
+   */
   void clear() {
     battery = 0.0f;
     position = MIP_POSITION_ON_BACK_WITH_KICKSTAND;
   }
 
-  float battery;
-  MiPPosition position;
+  float battery;         ///< Cached battery voltage in Volts (4.0V - 6.4V).
+  MiPPosition position;  ///< Cached physical orientation stance.
 };
 
 /**
  * @mainpage MiP Power Up - D1 mini library
  *
- * This library provides a complete interface to control the WowWee MiP robot
+ * This library provides a complete interface to control WowWee MiP
  * over UART from a WeMos D1 mini (or compatible ESP8266 board).
  */
 class MiP {
- public:
-  /**
-   * @brief MiP protocol command bytes related to core functions.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
-   */
-  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;
-  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;
-  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;
-
-  /**
-   * @brief Integer error codes that can be encountered by the MiP library.
-   */
-  static constexpr uint8_t MIP_ERROR_NONE = 0;  // Success
-  static constexpr uint8_t MIP_ERROR_TIMEOUT =
-      1;  // Timed out waiting for response.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT =
-      2;  // No event has arrived from MiP yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE =
-      3;  // Unexpected response from MiP.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES =
-      4;  // Exceeded maximum number of retries to get this operation to
-          // succeed.
+public:
+  static constexpr uint8_t MIP_ERROR_NONE = 0;      ///< Operation succeeded.
+  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;   ///< Timed out waiting for
+                                                    ///< response from MiP.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;  ///< No event has arrived
+                                                    ///< from MiP yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;  ///< Unexpected response
+                                                        ///< received from MiP.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;   ///< Exceeded maximum
+                                                        ///< retries
+                                                        ///< communicating with
+                                                        ///< MiP.
 
   // Core lifecycle functions.
+
+  /**
+   * @brief Constructs the core MiP orchestrator object and binds subsystem
+   * references.
+   *
+   * @details Initializes internal flags and resets error tracking states.
+   */
   MiP();
 
+  /**
+   * @brief Destructs the MiP orchestrator object and terminates connections.
+   *
+   * @details Calls end() to restore defaults and close transport services.
+   */
   ~MiP();
 
   /**
-   * @brief Initializes the core UART connection to the MiP robot.
+   * @brief Initializes the core UART connection to MiP.
    *
    * Attempts connection at both 115200 and 9600 baud rates with retries.
    * Sets up debug output on Serial1 and prepares internal state.
@@ -190,60 +175,148 @@ class MiP {
   /**
    * @brief Cleans up the connection to MiP and shuts down network services.
    *
-   * Restores default volume, sends disconnect command, and ends
-   * Serial/WiFi/OTA.
+   * Restores default volume, sends disconnect command to MiP, and ends
+   * Serial/WiFi/OTA services.
    */
   void end();
 
   /**
-   * @brief Puts the MiP robot to sleep.
+   * @brief Puts MiP to sleep.
    *
-   * The robot will need to be physically reset before another `begin()` call.
+   * MiP will need to be physically reset before another `begin()` call.
    */
   void sleep();
 
   /**
    * @brief Check whether the MiP library has completed initialization.
    *
-   * Returns true when the internal initialization flag (MRI_FLAG_INITIALIZED)
+   * Returns true when the internal initialization flag (MIP_FLAG_INITIALIZED)
    * is set, indicating that `begin()` completed successfully and the MiP
    * instance is ready for use. Returns false if initialization failed or
    * has not yet been performed.
    *
    * This accessor does not modify object state and has no side effects.
    * Consider calling this before invoking API methods that require an active
-   * connection to the robot.
+   * connection to MiP.
    *
    * @return **true** if the MiP instance is initialized and ready; **false**
    *         otherwise.
    *
    * @see MiP::begin()
    */
-  bool isInitialized();
+  bool isInitialized() const;
 
   // Error Handling.
+
   /**
    * @brief Retrieves the error code from the most recently executed MiP API
    * function.
-   * * The library automatically attempts to handle communication errors by
+   *
+   * The library automatically attempts to handle communication errors by
    * retrying read/write operations behind the scenes. If an operation
    * ultimately fails to recover, this function provides the specific reason for
    * the failure.
-   * * @return int8_t The error code generated by the last operation (e.g.,
+   *
+   * @return int8_t The error code generated by the last operation (e.g.,
    * MIP_ERROR_NONE, MIP_ERROR_TIMEOUT, MIP_ERROR_BAD_RESPONSE).
    */
-  int8_t lastCallResult();
+  int8_t lastCallResult() const;
 
   /**
    * @brief Checks if the most recently executed MiP API function encountered a
    * critical error.
-   * * A quick convenience method to determine if a command was successful
+   *
+   * A quick convenience method to determine if a command was successful
    * without needing to evaluate the specific error code.
-   * * @return true If the last operation failed (m_lastError is not
+   *
+   * @return true If the last operation failed (m_lastError is not
    * MIP_ERROR_NONE).
    * @return false If the last operation succeeded.
    */
-  bool didLastCallFail();
+  bool didLastCallFail() const;
+
+  /**
+   * @brief Prints a human-readable description of the last error to the debug
+   *        channel (Serial1).
+   */
+  void printLastCallResult();
+
+  /**
+   * @brief Returns the UART baud rate currently in use with MiP.
+   *
+   * After a successful @ref begin(), this reports either 115200 or 9600
+   * depending on which rate the library negotiated with MiP.
+   * Returns 0 if the connection has not been established (or after
+   * @ref end() / a failed @ref begin()).
+   *
+   * Useful for diagnostics and for sketches that need to know the link
+   * speed of the connected MiP hardware revision.
+   *
+   * @return Baud rate in bits per second (115200, 9600, or 0).
+   *
+   * @see begin()
+   */
+  uint32_t getBaudRate() const;
+
+  MiP_Battery battery;    ///< Interface for battery voltage queries (see
+                          ///< MPU_Battery.h).
+  MiP_ChestLED chestLED;  ///< Interface for chest LED RGB/flash control (see
+                          ///< MPU_ChestLED.h).
+  MiP_Clap clap;  ///< Interface for clap detection and delay configuration (see
+                  ///< MPU_Clap.h).
+  MiP_EEPROM eeprom;      ///< Interface for reading/writing non-volatile EEPROM
+                          ///< (see MPU_EEPROM.h).
+  MiP_Gesture gesture;    ///< Interface for gesture detection mode and events
+                          ///< (see MPU_Gesture.h).
+  MiP_HeadLEDs headLEDs;  ///< Interface for controlling head/eye LED patterns
+                          ///< (see MPU_HeadLEDs.h).
+  MiP_Infrared infrared;  ///< Interface for IR remote control and MiP detection
+                          ///< (see MPU_Infrared.h).
+  MiP_Mode mode;          ///< Interface for game and app mode selection (see
+                          ///< MPU_Mode.h).
+  MiP_Motion motion;  ///< Interface for drive, turn, and posture control (see
+                      ///< MPU_Motion.h).
+  MiP_Odometer odometer;  ///< Interface for reading and resetting distance
+                          ///< odometer (see MPU_Odometer.h).
+  MiP_Position position;  ///< Interface for position and orientation state
+                          ///< checks (see MPU_Position.h).
+  MiP_Radar radar;        ///< Interface for IR radar proximity tracking (see
+                          ///< MPU_Radar.h).
+  MiP_Serial serial;      ///< Interface for low-level UART transport and event
+                          ///< parsing (see MPU_Serial.h).
+  MiP_Shake shake;  ///< Interface for shake event detection (see MPU_Shake.h).
+  MiP_Sound sound;  ///< Interface for sound effects and volume control (see
+                    ///< MPU_Sound.h).
+  MiP_Version version;  ///< Interface for querying hardware/software versions
+                        ///< (see MPU_Version.h).
+  MiP_Weight weight;    ///< Interface for payload weight sensor queries (see
+                        ///< MPU_Weight.h).
+  MiP_WiFi wifi;  ///< Interface for WiFi, OTA, and network management (see
+                  ///< MPU_WiFi.h).
+
+protected:
+  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;  ///< Disconnect
+                                                           ///< command byte.
+  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;       ///< Sleep command byte.
+  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;  ///< Status query command
+                                                       ///< byte.
+
+  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES = 5;    ///< Max retries in
+                                                         ///< begin().
+  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT = 500;  ///< Delay between
+                                                         ///< retries in begin()
+                                                         ///< (ms).
+  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE = 74880;  ///< ESP8266
+                                                              ///< bootloader
+                                                              ///< debug rate.
+  static constexpr uint32_t MIP_FAST_BAUD_RATE = 115200;  ///< High-speed UART
+                                                          ///< link rate.
+  static constexpr uint32_t MIP_SLOW_BAUD_RATE = 9600;  ///< Low-speed UART link
+                                                        ///< rate.
+
+  void clear();
+
+  int8_t attemptMiPConnection(uint32_t baudRate);
 
   /**
    * @brief Central dispatcher for all Out-of-Band events from the transport
@@ -252,72 +325,7 @@ class MiP {
    * This method receives raw event data and routes it to the appropriate
    * subsystem component (Clap, Gesture, Status, etc.).
    */
-  void dispatchEvent(uint8_t command, const uint8_t* payload, size_t);
-
-  /**
-   * @brief Prints a human-readable description of the last error to the debug
-   *        channel (Serial1).
-   */
-  void printLastCallResult();
-
-  // See MPU_Battery.h for interfacing with the battery.
-  MiP_Battery battery;
-
-  // See MPU_ChestLED.h for interfacing with the chest LED.
-  MiP_ChestLED chestLED;
-
-  // See MPU_Clap.h for interfacing with the clap detection system.
-  MiP_Clap clap;
-
-  // See MPU_EEPROM.h for reading from and writing to MiP's EEPROM.
-  MiP_EEPROM eeprom;
-
-  // See MPU_Gesture.h for interfacing with the gesture detection system.
-  MiP_Gesture gesture;
-
-  // See MPU_HeadLEDs.h for interfacing with MiP's head LEDs.
-  MiP_HeadLEDs headLEDs;
-
-  // See MPU_Infrared.h for interfacing with the infrared system.
-  MiP_Infrared infrared;
-
-  // See MPU_Mode.h for selecting MiP's modes.
-  MiP_Mode mode;
-
-  // See MPU_Motion.h for interfacing with the drive system.
-  MiP_Motion motion;
-
-  // See MPU_Odometer.h for reading and resetting the odometer.
-  MiP_Odometer odometer;
-
-  // See MPU_Position.h for reading the position detection system.
-  MiP_Position position;
-
-  // See MPU_Radar.h for interfacing with the radar.
-  MiP_Radar radar;
-
-  // See MPU_Serial.h for interfacing with MiP's serial port.
-  MiP_Serial serial;
-
-  // See MPU_Shake.h for reading the shake detection system.
-  MiP_Shake shake;
-
-  // See MPU_Sound.h for interfacing with the sound system.
-  MiP_Sound sound;
-
-  // See MPU_Version.h for reading MiP's hardware and software versions.
-  MiP_Version version;
-
-  // See MPU_Weight.h for reading MiP's weight.
-  MiP_Weight weight;
-
-  // See MPU_WiFi.h for interfacing with the MPU's wifi system.
-  MiP_Wifi wifi;
-
- protected:
-  void clear();
-
-  int8_t attemptMiPConnection(uint32_t baudRate);
+  void dispatchEvent(uint8_t command, const uint8_t* payload, size_t length);
 
   /**
    * @brief Assert mechanism that logs the failure location and then halts.
@@ -326,15 +334,13 @@ class MiP {
    *   mipAssert(condition, __LINE__, __FILE__);
    *
    * The original macro version always printed the file that *defined*
-   * mipAssert (MPU_Core.cpp).  Passing __FILE__ from the call site
+   * mipAssert (MPU_Core.cpp). Passing __FILE__ from the call site
    * fixes that.
    */
   void mipAssert(bool condition, uint32_t lineNumber, const char* fileName);
 
   int8_t rawGetStatus(MiPStatus& status);
-  int8_t parseStatus(MiPStatus& status,
-                     const uint8_t response[],
-                     size_t responseLength);
+  int8_t parseStatus(MiPStatus& status, const uint8_t response[], size_t responseLength);
 
   friend class MiP_Battery;
   friend class MiP_ChestLED;
@@ -345,7 +351,6 @@ class MiP {
   friend class MiP_Infrared;
   friend class MiP_Mode;
   friend class MiP_Motion;
-  friend class MiP_Wifi;
   friend class MiP_Odometer;
   friend class MiP_Position;
   friend class MiP_Radar;
@@ -354,6 +359,7 @@ class MiP {
   friend class MiP_Sound;
   friend class MiP_Version;
   friend class MiP_Weight;
+  friend class MiP_WiFi;
 
   // Bits that can be set in m_flags bitfield.
   enum FlagBits : uint8_t {
@@ -363,9 +369,10 @@ class MiP {
     MIP_FLAG_INITIALIZED = (1 << 3)
   };
 
+  uint32_t m_baudRate;
   uint8_t m_flags;
   int8_t m_lastError;
   MiPStatus m_lastStatus;
 };
 
-#endif  // MPU_D1_MINI_H
+#endif  // MIP_POWER_UP_D1_MINI_H

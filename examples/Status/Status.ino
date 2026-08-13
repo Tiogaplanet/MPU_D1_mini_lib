@@ -1,25 +1,25 @@
 /**
  * @file Status.ino
- * @brief Example sketch that monitors and reports MiP status changes.
+ * @brief Example sketch that monitors and reports MiP's status changes.
  *
  * @details
  * This sketch demonstrates how to query and report various status values from
- * a MiP robot using the MiP library. It connects to the robot, then
- * continuously polls for changes to the battery voltage and the robot's
- * positional state. When a change is detected the new value is printed to
- * Serial1. The sketch is intended as a simple diagnostic example to show
- * how to use the status-related API calls.
+ * MiP using the MiP library. It connects to MiP, then continuously polls for
+ * changes to battery voltage and physical stance/position. When a change is
+ * detected, the new value is printed to Serial1. The sketch serves as a clean
+ * diagnostic example showing status-related API calls.
  *
  * The example exercises these API calls:
- *   - battery.readVoltage()
- *   - position.read()
- *   - position.isOnBack()
- *   - position.isFaceDown()
- *   - position.isUpright()
- *   - position.isPickedUp()
- *   - position.isHandStanding()
- *   - position.isFaceDownOnTray()
- *   - position.isOnBackWithKickstand()
+ *   - mip.begin()
+ *   - mip.battery.readVoltage()
+ *   - mip.position.read()
+ *   - mip.position.isOnBack()
+ *   - mip.position.isFaceDown()
+ *   - mip.position.isUpright()
+ *   - mip.position.isPickedUp()
+ *   - mip.position.isHandStanding()
+ *   - mip.position.isFaceDownOnTray()
+ *   - mip.position.isOnBackWithKickstand()
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -30,12 +30,13 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 #include <MiP_Power_Up_-_D1_mini.h>
+#include <math.h>
 
 /**
- * @brief Global MiP instance used to communicate with the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
- * @details Use this object to call the MiP status APIs such as
- * readBatteryVoltage() and readPosition().
+ * @details Use this object to call MiP status APIs such as
+ * battery.readVoltage() and position.read().
  */
 MiP mip;
 
@@ -43,23 +44,20 @@ MiP mip;
  * @brief Last reported battery voltage (volts).
  *
  * @details Stored so the sketch only prints battery updates when the value
- * actually changes.
+ * changes significantly.
  */
 static float lastBatteryLevel = 0.0f;
 
 /**
  * @brief Last reported position enum value.
  *
- * @details Initialized to an invalid value so the first readPosition() will
- * always be treated as a change and printed.
+ * @details Initialized to an invalid value so the first position.read() call
+ * will always be treated as a change and printed.
  */
-static MiPPosition lastPosition = (MiPPosition)-1;
+static MiPPosition lastPosition = static_cast<MiPPosition>(-1);
 
 /**
- * @brief Tracks whether the initial connection to the MiP succeeded.
- *
- * @details Stored so other parts of the sketch could check connection state
- * if extended.
+ * @brief Tracks whether the initial connection to MiP succeeded.
  */
 bool connectResult;
 
@@ -75,7 +73,7 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("Status.ino: Failed connecting to MiP!"));
+    Serial1.println(F("Status.ino: Failed connecting to MiP."));
     return;
   }
 
@@ -86,42 +84,40 @@ void setup() {
  * @brief Arduino loop function.
  *
  * @details
- * - Polls the MiP for the current battery voltage and position.
- * - If the battery voltage differs from the last reported value, prints the
- *   new voltage and updates lastBatteryLevel.
+ * - Polls MiP for current battery voltage and stance position.
+ * - If the battery voltage differs significantly (>= 0.05V) from the last
+ *   reported reading, prints the new voltage and updates lastBatteryLevel.
  * - If the position differs from the last reported position, queries the
  *   various position predicates (isOnBack(), isFaceDown(), isUpright(), etc.)
- *   and prints each matching position description. Updates lastPosition to
- *   avoid repeated prints for the same state.
+ *   and prints matching position descriptions. Updates lastPosition to avoid
+ *   repeated prints for the same state.
  *
- * The loop is intentionally lightweight and prints only on changes to avoid
- * spamming the serial output.
+ * The loop prints only on changes to avoid spamming the serial output and
+ * yields briefly to keep background CPU tasks responsive.
  */
 void loop() {
-  if (!connectResult) return;  // If connecting to MiP failed in setup(), exit now.
+  if (!connectResult) {
+    return;  // Exit immediately if connecting to MiP failed during setup()
+  }
 
   float currentBatteryLevel = mip.battery.readVoltage();
   MiPPosition currentPosition = mip.position.read();
 
-  /* Report battery voltage when it changes. */
-  if (currentBatteryLevel != lastBatteryLevel) {
+  /* Report battery voltage when it changes meaningfully (by at least 0.05V). */
+  if (fabs(currentBatteryLevel - lastBatteryLevel) >= 0.05f) {
     Serial1.print(F(" Battery: "));
-    Serial1.print(currentBatteryLevel);
+    Serial1.print(currentBatteryLevel, 2);
     Serial1.println(F("V"));
     lastBatteryLevel = currentBatteryLevel;
   }
 
   /* Report position changes by evaluating all position predicates. */
   if (currentPosition != lastPosition) {
-    if (mip.position.isOnBack()) {
-      Serial1.println(F(" Position: On Back"));
-    }
+    if (mip.position.isOnBack()) { Serial1.println(F(" Position: On Back")); }
     if (mip.position.isFaceDown()) {
       Serial1.println(F(" Position: Face Down"));
     }
-    if (mip.position.isUpright()) {
-      Serial1.println(F(" Position: Upright"));
-    }
+    if (mip.position.isUpright()) { Serial1.println(F(" Position: Upright")); }
     if (mip.position.isPickedUp()) {
       Serial1.println(F(" Position: Picked Up"));
     }
@@ -137,5 +133,7 @@ void loop() {
 
     lastPosition = currentPosition;
   }
-}
 
+  // Yield control briefly to prevent watchdog reset triggers
+  delay(50);
+}

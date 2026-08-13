@@ -20,40 +20,67 @@
 MiP_Position::MiP_Position(MiP& mip) : m_mip(mip) {}
 
 MiPPosition MiP_Position::read() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->read()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->read()"));
+
   // Fetch bytes from the Serial receive buffer and process any event data found
   // within.
   m_mip.serial.processAllResponseData();
+
+  if (!m_mip.isInitialized()) {
+    m_mip.m_lastError = MiP::MIP_ERROR_TIMEOUT;
+    return MIP_POSITION_ON_BACK_WITH_KICKSTAND;
+  }
 
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
   return m_mip.m_lastStatus.position;
 }
 
 bool MiP_Position::isOnBack() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isOnBack()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isOnBack()"));
+
   return read() == MIP_POSITION_ON_BACK;
 }
+
 bool MiP_Position::isFaceDown() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isFaceDown()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isFaceDown()"));
+
   return read() == MIP_POSITION_FACE_DOWN;
 }
+
 bool MiP_Position::isUpright() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isUpright()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isUpright()"));
+
   return read() == MIP_POSITION_UPRIGHT;
 }
+
 bool MiP_Position::isPickedUp() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isPickedUp()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isPickedUp()"));
+
   return read() == MIP_POSITION_PICKED_UP;
 }
+
 bool MiP_Position::isHandStanding() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isHandStanding()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isHandStanding()"));
+
   return read() == MIP_POSITION_HAND_STAND;
 }
+
 bool MiP_Position::isFaceDownOnTray() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isFaceDownOnTray()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isFaceDownOnTray()"));
+
   return read() == MIP_POSITION_FACE_DOWN_ON_TRAY;
 }
+
 bool MiP_Position::isOnBackWithKickstand() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Position->isOnBackWithKickstand()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Position->isOnBackWithKickstand()"));
+
   return read() == MIP_POSITION_ON_BACK_WITH_KICKSTAND;
 }

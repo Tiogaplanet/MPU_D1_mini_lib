@@ -2,7 +2,7 @@
  * @file MPU_EEPROM.h
  * @brief Defines the public interface for EEPROM access in the MiP library.
  *
- * @details This header declares the EEPROM read and write API used by the MPU
+ * @details This header declares the EEPROM read and write API used by the MiP
  * library.
  *
  * @author Adam Green (Original Author)
@@ -22,51 +22,37 @@
 class MiP;
 
 /**
- * @brief Manages access to MiP's EEPROM for reading and writing.
+ * @brief Manages access to MiP's non-volatile user EEPROM memory.
  */
 class MiP_EEPROM {
- public:
+public:
   /**
-   * @brief MiP protocol command bytes used by the EEPROM subsystem.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
-   */
-  static constexpr uint8_t MIP_CMD_SET_USER_DATA = 0x12;
-  static constexpr uint8_t MIP_CMD_GET_USER_DATA = 0x13;
-
-  /**
-   * @brief The EEPROM boundaries.  Attempts to write outside these addresses
-   * will fail.
+   * @brief Base starting address of MiP's user EEPROM storage area (0x20).
    */
   static constexpr uint8_t BASE_EEPROM_ADDRESS = 0x20;
-  // Last addressable address in EEPROM.
+
+  /**
+   * @brief Last addressable byte location in MiP's user EEPROM storage area
+   * (0x2F).
+   */
   static constexpr uint8_t LAST_EEPROM_ADDRESS = 0x2F;
 
   /**
-   * @brief Constructs the EEPROM manager.
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_EEPROM(MiP& mip);
-
-  /**
-   * @brief Reads a byte from the MiP's user EEPROM area.
+   * @brief Reads a byte from MiP's EEPROM storage area.
    *
-   * Performs a verified read with retries on communication errors.
+   * @details Performs a verified read with automatic retries on communication
+   * errors.
    *
    * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
-   * @return The stored byte value, or 0 on error.
+   * @return uint8_t The stored byte value, or 0 on communication error.
    */
   uint8_t read(uint8_t addressOffset);
 
   /**
-   * @brief Writes a byte to the MiP's user EEPROM area and verifies it.
+   * @brief Writes a byte to MiP's EEPROM area and verifies it.
    *
-   * This function performs a verified write: it sends the data, reads it back,
-   * and retries (up to MIP_MAX_RETRIES) if the value doesn't match or an error
+   * @details Performs a verified write: sends the byte data, reads it back,
+   * and retries automatically if the read-back value fails to match or an error
    * occurs.
    *
    * @param addressOffset Offset from BASE_EEPROM_ADDRESS (0-15).
@@ -74,11 +60,34 @@ class MiP_EEPROM {
    */
   void write(uint8_t addressOffset, uint8_t userData);
 
- private:
+protected:
+  /**
+   * @brief MiP protocol command byte to write user data to EEPROM.
+   */
+  static constexpr uint8_t MIP_CMD_SET_USER_DATA = 0x12;
+
+  /**
+   * @brief MiP protocol command byte to read user data from EEPROM.
+   */
+  static constexpr uint8_t MIP_CMD_GET_USER_DATA = 0x13;
+
+private:
+  /**
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
+   *
+   * @param mip A reference to the main MiP object to access core services.
+   */
+  explicit MiP_EEPROM(MiP& mip);
+
   int8_t rawRead(uint8_t address, uint8_t& userData);
   void rawWrite(uint8_t address, uint8_t userData);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
+
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
+  friend class MiP;
 };
 
 #endif  // MPU_EEPROM_H

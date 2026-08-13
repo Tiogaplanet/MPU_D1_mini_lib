@@ -1,22 +1,23 @@
 /**
  * @file ZeroEEPROM.ino
- * @brief Example sketch that writes zeros to each byte of the MiP user EEPROM.
+ * @brief Example sketch that writes zeros to each byte of MiP's user EEPROM.
  *
  * @details
- * This sketch demonstrates how to iterate over the MiP's user EEPROM address
+ * This sketch demonstrates how to iterate over MiP's user EEPROM address
  * range and write a zero value to each byte using the eeprom.write() API.
- * After writing each byte the sketch reads it back with eeprom.read() and
+ * After writing each byte, the sketch reads it back with eeprom.read() and
  * prints the address and recovered value to Serial1 for verification.
  *
  * The example exercises these API calls:
- *   - eeprom.write()
- *   - eeprom.read()
+ *   - mip.begin()
+ *   - mip.eeprom.write()
+ *   - mip.eeprom.read()
  *
  * Usage notes:
- *   - Running this sketch will overwrite the MiP user EEPROM contents with
+ *   - Running this sketch will overwrite MiP's user EEPROM contents with
  *     zeros. Use with caution if the EEPROM contains important data.
  *   - The sketch pauses one second between writes so the user can observe
- *     progress on Serial1 and the device.
+ *     progress on Serial1.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -29,7 +30,7 @@
 #include <MiP_Power_Up_-_D1_mini.h>
 
 /**
- * @brief Global MiP instance used to communicate with the robot.
+ * @brief Global MiP instance used to communicate with MiP.
  *
  * @details Use this object to call MiP API functions such as begin(),
  * eeprom.write(), and eeprom.read().
@@ -37,11 +38,16 @@
 MiP mip;
 
 /**
- * @brief Temporary storage for a single EEPROM byte read back from the device.
+ * @brief Tracks whether the initial connection to MiP succeeded.
+ */
+bool connectResult;
+
+/**
+ * @brief Temporary storage for a single EEPROM byte read back from MiP.
  *
- * @details The variable is used to hold the value returned by getUserData()
- * for display. It is declared here for clarity; the sketch writes zeros and
- * then reads each address back into this variable.
+ * @details Used to hold the value returned by eeprom.read() for display.
+ * Declared at file scope for clarity; the sketch writes zeros and then reads
+ * each address back into this variable.
  */
 uint8_t eepromContents;
 
@@ -51,57 +57,66 @@ uint8_t eepromContents;
  * @details
  * - Initializes the MiP connection via mip.begin(). If the connection fails,
  *   prints an error to Serial1 and returns early.
- * - Iterates over the MiP user EEPROM address range from 0x00 up to
+ * - Iterates over MiP's user EEPROM address range from offset 0x00 up to
  *   (MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS)
- * inclusive and:
+ *   inclusive (offsets 0 to 15) and:
  *     1. Writes a zero to each EEPROM offset using eeprom.write(offset, 0x00).
- *     2. Waits one second to allow observation and avoid flooding the device.
- *     3. Reads the byte back with eeprom.read(offset) and prints the address
- *        and recovered value in hexadecimal to Serial1 for verification.
+ *     2. Waits one second to allow observation and avoid flooding UART.
+ *     3. Reads the byte back with eeprom.read(offset) and prints the physical
+ *        address and recovered value in hexadecimal to Serial1 for
+ * verification.
  *
  * Note:
  *   - This operation will irreversibly overwrite any existing user EEPROM
- *     data stored on the MiP. Back up any important data before running.
+ *     data stored on MiP. Back up any important data before running.
  */
 void setup() {
-  bool connectResult = mip.begin();
+  connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("ZeroEEPROM.ino: Failed connecting to MiP!"));
+    Serial1.println(F("ZeroEEPROM.ino: Failed connecting to MiP."));
     return;
   }
 
   Serial1.println(F("ZeroEEPROM.ino: Writes zeros to each byte in EEPROM."));
 
-  // Iterate over the valid user EEPROM offsets and write zeros.
-  for (uint8_t i = 0x00;
-       i <= MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS;
-       i++) {
-    // Write a zero to EEPROM at offset i.
-    mip.eeprom.write(i, 0x00);
+  // Calculate total number of user EEPROM offsets (0 to 15)
+  const uint8_t maxOffset = MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS;
 
-    // Delay so the user can observe progress and to avoid rapid-fire writes.
+  // Iterate over the valid user EEPROM offsets and write zeros
+  for (uint8_t offset = 0; offset <= maxOffset; offset++) {
+    // Write a zero to EEPROM at offset i
+    mip.eeprom.write(offset, 0x00);
+
+    // Delay so the user can observe progress and to avoid rapid-fire writes
     delay(1000);
 
-    // Read back the value we just wrote for verification.
-    eepromContents = mip.eeprom.read(i);
+    // Read back the value we just wrote for verification
+    eepromContents = mip.eeprom.read(offset);
 
-    // Print the EEPROM offset and the recovered value in hex.
-    Serial1.print(F(" 0x2"));
-    Serial1.print(i, HEX);
-    Serial1.print(F(": "));
-    Serial1.print(F("0x0"));
+    // Calculate actual physical EEPROM memory address (0x20 to 0x2F)
+    uint8_t physicalAddress = MiP_EEPROM::BASE_EEPROM_ADDRESS + offset;
+
+    // Print the physical EEPROM address and the recovered value in hex
+    Serial1.print(F(" 0x"));
+    Serial1.print(physicalAddress, HEX);
+    Serial1.print(F(": 0x"));
+    if (eepromContents < 0x10) {
+      Serial1.print(F("0"));  // Leading zero padding for single hex digits
+    }
     Serial1.println(eepromContents, HEX);
   }
 
-  Serial1.print(F("ZeroEEPROM.ino: Done."));
+  Serial1.println();
+  Serial1.println(F("ZeroEEPROM.ino: Done."));
 }
 
 /**
  * @brief Arduino loop function.
  *
  * @details This example performs its work in setup() and does not require
- * repeated actions in loop(). The loop is intentionally left empty so the
- * sketch completes once and remains idle.
+ * repeated actions in loop().
  */
-void loop() {}
-
+void loop() {
+  // Exit immediately if connecting to MiP failed during setup()
+  if (!connectResult) { return; }
+}

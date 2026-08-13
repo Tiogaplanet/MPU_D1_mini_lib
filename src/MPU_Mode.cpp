@@ -12,73 +12,96 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
+#include "MPU_Mode.h"
 #include "MiP_Power_Up_-_D1_mini.h"
 
 // Implement the constructor to store the MiP reference.
 MiP_Mode::MiP_Mode(MiP& mip) : m_mip(mip) {}
 
 void MiP_Mode::enableApp() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableApp()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableApp()"));
   verifiedSet(MIP_APP_MODE);
 }
+
 void MiP_Mode::enableCage() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableCage()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableCage()"));
   verifiedSet(MIP_CAGE_MODE);
 }
+
 void MiP_Mode::enableDance() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableDance()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableDance()"));
   verifiedSet(MIP_DANCE_MODE);
 }
+
 void MiP_Mode::enableStack() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableStack()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableStack()"));
   verifiedSet(MIP_STACK_MODE);
 }
+
 void MiP_Mode::enableTrick() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableTrick()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableTrick()"));
   verifiedSet(MIP_TRICK_MODE);
 }
+
 void MiP_Mode::enableRoam() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->enableRoam()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->enableRoam()"));
   verifiedSet(MIP_ROAM_MODE);
 }
 
 bool MiP_Mode::isAppEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->isAppEnabled()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isAppEnabled()"));
   return check(MIP_APP_MODE);
 }
+
 bool MiP_Mode::isCageEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->isCageEnabled()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isCageEnabled()"));
   return check(MIP_CAGE_MODE);
 }
+
 bool MiP_Mode::isDanceEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->isDanceEnabled()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isDanceEnabled()"));
   return check(MIP_DANCE_MODE);
 }
+
 bool MiP_Mode::isStackEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->isStackEnabled()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isStackEnabled()"));
   return check(MIP_STACK_MODE);
 }
+
 bool MiP_Mode::isTrickEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->isTrickEnabled()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isTrickEnabled()"));
   return check(MIP_TRICK_MODE);
 }
+
 bool MiP_Mode::isRoamEnabled() {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->isRoamEnabled()");
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->isRoamEnabled()"));
   return check(MIP_ROAM_MODE);
 }
 
 // ==========================================================================
-// Protected functions.
+// Protected / Private functions.
 // ==========================================================================
 
 bool MiP_Mode::check(MiPGameMode expectedMode) {
-  MIP_DEBUG_INFO_PRINTLN("MiP->Mode->check()");
-  int8_t result;
+  MIP_DEBUG_INFO_PREFIX();
+  MIP_DEBUG_INFO_PRINTLN(F("MiP->Mode->check()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     MiPGameMode currentMode;
     result = rawGet(currentMode);
-    if (result == MiP::MIP_ERROR_NONE)
-      return currentMode == expectedMode;
+    if (result == MiP::MIP_ERROR_NONE) return currentMode == expectedMode;
 
     // An error was encountered so we will loop around and try again.
     // Wait for a bit before the next retry.
@@ -96,36 +119,32 @@ void MiP_Mode::rawSet(MiPGameMode mode) {
   // first.
   m_mip.motion.stop();
 
-  uint8_t command[1 + 1] = {MIP_CMD_SET_GAME_MODE, mode};
+  uint8_t command[1 + 1] = { MIP_CMD_SET_GAME_MODE, mode };
   m_mip.serial.rawSend(command, sizeof(command));
 }
 
 // This internal protected method sends the get game mode command with minimal
 // error handling. The error recovery happens at a higher level of the driver.
 int8_t MiP_Mode::rawGet(MiPGameMode& mode) {
-  const uint8_t getGameMode[1] = {MIP_CMD_GET_GAME_MODE};
+  const uint8_t getGameMode[1] = { MIP_CMD_GET_GAME_MODE };
   uint8_t response[1 + 1];
-  size_t responseLength;
+  size_t responseLength = 0;
 
   // Might not accept get game mode command when currently running a game mode
   // so Stop first.
   m_mip.motion.stop();
 
-  int8_t result = m_mip.serial.rawReceive(getGameMode,
-                                          sizeof(getGameMode),
-                                          response,
-                                          sizeof(response),
-                                          responseLength);
-  if (result)
-    return result;
-  if (responseLength != 2 || response[0] != MIP_CMD_GET_GAME_MODE ||
-      (response[1] != MIP_APP_MODE && response[1] != MIP_CAGE_MODE &&
-       response[1] != MIP_TRACKING_MODE && response[1] != MIP_DANCE_MODE &&
-       response[1] != MIP_DEFAULT_MODE && response[1] != MIP_STACK_MODE &&
-       response[1] != MIP_TRICK_MODE && response[1] != MIP_ROAM_MODE)) {
+  int8_t result = m_mip.serial.rawReceive(
+    getGameMode, sizeof(getGameMode), response, sizeof(response), responseLength);
+  if (result) return result;
+  if (responseLength != 2 || response[0] != MIP_CMD_GET_GAME_MODE
+      || (response[1] != MIP_APP_MODE && response[1] != MIP_CAGE_MODE
+          && response[1] != MIP_TRACKING_MODE && response[1] != MIP_DANCE_MODE
+          && response[1] != MIP_DEFAULT_MODE && response[1] != MIP_STACK_MODE
+          && response[1] != MIP_TRICK_MODE && response[1] != MIP_ROAM_MODE)) {
     return MiP::MIP_ERROR_BAD_RESPONSE;
   }
-  mode = (MiPGameMode)response[1];
+  mode = static_cast<MiPGameMode>(response[1]);
 
   // Restart the game mode now that we have successfully retrieved it.
   rawSet(mode);
@@ -137,7 +156,7 @@ int8_t MiP_Mode::rawGet(MiPGameMode& mode) {
 // then sends a request to get the new mode. If this request fails or the new
 // mode isn't as expected, it will retry the command.
 void MiP_Mode::verifiedSet(MiPGameMode desiredMode) {
-  int8_t result;
+  int8_t result = MiP::MIP_ERROR_NONE;
   for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
     rawSet(desiredMode);
 

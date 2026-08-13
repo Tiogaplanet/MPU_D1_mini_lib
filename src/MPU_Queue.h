@@ -20,36 +20,83 @@
 
 #include <stdint.h>
 
+namespace mip_detail {
+
 /**
- * @brief A lightweight circular queue (ring buffer) template.
+ * @brief A lightweight circular queue (ring buffer) template for internal
+ * library use.
  *
- * Overwrites oldest data when the queue is full. Primarily used to buffer
- * asynchronous events from the MiP robot.
+ * @details Overwrites oldest data when the queue is full. Primarily used to
+ * buffer asynchronous events from MiP.
  *
  * @tparam ElementType Type of elements stored in the queue.
  * @tparam Size        Maximum number of elements the queue can hold.
  */
-template <class ElementType, uint8_t Size>
-class CircularQueue {
- public:
+template<class ElementType, uint8_t Size> class CircularQueue {
+  static_assert(Size > 0, "CircularQueue Size must be greater than 0");
+
+public:
+  /**
+   * @brief Constructs a new CircularQueue object and initializes internal
+   * state.
+   */
   CircularQueue() {
     clear();
   }
 
+  /**
+   * @brief Clears all elements from the queue.
+   */
   void clear() {
     m_count = 0;
     m_readIndex = 0;
     m_writeIndex = 0;
   }
 
-  bool isEmpty() {
+  /**
+   * @brief Checks whether the queue contains no elements.
+   *
+   * @return true if the queue is empty (count is 0), false otherwise.
+   */
+  bool isEmpty() const {
     return m_count == 0;
   }
 
-  uint8_t available() {
+  /**
+   * @brief Checks whether the queue has reached maximum capacity.
+   *
+   * @return true if the queue is full (count equals Size), false otherwise.
+   */
+  bool isFull() const {
+    return m_count == Size;
+  }
+
+  /**
+   * @brief Returns the maximum number of elements the queue can store.
+   *
+   * @return constexpr uint8_t Queue capacity (Size).
+   */
+  constexpr uint8_t capacity() const {
+    return Size;
+  }
+
+  /**
+   * @brief Returns the number of unread elements currently stored in the queue.
+   *
+   * @return uint8_t Number of available elements (0 to Size).
+   */
+  uint8_t available() const {
     return m_count;
   }
 
+  /**
+   * @brief Pushes a new element into the back of the queue.
+   *
+   * @details If the queue is full, the oldest element at the front is
+   * overwritten and the read index is advanced to discard it.
+   *
+   * @param element Reference to the element value to store in the queue.
+   */
   void push(const ElementType& element) {
     m_elements[m_writeIndex] = element;
     advanceWriteIndex();
@@ -62,10 +109,16 @@ class CircularQueue {
     }
   }
 
+  /**
+   * @brief Pops and retrieves the oldest element from the front of the queue.
+   *
+   * @param[out] element Reference to a variable where the popped element value
+   * will be stored.
+   * @return true if an element was successfully popped, false if the queue was
+   * empty.
+   */
   bool pop(ElementType& element) {
-    if (isEmpty()) {
-      return false;
-    }
+    if (isEmpty()) { return false; }
 
     // Pop the oldest element from the circular queue.
     element = m_elements[m_readIndex];
@@ -74,7 +127,7 @@ class CircularQueue {
     return true;
   }
 
- protected:
+private:
   void advanceWriteIndex() {
     if (m_writeIndex == Size - 1) {
       // Wrap around to beginning of circular queue.
@@ -98,5 +151,7 @@ class CircularQueue {
   uint8_t m_readIndex;
   uint8_t m_writeIndex;
 };
+
+}  // namespace mip_detail
 
 #endif  // MPU_QUEUE_H

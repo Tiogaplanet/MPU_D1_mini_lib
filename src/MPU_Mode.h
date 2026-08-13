@@ -16,137 +16,160 @@
 #ifndef MPU_MODE_H
 #define MPU_MODE_H
 
+#include <stdint.h>
+
 // Forward-declare the main MiP class to avoid circular include dependencies.
 class MiP;
 
 /**
- * @brief Game and App modes.
+ * @brief Game and App operating modes for MiP.
  */
 enum MiPGameMode : uint8_t {
-  MIP_APP_MODE = 0x01,
-  MIP_CAGE_MODE = 0x02,
-  MIP_TRACKING_MODE = 0x03,
-  MIP_DANCE_MODE = 0x04,
-  MIP_DEFAULT_MODE = 0x05,
-  MIP_STACK_MODE = 0x06,
-  MIP_TRICK_MODE = 0x07,
-  MIP_ROAM_MODE = 0x08
+  MIP_APP_MODE = 0x01,       ///< App Mode (default for external control via
+                             ///< UART/Bluetooth).
+  MIP_CAGE_MODE = 0x02,      ///< Cage Game Mode (robot stays inside an enclosed
+                             ///< virtual cage).
+  MIP_TRACKING_MODE = 0x03,  ///< Tracking Mode (robot tracks and follows
+                             ///< objects/hands).
+  MIP_DANCE_MODE = 0x04,     ///< Dance Mode (robot performs built-in dance
+                             ///< routines).
+  MIP_DEFAULT_MODE = 0x05,   ///< Default Operating Mode.
+  MIP_STACK_MODE = 0x06,     ///< Stack Game Mode (balancing objects on MiP's
+                             ///< tray).
+  MIP_TRICK_MODE = 0x07,  ///< Trick Programming Mode (executing learned gesture
+                          ///< sequences).
+  MIP_ROAM_MODE = 0x08,   ///< Roam Mode (autonomous obstacle avoidance
+                          ///< navigation).
 };
 
 /**
- * @brief Manages MiP's modes.
+ * @brief Manages MiP's built-in game and application operating modes.
  */
 class MiP_Mode {
- public:
-  /**
-   * @brief MiP protocol command bytes used by the mode subsystem.
-   *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
-   */
-  static constexpr uint8_t MIP_CMD_SET_GAME_MODE = 0x76;
-  static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
-
-  /**
-   * @brief Constructs the mode manager.
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_Mode(MiP& mip);
-
+public:
   /**
    * @brief Switches MiP into App Mode.
    *
-   * Verified operation (command sent + state read back with retry).
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableApp();
 
   /**
    * @brief Switches MiP into Cage Mode.
    *
-   * Verified operation (command sent + state read back with retry).
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableCage();
 
   /**
    * @brief Switches MiP into Dance Mode.
    *
-   * Verified operation (command sent + state read back with retry).
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableDance();
 
   /**
    * @brief Switches MiP into Stack Mode.
    *
-   * Verified operation (command sent + state read back with retry).
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableStack();
 
   /**
    * @brief Switches MiP into Trick Mode.
    *
-   * Verified operation (command sent + state read back with retry).
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableTrick();
 
   /**
    * @brief Switches MiP into Roam Mode.
    *
-   * Verified operation (command sent + state read back with retry).
+   * @details Verified operation: sends the set game mode command and reads back
+   * state with retry.
    */
   void enableRoam();
 
   /**
    * @brief Checks if App Mode is currently active.
    *
-   * @return true if in App Mode.
+   * @return true if MiP is in App Mode, false otherwise.
    */
   bool isAppEnabled();
 
   /**
    * @brief Checks if Cage Mode is currently active.
    *
-   * @return true if in Cage Mode.
+   * @return true if MiP is in Cage Mode, false otherwise.
    */
   bool isCageEnabled();
 
   /**
    * @brief Checks if Dance Mode is currently active.
    *
-   * @return true if in Dance Mode.
+   * @return true if MiP is in Dance Mode, false otherwise.
    */
   bool isDanceEnabled();
 
   /**
    * @brief Checks if Stack Mode is currently active.
    *
-   * @return true if in Stack Mode.
+   * @return true if MiP is in Stack Mode, false otherwise.
    */
   bool isStackEnabled();
 
   /**
    * @brief Checks if Trick Mode is currently active.
    *
-   * @return true if in Trick Mode.
+   * @return true if MiP is in Trick Mode, false otherwise.
    */
   bool isTrickEnabled();
 
   /**
    * @brief Checks if Roam Mode is currently active.
    *
-   * @return true if in Roam Mode.
+   * @return true if MiP is in Roam Mode, false otherwise.
    */
   bool isRoamEnabled();
 
- private:
+protected:
+  /**
+   * @brief MiP protocol command byte to configure MiP's active game/app
+   * operating mode.
+   */
+  static constexpr uint8_t MIP_CMD_SET_GAME_MODE = 0x76;
+
+  /**
+   * @brief MiP protocol command byte to query MiP's active game/app operating
+   * mode.
+   */
+  static constexpr uint8_t MIP_CMD_GET_GAME_MODE = 0x82;
+
+private:
+  /**
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
+   *
+   * @param mip A reference to the main MiP object to access core communication
+   * services.
+   */
+  explicit MiP_Mode(MiP& mip);
+
   void verifiedSet(MiPGameMode desiredMode);
   bool check(MiPGameMode expectedMode);
   void rawSet(MiPGameMode mode);
   int8_t rawGet(MiPGameMode& mode);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
+
+  /**
+   * @brief Allows MiP to call private constructor.
+   */
+  friend class MiP;
 };
 
 #endif  // MPU_MODE_H

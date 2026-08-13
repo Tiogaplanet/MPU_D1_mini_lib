@@ -1,6 +1,6 @@
 /**
  * @file MPU_Clap.h
- * @brief Defines the public interface for clap event handling in the MPU
+ * @brief Defines the public interface for clap event handling in the MiP
  * library.
  *
  * @details This header declares the clap-detection API used by the MiP library.
@@ -27,66 +27,59 @@ class MiP;
  * @brief Clap event reporting state.
  */
 enum MiPClapEnabled : uint8_t {
-  MIP_CLAP_DISABLED = 0x00,
-  MIP_CLAP_ENABLED = 0x01,
+  MIP_CLAP_DISABLED = 0x00,  ///< Clap event detection is disabled.
+  MIP_CLAP_ENABLED = 0x01,   ///< Clap event detection is enabled.
 };
 
 /**
  * @brief Current clap detection settings.
+ *
+ * @details Stores the current clap detection status (enabled or disabled)
+ * along with the minimum delay threshold configured between clap reports.
  */
 class MiPClapSettings {
- public:
+public:
+  /**
+   * @brief Constructs a new MiPClapSettings object and initializes default
+   * values.
+   *
+   * @details Automatically invokes clear() to reset state.
+   */
   MiPClapSettings() {
     clear();
   }
+
+  /**
+   * @brief Resets settings to default (disabled, 0ms delay).
+   */
   void clear() {
     enabled = MIP_CLAP_DISABLED;
     delay = 0;
   }
-  MiPClapEnabled enabled;
-  uint16_t delay;
+
+  MiPClapEnabled enabled;  ///< Current clap detection status.
+  uint16_t delay;  ///< Minimum delay in milliseconds between clap reports.
 };
 
 /**
- * @brief Manages MiP's clap detection system.
+ * @brief Manages MiP's clap detection system, from enabling/disabling
+ * to delay configuration and event reading.
  */
 class MiP_Clap {
- public:
+public:
   /**
-   * @brief MiP protocol command bytes used by the clap detection subsystem.
+   * @brief Enables MiP's clap event reporting.
    *
-   * These values are placed in the first byte of requests sent to the MiP
-   * (and appear in the corresponding responses).  See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
-   */
-  static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;
-  static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;
-  static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;
-  static constexpr uint8_t MIP_CMD_GET_CLAP_SETTINGS = 0x1F;
-
-  /**
-   * @brief Constructs the Clap system manager.
-   * @param mip A reference to the main MiP object to access core services.
-   */
-  MiP_Clap(MiP& mip);
-
-  void processEvent(uint8_t clapCode);
-
-  /**
-   * @brief Enables clap event reporting from the MiP robot.
-   *
-   * This verified method sends the enable command and reads back settings
-   * to confirm success. It retries on failure.
+   * @details Verified method: sends the enable command and reads back settings
+   * to confirm success. Retries automatically on failure.
    */
   void enableEvents();
 
   /**
-   * @brief Disables clap event reporting from the MiP robot.
+   * @brief Disables clap event reporting from MiP.
    *
-   * This verified method sends the disable command and reads back settings
-   * to confirm success. It retries on failure.
+   * @details Verified method: sends the disable command and reads back settings
+   * to confirm success. Retries automatically on failure.
    */
   void disableEvents();
 
@@ -100,54 +93,86 @@ class MiP_Clap {
   /**
    * @brief Returns the number of unread clap events in the queue.
    *
-   * Processes any pending serial data first to update the queue.
+   * @details Processes any pending serial data first to update the queue.
    *
-   * @return Number of available clap events.
+   * @return uint8_t Number of available clap events.
    */
   uint8_t availableEvents();
 
   /**
    * @brief Reads the next available clap event from the queue.
    *
-   * Processes pending serial data first. If no event is available,
+   * @details Processes pending serial data first. If no event is available,
    * sets last error to MIP_ERROR_NO_EVENT.
    *
-   * @return The clap event code, or 0 if none available.
+   * @return uint8_t The clap event code, or 0 if none available.
    */
   uint8_t readEvent();
 
   /**
    * @brief Reads the current clap delay setting.
    *
-   * @return The delay in milliseconds between clap events.
-   *         Returns 0 on error.
+   * @return uint16_t The delay in milliseconds between clap events, or 0 on
+   * error.
    */
   uint16_t readDelay();
 
   /**
    * @brief Sets the minimum delay between clap events.
    *
-   * Verified method: sends the new delay and confirms by reading back
-   * the settings. Retries automatically on mismatch or error.
+   * @details Verified method: sends the new delay and confirms by reading back
+   * settings. Retries automatically on mismatch or error.
    *
    * @param delay Delay in milliseconds between allowed clap reports.
    */
   void writeDelay(uint16_t delay);
 
- protected:
+protected:
+  static constexpr uint8_t MIP_CMD_ENABLE_CLAP = 0x1E;  ///< Protocol command to
+                                                        ///< enable/disable clap
+                                                        ///< system.
+  static constexpr uint8_t MIP_CMD_CLAP_RESPONSE = 0x1D;  ///< Protocol
+                                                          ///< notification byte
+                                                          ///< reporting
+                                                          ///< detected claps.
+  static constexpr uint8_t MIP_CMD_SET_CLAP_DELAY = 0x20;  ///< Protocol command
+                                                           ///< to set
+                                                           ///< inter-clap
+                                                           ///< delay.
+  static constexpr uint8_t MIP_CMD_GET_CLAP_SETTINGS = 0x1F;  ///< Protocol
+                                                              ///< command to
+                                                              ///< query clap
+                                                              ///< settings.
+
   void clear();
 
- private:
+private:
+  /**
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
+   *
+   * @param mip Reference to the main MiP object to access core services.
+   */
+  explicit MiP_Clap(MiP& mip);
+
   void checkedEnableEvents(MiPClapEnabled enabled);
   int8_t readSettings(MiPClapSettings& settings);
   void rawEnable(MiPClapEnabled enabled);
   void rawSetDelay(uint16_t delay);
   int8_t rawGetSettings(MiPClapSettings& settings);
 
+  /**
+   * @brief Handles an incoming clap event notification from the transport
+   * layer.
+   *
+   * @param clapCode Raw clap count/code received from MiP.
+   */
+  void processEvent(uint8_t clapCode);
+
   MiP& m_mip;  // Stores a reference to the main MiP class.
-  CircularQueue<uint8_t, 8> m_clapEvents;
+  mip_detail::CircularQueue<uint8_t, 8> m_clapEvents;
 
   friend class MiP;
+  friend class MiP_Serial;
 };
 
 #endif  // MPU_CLAP_H
