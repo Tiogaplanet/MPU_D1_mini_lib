@@ -79,15 +79,13 @@ extern "C" {
 class MiPDebug : public Print {
 public:
   // --- System Configuration Constants ---
-  static constexpr uint16_t TELNET_PORT = 23;  ///< Default TCP telnet port
-                                               ///< (23).
+  static constexpr uint16_t TELNET_PORT = 23;  ///< Default TCP telnet port (23).
 
   /**
    * @name Logging Severity Levels
    * @{
    */
-  static constexpr uint8_t PROFILER = 0;  ///< Execution timing section
-                                          ///< profiling.
+  static constexpr uint8_t PROFILER = 0;  ///< Execution timing section profiling.
   static constexpr uint8_t VERBOSE = 1;   ///< Detailed verbose messages.
   static constexpr uint8_t DEBUG = 2;     ///< Standard debug messages.
   static constexpr uint8_t INFO = 3;      ///< Informational status messages.
@@ -99,8 +97,7 @@ public:
   /**
    * @brief Initializes and starts the telnet debug server.
    * @param hostname Hostname broadcast by the telnet service.
-   * @param startingDebugLevel Initial active debug threshold (default:
-   * VERBOSE).
+   * @param startingDebugLevel Initial active debug threshold (default: VERBOSE).
    */
   void begin(const String& hostname, uint8_t startingDebugLevel = VERBOSE);
 
@@ -138,8 +135,7 @@ public:
   /**
    * @brief Registers a callback handler for custom sketch/project telnet
    * commands.
-   * @param callback Function pointer executed when a custom command is
-   * received.
+   * @param callback Function pointer executed when a custom command is received.
    */
   void setCallBackProjectCmds(void (*callback)());
 
@@ -191,8 +187,7 @@ public:
 
   /**
    * @brief Applies a text filter string to debug outputs.
-   * @param filter Substring filter; only log lines containing this string will
-   * print.
+   * @param filter Substring filter; only log lines containing this string will print.
    */
   void setFilter(const String& filter);
 
@@ -221,14 +216,12 @@ public:
 
 protected:
   // --- System Configuration Constants ---
-  static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity
-                                                          ///< disconnect
-                                                          ///< timeout (1 hour).
-  static constexpr size_t BUFFER_PRINT = 150;  ///< Print character buffer size.
+  static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity disconnect timeout (1 hour).
+  static constexpr size_t BUFFER_PRINT = 150;            ///< Print character buffer size.
 
 #ifdef CLIENT_BUFFERING
-  static constexpr uint32_t DELAY_TO_SEND = 10;  ///< Packet send delay in ms.
-  static constexpr size_t MAX_SIZE_SEND = 1460;  ///< TCP MSS limit.
+  static constexpr uint32_t DELAY_TO_SEND = 10;          ///< Packet send delay in ms.
+  static constexpr size_t MAX_SIZE_SEND = 1460;          ///< TCP MSS limit.
 #endif
 
   // --- ANSI Terminal Escape Codes ---
