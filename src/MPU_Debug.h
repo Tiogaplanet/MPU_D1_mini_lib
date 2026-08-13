@@ -123,7 +123,7 @@ extern "C" {
  * - **Dual Output Mode:** Can route log output simultaneously over WiFi Telnet and Hardware Serial (`Serial1`).
  *
  * ### Typical Usage Example:
- * @code
+ * @code```
  * #include <MiP_Power_Up_-_D1_mini.h>
  * #include <MPU_Debug.h>
  *
@@ -143,7 +143,7 @@ extern "C" {
  *   debug.handle(); // Must be called frequently in loop() to process Telnet connections
  *   mDebugD("Loop execution active...\n");
  *   delay(1000);
- * }
+ * }```
  * @endcode
  */
 class MiP_Debug : public Print {
