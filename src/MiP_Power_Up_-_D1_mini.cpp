@@ -100,7 +100,7 @@ void MiP::printLastCallResult() {
   if (m_lastError != MIP_ERROR_NONE) {
     MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINT(F("MiP: API returned "));
-    
+
     switch (m_lastError) {
       case MIP_ERROR_TIMEOUT:
         MIP_DEBUG_ERROR_PREFIX();
@@ -121,9 +121,9 @@ void MiP::printLastCallResult() {
         MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(
           F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
-        
+
         break;
-      default: 
+      default:
         MIP_DEBUG_ERROR_PREFIX();
         MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));
         break;
@@ -205,7 +205,7 @@ void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) 
       MIP_DEBUG_INFO_PREFIX();
       MIP_DEBUG_INFO_PRINT("MiP->Core->dispatchEvent(), in weight case. payload[1]: ");
       MIP_DEBUG_INFO_PRINTLN(payload[1]);
-  
+
       if (length >= 2) { weight.processEvent(payload[1]); }
       break;
     case MiP_Gesture::MIP_CMD_GET_GESTURE_RESPONSE:
@@ -235,7 +235,7 @@ void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) 
       MIP_DEBUG_WARN_PREFIX();
       MIP_DEBUG_WARN_PRINT(F("MiP: Unknown OOB Event: 0x"));
       MIP_DEBUG_WARN_PRINTLN(command, HEX);
-  
+
       break;
   }
 }
