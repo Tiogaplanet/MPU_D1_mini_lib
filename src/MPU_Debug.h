@@ -3,7 +3,7 @@
  * @brief Defines the debug functionality and telnet logging interface for the
  * MiP library.
  *
- * @details This header declares the MiPDebug class and associated
+ * @details This header declares the MiP_Debug class and associated
  * macros/constants for multi-level logging, execution profiling, and remote
  * telnet debugging on ESP8266.
  *
@@ -76,7 +76,7 @@ extern "C" {
 /**
  * @brief Telnet and Serial debug server for real-time remote diagnostics.
  */
-class MiPDebug : public Print {
+class MiP_Debug : public Print {
 public:
   // --- System Configuration Constants ---
   static constexpr uint16_t TELNET_PORT = 23;  ///< Default TCP telnet port (23).
