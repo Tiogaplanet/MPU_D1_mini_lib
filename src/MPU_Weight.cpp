@@ -63,9 +63,49 @@ int8_t MiP_Weight::read() {
   return 0;
 }
 
+void MiP_Weight::calibrate(int8_t offset /* = 0 */) {
+  MIP_DEBUG_INFO_PRINTLN(m_mip, F("MiP->Weight->calibrate()"));
+  int8_t result = MiP::MIP_ERROR_NONE;
+
+  // Send set calibration command and read back current weight to confirm baseline.
+  for (uint8_t retry = 0; retry < MiP_Serial::MIP_MAX_RETRIES; retry++) {
+    rawCalibrate(offset);
+
+    // Invalidate cached weight to force an active UART query
+    m_mip.m_flags &= ~MiP::MIP_FLAG_WEIGHT_VALID;
+
+    int8_t readbackWeight = 0;
+    result = rawGet(readbackWeight);
+
+    if (result == MiP::MIP_ERROR_NONE && readbackWeight == offset) {
+      // Verified: updated weight reading matches target calibration offset.
+      m_mip.m_lastError = MiP::MIP_ERROR_NONE;
+      m_lastWeight = readbackWeight;
+      m_mip.m_flags |= MiP::MIP_FLAG_WEIGHT_VALID;
+      return;
+    }
+
+    delay(MiP_Serial::MIP_RETRY_WAIT);
+  }
+
+  if (result != MiP::MIP_ERROR_NONE) {
+    m_mip.m_lastError = result;
+  } else {
+    // Readback succeeded but weight reading did not match expected offset.
+    m_mip.m_lastError = MiP::MIP_ERROR_MAX_RETRIES;
+  }
+}
+
 // ==========================================================================
 // Protected / Private functions.
 // ==========================================================================
+
+void MiP_Weight::rawCalibrate(int8_t offset) {
+  uint8_t command[1 + 1] = {
+      MIP_CMD_SET_WEIGHT_CALIBRATION,
+      static_cast<uint8_t>(offset)};
+  m_mip.serial.rawSend(command, sizeof(command));
+}
 
 int8_t MiP_Weight::rawGet(int8_t& weight) {
   const uint8_t getWeight[1] = { MIP_CMD_GET_WEIGHT };
