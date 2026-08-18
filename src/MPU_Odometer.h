@@ -122,6 +122,7 @@ private:
   int8_t verifiedReset();
 
   int8_t rawRead(float& distanceInCm);
+  int8_t rawReadEncoders(uint16_t& leftTicks, uint16_t& rightTicks);
 
   MiP& m_mip;  // Stores a reference to the main MiP class.
 
