@@ -175,6 +175,11 @@ public:
 
 protected:
   /**
+   * @brief MiP undocumented protocol command byte to set target balance tilt offset.
+   */
+  static constexpr uint8_t MIP_CMD_SET_BALANCE_OFFSET = 0x13;
+
+  /**
    * @brief MiP protocol command byte for continuous drive (velocity + turn
    * rate).
    */
