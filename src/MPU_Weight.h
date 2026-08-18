@@ -38,16 +38,34 @@ public:
    */
   int8_t read();
 
+  /**
+   * @brief Calibrates or zeroes out MiP's baseline weight sensor offset (Tare)
+   * and verifies the change.
+   *
+   * @details Verified method: sends the undocumented protocol command over UART to set a signed
+   * baseline calibration offset in grams, then reads back the updated sensor
+   * reading to confirm the new baseline matches expectations. Retries
+   * automatically up to MIP_MAX_RETRIES on mismatch or error.
+   *
+   * Passing 0 zeroes out the current baseline weight reading (tare), which is
+   * useful after attaching tray accessories or custom payloads.
+   *
+   * @param offset Signed calibration offset in grams (-128 to +127; default = 0).
+   */
+  void calibrate(int8_t offset = 0);
+
 protected:
+  /**
+   * @brief Undocumented MiP protocol command byte to set weight sensor calibration offset.
+   */
+  static constexpr uint8_t MIP_CMD_SET_WEIGHT_CALIBRATION = 0x75;
+
   /**
    * @brief MiP protocol command byte used to request the current payload
    * weight.
    *
-   * @details This value is placed in the first byte of requests sent to MiP
-   * (and appears in corresponding responses). See the official
-   * [MiP BLE
-   * Protocol](https://github.com/WowWeeLabs/MiP-BLE-Protocol/blob/master/MiP-Protocol.md)
-   * for the complete list.
+   * @details This value is placed in the first byte of requests sent to MiP,
+   * and appears in corresponding responses.
    */
   static constexpr uint8_t MIP_CMD_GET_WEIGHT = 0x81;
 
@@ -63,6 +81,7 @@ private:
   explicit MiP_Weight(MiP& mip);
 
   int8_t rawGet(int8_t& weight);
+  void rawCalibrate(int8_t offset);
   int8_t parse(int8_t& weight, const uint8_t response[], size_t responseLength);
 
   /**
