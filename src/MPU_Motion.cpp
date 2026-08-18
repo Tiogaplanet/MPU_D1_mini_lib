@@ -201,6 +201,22 @@ void MiP_Motion::getUp(MiPGetUp getup /* = MIP_GETUP_FROM_EITHER */) {
   m_mip.m_lastError = MiP::MIP_ERROR_NONE;
 }
 
+void MiP_Motion::writeBalanceOffset(uint8_t offset) {
+  MIP_DEBUG_INFO_PRINTLN(m_mip, F("MiP->Motion->writeBalanceOffset()"));
+
+  // Clamping guard: offset byte must be between 0x00 and 0x40
+  m_mip.MIP_ASSERT(offset <= 0x40);
+  if (offset > 0x40) {
+    offset = 0x40;
+  }
+
+  uint8_t command[1 + 1] = {MIP_CMD_SET_BALANCE_OFFSET, offset};
+
+  // Send this command blindly with no error checking over UART
+  m_mip.serial.rawSend(command, sizeof(command));
+  m_mip.m_lastError = MiP::MIP_ERROR_NONE;
+}
+
 // ==========================================================================
 // Protected / Private functions.
 // ==========================================================================
