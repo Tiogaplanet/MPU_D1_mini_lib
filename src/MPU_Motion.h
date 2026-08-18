@@ -160,6 +160,19 @@ public:
    */
   void getUp(MiPGetUp getup = MIP_GETUP_FROM_EITHER);
 
+  /**
+   * @brief Sets MiP's target balance tilt offset (center of gravity correction).
+   *
+   * @details Adjusts the neutral balance tilt angle to correct for forward or
+   * backward drift. Fire-and-forget command sent over UART.
+   *
+   * @param offset Balance correction angle byte (0x00 to 0x40):
+   *   - 0x00 - 0x1F: Forward correction (if MiP drifts backward).
+   *   - 0x20: Neutral default center balance.
+   *   - 0x21 - 0x40: Backward correction (if MiP drifts forward).
+   */
+  void writeBalanceOffset(uint8_t offset);
+
 protected:
   /**
    * @brief MiP protocol command byte for continuous drive (velocity + turn
