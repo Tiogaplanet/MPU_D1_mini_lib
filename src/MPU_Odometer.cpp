@@ -80,7 +80,7 @@ void MiP_Odometer::readEncoders(uint16_t& leftTicks, uint16_t& rightTicks) {
   m_mip.m_lastError = result;
 }
 
-void MiP_Odometer::resetRawEncoders() {
+void MiP_Odometer::resetEncoders() {
   MIP_DEBUG_INFO_PRINTLN(m_mip, F("MiP->Odometer->resetEncoders()"));
   uint8_t command[1] = {MIP_CMD_RESET_RAW_ENCODERS};
 
