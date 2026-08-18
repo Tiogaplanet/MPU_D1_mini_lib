@@ -2,9 +2,9 @@ name: Arduino Library CI
 
 on:
   push:
-    branches: [ "master", "minor-edits", "bug-hunt", "v2.0.2-rc" ]
+    branches: [ "master", "minor-edits", "bug-hunt", "wheel-encoders" ]
   pull_request:
-    branches: [ "master", "minor-edits", "bug-hunt", "v2.0.2-rc" ]
+    branches: [ "master", "minor-edits", "bug-hunt", "wheel-encoders" ]
 
 jobs:
   build:
