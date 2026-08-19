@@ -348,7 +348,7 @@ void MiP_Debug::showHelp() {
   String help = "";
 
   help += "*** Welcome to MiP's debug terminal. This is version ";
-  help += MPU_D1_MINI_VERSION;
+  help += MIP_POWER_UP_VERSION;
   help += ".\r\n* Hostname: ";
   help += m_hostname;
   help += "\r\n* IP: ";
@@ -383,7 +383,7 @@ void MiP_Debug::showHelp() {
   help += "    cpu80  -> Set the ESP8266 CPU to 80 MHz\r\n";
   help += "    cpu160 -> Set the ESP8266 CPU to 160 MHz\r\n";
   if (m_resetCommandEnabled) {
-    help += "    reset -> reset the D1 mini Pack\r\n";
+    help += "    reset -> reset the MiP Power Up\r\n";
   }
 
   if (m_helpProjectCmds != "" && m_callbackProjectCmds) {
