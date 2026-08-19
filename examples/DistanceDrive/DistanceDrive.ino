@@ -26,7 +26,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -45,7 +45,7 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. On success, the sketch prints a short description and then
  * queues a series of distanceDrive() commands to be executed by MiP.
  *
@@ -58,11 +58,11 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("DistanceDrive.ino: Failed connecting to MiP!"));
+    mip.console.println(F("DistanceDrive.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("DistanceDrive.ino: Use distanceDrive function. Drive forward, turn "
+  mip.console.println(F("DistanceDrive.ino: Use distanceDrive function. Drive forward, turn "
                     "360 degrees in each direction and backward."));
 
   // Queue up multiple motion commands for MiP to run in sequence.
@@ -72,8 +72,8 @@ void setup() {
   mip.motion.distanceDrive(MIP_DRIVE_FORWARD, 0, MIP_TURN_RIGHT, 360);
   mip.motion.distanceDrive(MIP_DRIVE_BACKWARD, 30, MIP_TURN_RIGHT, 0);
 
-  Serial1.println();
-  Serial1.println(F("DistanceDrive.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("DistanceDrive.ino: Done."));
 }
 
 /**

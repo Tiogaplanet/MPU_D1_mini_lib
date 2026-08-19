@@ -21,7 +21,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief IR transmit power used for dongle code transmissions (1-120).
@@ -49,17 +49,17 @@ uint8_t cycleState = 0;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
- * returns early. On success, a description message is printed to Serial1.
+ * If the connection fails, an error message is printed to mip.console and setup
+ * returns early. On success, a description message is printed to mip.console.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("SendDongleCode.ino: Failed connecting to MiP."));
+    mip.console.println(F("SendDongleCode.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("SendDongleCode.ino: Send 2-, 3-, and 4-byte IR codes to another MiP."));
+  mip.console.println(F("SendDongleCode.ino: Send 2-, 3-, and 4-byte IR codes to another MiP."));
 }
 
 /**
@@ -82,8 +82,8 @@ void loop() {
       {
         // --- Test 1: Send a 2-byte IR code (0x4567) ---
         uint16_t code2Byte = 0x4567;
-        Serial1.print(F(" Sending 2-byte IR Code: 0x"));
-        Serial1.println(code2Byte, HEX);
+        mip.console.print(F(" Sending 2-byte IR Code: 0x"));
+        mip.console.println(code2Byte, HEX);
 
         mip.infrared.sendDongleCode(code2Byte, 2, MIP_IR_TX_POWER);
         delay(50);  // Allow UART TX to complete before console mux switch
@@ -94,8 +94,8 @@ void loop() {
       {
         // --- Test 2: Send a 3-byte IR code (0x123456) ---
         uint32_t code3Byte = 0x123456;
-        Serial1.print(F(" Sending 3-byte IR Code: 0x"));
-        Serial1.println(code3Byte, HEX);
+        mip.console.print(F(" Sending 3-byte IR Code: 0x"));
+        mip.console.println(code3Byte, HEX);
 
         mip.infrared.sendDongleCode(code3Byte, 3, MIP_IR_TX_POWER);
         delay(50);
@@ -107,9 +107,9 @@ void loop() {
         // --- Test 3: Send a 4-byte IR code using MiPIRDongleCode struct
         // (0xA1B2C3D4) ---
         MiPIRDongleCode code4Byte(0xA1B2C3D4, 4);
-        Serial1.print(F(" Sending 4-byte IR Code: 0x"));
-        Serial1.print(code4Byte.code, HEX);
-        Serial1.println(F(" (via struct)"));
+        mip.console.print(F(" Sending 4-byte IR Code: 0x"));
+        mip.console.print(code4Byte.code, HEX);
+        mip.console.println(F(" (via struct)"));
 
         mip.infrared.sendDongleCode(code4Byte, MIP_IR_TX_POWER);
         delay(50);

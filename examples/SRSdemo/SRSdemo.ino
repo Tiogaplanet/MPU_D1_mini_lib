@@ -32,7 +32,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -105,18 +105,18 @@ static void animateEyes(int8_t direction) {
  * @brief Initialize connection to MiP and print demo banner.
  *
  * @details Attempts to initialize the MiP connection via g_mip.begin().
- * If the connection fails, an error is printed to Serial1 and setup returns
+ * If the connection fails, an error is printed to mip.console and setup returns
  * early. On success, a short banner is printed to indicate the demo is running.
  */
 void setup() {
-  // First need to initialize the Serial1 connection with MiP.
+  // First need to initialize the mip.console connection with MiP.
   connectResult = g_mip.begin();
   if (!connectResult) {
-    Serial1.println(F("SRSdemo.ino: Failed connecting to MiP!"));
+    mip.console.println(F("SRSdemo.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("Seattle Robotics Society Demo for April 21st, 2018."));
+  mip.console.println(F("Seattle Robotics Society Demo for April 21st, 2018."));
 }
 
 /**

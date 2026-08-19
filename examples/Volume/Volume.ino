@@ -6,7 +6,7 @@
  * This sketch connects to MiP and demonstrates how to set speaker volume using
  * sound.writeVolume() and read the active volume level back using
  * sound.readVolume(). The example first sets the volume to the predefined
- * constant MIP_VOLUME_OFF (mute), prints the resulting volume level to Serial1,
+ * constant MIP_VOLUME_OFF (mute), prints the resulting volume level to mip.console,
  * and then restores the volume back to MIP_VOLUME_7 (maximum).
  *
  * The example exercises these API calls:
@@ -27,7 +27,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -48,44 +48,44 @@ bool connectResult;
  *
  * @details
  * - Initializes the MiP connection via mip.begin().
- * - If the connection fails, prints an error to Serial1 and returns early.
+ * - If the connection fails, prints an error to mip.console and returns early.
  * - On success, sets MiP's volume to MIP_VOLUME_OFF using writeVolume(),
  *   reads the current volume back with readVolume(), and prints the value to
- *   Serial1 for verification.
+ *   mip.console for verification.
  * - Restores volume back to MIP_VOLUME_7 and reads back again to verify.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("Volume.ino: Failed connecting to MiP."));
+    mip.console.println(F("Volume.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
+  mip.console.println(F("Volume.ino: Use sound.readVolume() and sound.writeVolume(). Set "
                     "volume level to off (0) and read out afterwards."));
 
   // 1. Set speaker volume to the predefined "off" constant (mute)
-  Serial1.println(F(" Setting volume to MIP_VOLUME_OFF (0)..."));
+  mip.console.println(F(" Setting volume to MIP_VOLUME_OFF (0)..."));
   mip.sound.writeVolume(MIP_VOLUME_OFF);
 
   // Read the current volume level back from MiP
   uint8_t volume = mip.sound.readVolume();
-  Serial1.print(F(" Readback Volume = "));
-  Serial1.println(volume);
+  mip.console.print(F(" Readback Volume = "));
+  mip.console.println(volume);
 
   delay(1000);
 
   // 2. Restore speaker volume back to maximum (7)
-  Serial1.println(F(" Restoring volume to MIP_VOLUME_7 (7)..."));
+  mip.console.println(F(" Restoring volume to MIP_VOLUME_7 (7)..."));
   mip.sound.writeVolume(MIP_VOLUME_7);
 
   // Read back restored volume level
   volume = mip.sound.readVolume();
-  Serial1.print(F(" Readback Volume = "));
-  Serial1.println(volume);
+  mip.console.print(F(" Readback Volume = "));
+  mip.console.println(volume);
 
-  Serial1.println();
-  Serial1.println(F("Volume.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("Volume.ino: Done."));
 }
 
 /**

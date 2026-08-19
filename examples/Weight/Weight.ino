@@ -4,7 +4,7 @@
  *
  * @details
  * This sketch demonstrates how to query MiP's weight sensor and print
- * changes to Serial1. It repeatedly reads weight using weight.read() and
+ * changes to mip.console. It repeatedly reads weight using weight.read() and
  * prints the value only when it changes to avoid spamming the serial output.
  * This is useful for monitoring payload changes on MiP's tray or detecting
  * when MiP is picked up or placed down.
@@ -16,7 +16,7 @@
  * Usage notes:
  *   - Ensure MiP is powered and connected before running this sketch.
  *   - MiP must be standing upright, not propped on the kickstand.
- *   - Open Serial1 to observe printed weight updates.
+ *   - Open mip.console to observe printed weight updates.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -26,7 +26,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -57,18 +57,18 @@ bool connectResult;
  *
  * @details
  * - Initializes the MiP connection via mip.begin().
- * - If the connection fails, prints an error to Serial1 and returns early.
+ * - If the connection fails, prints an error to mip.console and returns early.
  * - On success, prints a short banner indicating the sketch will display
  *   weight updates.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("Weight.ino: Failed connecting to MiP."));
+    mip.console.println(F("Weight.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("Weight.ino: Read MiP's weight with different objects on the tray."));
+  mip.console.println(F("Weight.ino: Read MiP's weight with different objects on the tray."));
 }
 
 /**
@@ -77,7 +77,7 @@ void setup() {
  * @details
  * - Polls MiP's weight sensor using weight.read().
  * - If the current weight differs from the last reported value, prints the
- *   new weight in grams to Serial1 and updates lastWeight.
+ *   new weight in grams to mip.console and updates lastWeight.
  *
  * The loop is lightweight and prints only on changes to avoid flooding the
  * serial output with repeated identical values. Yields briefly to keep
@@ -90,9 +90,9 @@ void loop() {
   int8_t currentWeight = mip.weight.read();
 
   if (currentWeight != lastWeight) {
-    Serial1.print(F(" Weight = "));
-    Serial1.print(currentWeight);
-    Serial1.println(F(" g"));
+    mip.console.print(F(" Weight = "));
+    mip.console.print(currentWeight);
+    mip.console.println(F(" g"));
     lastWeight = currentWeight;
   }
 

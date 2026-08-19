@@ -29,7 +29,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /** @brief The SSID (network name) of your local WiFi network. */
 const char *ssid = "..............";
@@ -59,26 +59,26 @@ void setup() {
   connectResult = mip.begin();
 
   if (!connectResult) {
-    Serial1.println(F("BareMinimumWiFi.ino: Failed connecting to MiP."));
+    mip.console.println(F("BareMinimumWiFi.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("BareMinimumWiFi.ino: Connecting to wireless access "
+  mip.console.println(F("BareMinimumWiFi.ino: Connecting to wireless access "
                     "point..."));
 
   // Connect to WiFi and initialize mDNS and ArduinoOTA network services
   uint8_t wifiStatus = mip.wifi.begin(ssid, password, hostname);
 
   if (wifiStatus != WL_CONNECTED) {
-    Serial1.println(F("BareMinimumWiFi.ino: Failed connecting to WiFi."));
+    mip.console.println(F("BareMinimumWiFi.ino: Failed connecting to WiFi."));
     return;
   }
 
   // Display assigned local IP address upon successful connection
-  Serial1.print(F(" IP address: "));
-  Serial1.println(WiFi.localIP());
+  mip.console.print(F(" IP address: "));
+  mip.console.println(WiFi.localIP());
 
-  Serial1.println(F("BareMinimumWiFi.ino: Done. Connected and ready."));
+  mip.console.println(F("BareMinimumWiFi.ino: Done. Connected and ready."));
 }
 
 /**

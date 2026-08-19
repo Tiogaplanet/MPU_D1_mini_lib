@@ -3,7 +3,7 @@
  * @brief Example sketch demonstrating MiP's radar distance sensing and reporting.
  *
  * @details This sketch shows how to use the MiP library to enable radar mode,
- * read radar distance categories, and report changes to the user over Serial1.
+ * read radar distance categories, and report changes to the user over mip.console.
  * The sketch waits for MiP to be standing upright before enabling radar
  * mode and then continuously polls radar.read() in loop(), printing a
  * human-readable description whenever the radar reading changes.
@@ -22,7 +22,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -41,7 +41,7 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. The function waits until MiP reports standing upright,
  * then enables radar mode so MiP will begin reporting radar distance
  * categories via radar.read().
@@ -49,13 +49,13 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("Radar.ino: Failed connecting to MiP!"));
+    mip.console.println(F("Radar.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("Radar.ino: Display current radar readings to user."));
+  mip.console.println(F("Radar.ino: Display current radar readings to user."));
 
-  Serial1.println(F(" Waiting for MiP to be standing upright."));
+  mip.console.println(F(" Waiting for MiP to be standing upright."));
   while (!mip.position.isUpright()) {
     // Yield CPU time to prevent ESP8266 watchdog resets while waiting
     delay(100);
@@ -71,7 +71,7 @@ void setup() {
  * @details Continuously polls MiP radar using radar.read(). When a valid
  * radar reading is returned and it differs from the previous reading, the
  * sketch prints a human-readable description of the detected distance range
- * to Serial1. The switch statement maps MiPRadar enum values to strings:
+ * to mip.console. The switch statement maps MiPRadar enum values to strings:
  *   - MIP_RADAR_NONE: no obstruction detected
  *   - MIP_RADAR_10CM_30CM: distant obstruction (10cm–30cm)
  *   - MIP_RADAR_0CM_10CM: near obstruction (0cm–10cm)
@@ -89,14 +89,14 @@ void loop() {
 
   // Only act when a valid reading is available and it changed since last time.
   if (currentRadar != MIP_RADAR_INVALID && lastRadar != currentRadar) {
-    Serial1.print(F(" Radar = "));
+    mip.console.print(F(" Radar = "));
     switch (currentRadar) {
-      case MIP_RADAR_NONE: Serial1.println(F("None")); break;
-      case MIP_RADAR_10CM_30CM: Serial1.println(F("10cm - 30cm")); break;
-      case MIP_RADAR_0CM_10CM: Serial1.println(F("0cm - 10cm")); break;
+      case MIP_RADAR_NONE: mip.console.println(F("None")); break;
+      case MIP_RADAR_10CM_30CM: mip.console.println(F("10cm - 30cm")); break;
+      case MIP_RADAR_0CM_10CM: mip.console.println(F("0cm - 10cm")); break;
       default:
         // Defensive: handle any future or unexpected enum values gracefully.
-        Serial1.println(F("Unknown"));
+        mip.console.println(F("Unknown"));
         break;
     }
     lastRadar = currentRadar;

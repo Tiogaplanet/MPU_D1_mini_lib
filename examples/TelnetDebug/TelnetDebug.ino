@@ -41,7 +41,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 #include <MPU_Debug.h>
 
 /**
@@ -119,22 +119,22 @@ bool runOnce = true;
  * - Attempts to initialize communication with MiP via mip.begin().
  * - Attempts to connect to WiFi using mip.wifi.begin(ssid, password,
  * hostname).
- * - If either connection fails, prints an error to Serial1 and returns early.
+ * - If either connection fails, prints an error to mip.console and returns early.
  * - Starts the telnet debug server via debug.begin(hostname).
  * - Enables the telnet reset command with debug.setResetCmdEnabled(true).
- * - Prints the device IP address and a short banner to Serial1.
+ * - Prints the device IP address and a short banner to mip.console.
  * - Initializes lastTimeCheck for the periodic loop behavior.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("TelnetDebug.ino: Failed connecting to MiP."));
+    mip.console.println(F("TelnetDebug.ino: Failed connecting to MiP."));
     return;
   }
 
   uint8_t wifiStatus = mip.wifi.begin(ssid, password, hostname);
   if (wifiStatus != WL_CONNECTED) {
-    Serial1.println(F("TelnetDebug.ino: Failed connecting to WiFi."));
+    mip.console.println(F("TelnetDebug.ino: Failed connecting to WiFi."));
     connectResult = false;
     return;
   }
@@ -143,11 +143,11 @@ void setup() {
   debug.begin(hostname);
   debug.setResetCmdEnabled(true);
 
-  Serial1.println(F("TelnetDebug.ino: Explore the different telnet debug levels."));
-  Serial1.println();
-  Serial1.print(F(" IP address: "));
-  Serial1.println(WiFi.localIP());
-  Serial1.println(F(" Use serial debugging in setup()."));
+  mip.console.println(F("TelnetDebug.ino: Explore the different telnet debug levels."));
+  mip.console.println();
+  mip.console.print(F(" IP address: "));
+  mip.console.println(WiFi.localIP());
+  mip.console.println(F(" Use serial debugging in setup()."));
 
   lastTimeCheck = millis();
 }

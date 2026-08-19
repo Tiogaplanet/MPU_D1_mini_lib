@@ -30,7 +30,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -69,7 +69,7 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. The function then demonstrates disabling detection mode and
  * verifying the disabled state, followed by enabling detection mode with the
  * configured ID and IR power and verifying the enabled state.
@@ -83,25 +83,25 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("EnableMiPDetectionMode.ino: Failed connecting to MiP!"));
+    mip.console.println(F("EnableMiPDetectionMode.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("EnableMiPDetectionMode.ino: Enable MiP to be discovered "
+  mip.console.println(F("EnableMiPDetectionMode.ino: Enable MiP to be discovered "
                     "by another MiP using IR."));
 
   /* Ensure detection mode is off and verify. */
   mip.infrared.disableMiPDetectionMode();
 
   if (!mip.infrared.isMiPDetectionModeEnabled()) {
-    Serial1.println(F(" I am not discoverable."));
+    mip.console.println(F(" I am not discoverable."));
   }
 
   /* Enable detection mode with configured ID and IR transmit power. */
   mip.infrared.enableMiPDetectionMode(MIP_ID_NO, MIP_IR_TX_POWER);
 
   if (mip.infrared.isMiPDetectionModeEnabled()) {
-    Serial1.println(F(" Now I can be discovered."));
+    mip.console.println(F(" Now I can be discovered."));
   }
 }
 
@@ -111,7 +111,7 @@ void setup() {
  * @details Polls for detected MiP events using
  * infrared.availableDetectedMiPEvents(). While events are available,
  * infrared.readDetectedMiP() returns each detected MiP ID, which is printed to
- * Serial1 in hexadecimal format.
+ * mip.console in hexadecimal format.
  *
  * API usage in this function:
  *   - mip.infrared.availableDetectedMiPEvents()
@@ -124,11 +124,11 @@ void loop() {
   // Poll for available detected MiP events
   while (mip.infrared.availableDetectedMiPEvents() > 0) {
     uint8_t detectedId = mip.infrared.readDetectedMiP();
-    Serial1.print(F(" I detected MiP with ID number 0x"));
+    mip.console.print(F(" I detected MiP with ID number 0x"));
     if (detectedId < 0x10) {
-      Serial1.print(F("0"));  // Leading zero padding
+      mip.console.print(F("0"));  // Leading zero padding
     }
-    Serial1.println(detectedId, HEX);
+    mip.console.println(detectedId, HEX);
   }
 
   // Yield control briefly to prevent watchdog reset triggers

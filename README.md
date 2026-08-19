@@ -36,7 +36,7 @@ A simple breadboard connection works too if you prefer.
 
 ## Quick start
 ```cpp
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 MiP mip;
 

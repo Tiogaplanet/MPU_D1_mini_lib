@@ -32,7 +32,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Forward declarations for helper functions.
@@ -96,13 +96,13 @@ bool connectResult;
  *
  * @details Connects to MiP, mutes initial volume, seeds the random
  * generator, and enables radar mode for obstacle detection. If connection
- * fails, prints an error to Serial1 and returns early.
+ * fails, prints an error to mip.console and returns early.
  */
 void setup() {
   // Initialize the connection with MiP.
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("Frustration.ino: Failed connecting to MiP. Is MiP turned on?"));
+    mip.console.println(F("Frustration.ino: Failed connecting to MiP. Is MiP turned on?"));
     return;
   }
 

@@ -7,7 +7,7 @@
  * This sketch continuously polls for incoming IR dongle codes transmitted by
  * another MiP. When an IR code event is available, it retrieves a
  * MiPIRDongleCode struct, inspects the length field (2, 3, or 4 bytes), and
- * prints the constituent bytes in hexadecimal to Serial1.
+ * prints the constituent bytes in hexadecimal to mip.console.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -22,7 +22,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -40,18 +40,18 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
- * returns early. On success, a description message is printed to Serial1.
+ * If the connection fails, an error message is printed to mip.console and setup
+ * returns early. On success, a description message is printed to mip.console.
  */
 void setup() {
   connectResult = mip.begin();
 
   if (!connectResult) {
-    Serial1.println(F("ReadDongleCode.ino: Failed connecting to MiP."));
+    mip.console.println(F("ReadDongleCode.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("ReadDongleCode.ino: Receiving 2-, 3-, and 4-byte IR codes from another MiP."));
+  mip.console.println(F("ReadDongleCode.ino: Receiving 2-, 3-, and 4-byte IR codes from another MiP."));
 }
 
 /**
@@ -61,7 +61,7 @@ void setup() {
  * infrared.availableCodeEvents(). While events are available,
  * infrared.readDongleCode() returns a MiPIRDongleCode struct containing
  * the code value and byte length (2, 3, or 4 bytes), which is printed to
- * Serial1 in hexadecimal format.
+ * mip.console in hexadecimal format.
  */
 void loop() {
   // Exit immediately if connecting to MiP failed during setup()
@@ -73,20 +73,20 @@ void loop() {
     MiPIRDongleCode irEvent = mip.infrared.readDongleCode();
 
     if (irEvent.isValid()) {
-      Serial1.print(F(" Received "));
-      Serial1.print(irEvent.length);
-      Serial1.print(F("-byte IR Code: 0x"));
+      mip.console.print(F(" Received "));
+      mip.console.print(irEvent.length);
+      mip.console.print(F("-byte IR Code: 0x"));
 
       // Print hex bytes corresponding to exact received byte length
       for (int8_t i = irEvent.length - 1; i >= 0; i--) {
         uint8_t byteVal = static_cast<uint8_t>((irEvent.code >> (i * 8)) & 0xFF);
         if (byteVal < 0x10) {
-          Serial1.print(F("0"));  // Leading zero padding
+          mip.console.print(F("0"));  // Leading zero padding
         }
-        Serial1.print(byteVal, HEX);
-        if (i > 0) { Serial1.print(F(" ")); }
+        mip.console.print(byteVal, HEX);
+        if (i > 0) { mip.console.print(F(" ")); }
       }
-      Serial1.println();
+      mip.console.println();
     }
   }
 

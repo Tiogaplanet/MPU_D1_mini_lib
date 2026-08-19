@@ -27,7 +27,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -48,7 +48,7 @@ bool connectResult;
  *
  * @details
  * - Initializes the MiP connection via mip.begin().
- * - If the connection fails, prints an error to Serial1 and returns early.
+ * - If the connection fails, prints an error to mip.console and returns early.
  * - On success, prints a short description and then performs three cycles of:
  *     1) motion.turnLeft(180, 12)
  *     2) delay(2000)
@@ -60,11 +60,11 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("TurnLeftRight.ino: Failed connecting to MiP."));
+    mip.console.println(F("TurnLeftRight.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("TurnLeftRight.ino: Use turnLeft & turnRight() functions. "
+  mip.console.println(F("TurnLeftRight.ino: Use turnLeft & turnRight() functions. "
                     "Turn 180 degrees to left and then 180 degrees to right."));
 
   for (uint8_t i = 0; i < 3; i++) {
@@ -77,8 +77,8 @@ void setup() {
     delay(2000);
   }
 
-  Serial1.println();
-  Serial1.println(F("TurnLeftRight.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("TurnLeftRight.ino: Done."));
 }
 
 /**

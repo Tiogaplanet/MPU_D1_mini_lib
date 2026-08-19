@@ -5,7 +5,7 @@
  * @details This sketch shows how to use the MiP library's driveForward() and
  * driveBackward() functions to move MiP at a fixed speed for a specified
  * duration. The example drives forward for one second, waits, then drives
- * backward for one second. It prints status messages to Serial1 to indicate
+ * backward for one second. It prints status messages to mip.console to indicate
  * progress and completion.
  *
  * The example exercises these API calls:
@@ -21,7 +21,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -41,7 +41,7 @@ bool connectResult;
  *
  * @details Called once after the board powers up or resets. This function:
  *  - Initializes communication with MiP by calling mip.begin().
- *  - If the connection fails, prints an error to Serial1 and returns early.
+ *  - If the connection fails, prints an error to mip.console and returns early.
  *  - If successful, prints a description of the demonstration and issues
  *    a forward drive command for 1000 ms, waits 2000 ms, then issues a
  *    backward drive command for 1000 ms and waits another 2000 ms.
@@ -52,11 +52,11 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("DriveForwardBackward.ino: Failed connecting to MiP!"));
+    mip.console.println(F("DriveForwardBackward.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("DriveForwardBackward.ino: Use motion.driveForward() and "
+  mip.console.println(F("DriveForwardBackward.ino: Use motion.driveForward() and "
                     "motion.driveBackward() functions. Drive ahead and back, 1 "
                     "second in each direction."));
 
@@ -72,8 +72,8 @@ void setup() {
    */
   delay(2000);
 
-  Serial1.println();
-  Serial1.println(F("DriveForwardBackward.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("DriveForwardBackward.ino: Done."));
 }
 
 /**

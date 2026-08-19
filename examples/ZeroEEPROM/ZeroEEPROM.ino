@@ -6,7 +6,7 @@
  * This sketch demonstrates how to iterate over MiP's user EEPROM address
  * range and write a zero value to each byte using the eeprom.write() API.
  * After writing each byte, the sketch reads it back with eeprom.read() and
- * prints the address and recovered value to Serial1 for verification.
+ * prints the address and recovered value to mip.console for verification.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -17,7 +17,7 @@
  *   - Running this sketch will overwrite MiP's user EEPROM contents with
  *     zeros. Use with caution if the EEPROM contains important data.
  *   - The sketch pauses one second between writes so the user can observe
- *     progress on Serial1.
+ *     progress on mip.console.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -27,7 +27,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -56,14 +56,14 @@ uint8_t eepromContents;
  *
  * @details
  * - Initializes the MiP connection via mip.begin(). If the connection fails,
- *   prints an error to Serial1 and returns early.
+ *   prints an error to mip.console and returns early.
  * - Iterates over MiP's user EEPROM address range from offset 0x00 up to
  *   (MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS)
  *   inclusive (offsets 0 to 15) and:
  *     1. Writes a zero to each EEPROM offset using eeprom.write(offset, 0x00).
  *     2. Waits one second to allow observation and avoid flooding UART.
  *     3. Reads the byte back with eeprom.read(offset) and prints the physical
- *        address and recovered value in hexadecimal to Serial1 for
+ *        address and recovered value in hexadecimal to mip.console for
  * verification.
  *
  * Note:
@@ -73,11 +73,11 @@ uint8_t eepromContents;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("ZeroEEPROM.ino: Failed connecting to MiP."));
+    mip.console.println(F("ZeroEEPROM.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("ZeroEEPROM.ino: Writes zeros to each byte in EEPROM."));
+  mip.console.println(F("ZeroEEPROM.ino: Writes zeros to each byte in EEPROM."));
 
   // Calculate total number of user EEPROM offsets (0 to 15)
   const uint8_t maxOffset = MiP_EEPROM::LAST_EEPROM_ADDRESS - MiP_EEPROM::BASE_EEPROM_ADDRESS;
@@ -97,17 +97,17 @@ void setup() {
     uint8_t physicalAddress = MiP_EEPROM::BASE_EEPROM_ADDRESS + offset;
 
     // Print the physical EEPROM address and the recovered value in hex
-    Serial1.print(F(" 0x"));
-    Serial1.print(physicalAddress, HEX);
-    Serial1.print(F(": 0x"));
+    mip.console.print(F(" 0x"));
+    mip.console.print(physicalAddress, HEX);
+    mip.console.print(F(": 0x"));
     if (eepromContents < 0x10) {
-      Serial1.print(F("0"));  // Leading zero padding for single hex digits
+      mip.console.print(F("0"));  // Leading zero padding for single hex digits
     }
-    Serial1.println(eepromContents, HEX);
+    mip.console.println(eepromContents, HEX);
   }
 
-  Serial1.println();
-  Serial1.println(F("ZeroEEPROM.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("ZeroEEPROM.ino: Done."));
 }
 
 /**

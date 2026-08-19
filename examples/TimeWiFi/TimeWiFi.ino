@@ -29,7 +29,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 #include <time.h>  // Read and parse time structures
 
 /**
@@ -97,7 +97,7 @@ void resetEyesAndChest();
  * @brief Fetch current local time and update cached digit variables.
  *
  * @details Runs at most once per minute. Parses epoch time into individual
- * hour/minute tens and ones digits, and logs formatted time to Serial1.
+ * hour/minute tens and ones digits, and logs formatted time to mip.console.
  */
 void updateTimeDigits() {
   time_t now = time(nullptr);
@@ -119,9 +119,9 @@ void updateTimeDigits() {
   char timeBuf[32];
   strftime(timeBuf, sizeof(timeBuf), "%a %b %d %H:%M:%S %Y", timeinfo);
 
-  Serial1.print(F(" Time updated: "));
-  Serial1.println(timeBuf);
-  Serial1.printf(" Displaying %d%d:%d%d\r\n", hour_tens, hour_ones, minute_tens, minute_ones);
+  mip.console.print(F(" Time updated: "));
+  mip.console.println(timeBuf);
+  mip.console.printf(" Displaying %d%d:%d%d\r\n", hour_tens, hour_ones, minute_tens, minute_ones);
 }
 
 /**
@@ -188,16 +188,16 @@ void setup() {
   connectResult = mip.begin();
 
   if (!connectResult) {
-    Serial1.println(F("TimeWiFi.ino: Failed connecting to MiP."));
+    mip.console.println(F("TimeWiFi.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("TimeWiFi.ino: Make MiP a clock! Display time using "
+  mip.console.println(F("TimeWiFi.ino: Make MiP a clock! Display time using "
                     "eyes and chest."));
 
   uint8_t wifiStatus = mip.wifi.begin(ssid, password, hostname);
   if (wifiStatus != WL_CONNECTED) {
-    Serial1.println(F("TimeWiFi.ino: Failed connecting to WiFi."));
+    mip.console.println(F("TimeWiFi.ino: Failed connecting to WiFi."));
     connectResult = false;
     return;
   }
@@ -205,17 +205,17 @@ void setup() {
   // Configure NTP servers with timezone offset (-4 hours = -14400 seconds)
   configTime(-4 * 3600, 0, "pool.ntp.org", "time.nist.gov");
 
-  Serial1.println(F(" Waiting for a valid response from NTP."));
+  mip.console.println(F(" Waiting for a valid response from NTP."));
   uint8_t ntpAttempts = 0;
   while (time(nullptr) < 1600000000UL && ntpAttempts < 30) {
-    Serial1.print(F("."));
+    mip.console.print(F("."));
     delay(1000);
     ntpAttempts++;
   }
-  Serial1.println();
+  mip.console.println();
 
   if (time(nullptr) < 1600000000UL) {
-    Serial1.println(F("TimeWiFi.ino: NTP sync timed out."));
+    mip.console.println(F("TimeWiFi.ino: NTP sync timed out."));
     connectResult = false;
     return;
   }

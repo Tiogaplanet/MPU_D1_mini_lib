@@ -20,7 +20,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -36,7 +36,7 @@ MiP mip;
 bool connectResult;
 
 /**
- * @brief Prints the current chest LED setting to Serial1.
+ * @brief Prints the current chest LED setting to mip.console.
  *
  * @details Reads the current chest LED state from MiP using chestLED.read()
  * and prints the red, green, blue, onTime, and offTime values in a
@@ -46,19 +46,19 @@ static void printCurrentChestLEDSetting() {
   MiPChestLED chestLED;
   mip.chestLED.read(chestLED);
 
-  Serial1.println(F(" Current Chest LED Setting"));
-  Serial1.print(F("    red: "));
-  Serial1.println(chestLED.red);
-  Serial1.print(F("    green: "));
-  Serial1.println(chestLED.green);
-  Serial1.print(F("    blue: "));
-  Serial1.println(chestLED.blue);
-  Serial1.print(F("    on time: "));
-  Serial1.print(chestLED.onTime);
-  Serial1.println(F(" milliseconds"));
-  Serial1.print(F("    off time: "));
-  Serial1.print(chestLED.offTime);
-  Serial1.println(F(" milliseconds"));
+  mip.console.println(F(" Current Chest LED Setting"));
+  mip.console.print(F("    red: "));
+  mip.console.println(chestLED.red);
+  mip.console.print(F("    green: "));
+  mip.console.println(chestLED.green);
+  mip.console.print(F("    blue: "));
+  mip.console.println(chestLED.blue);
+  mip.console.print(F("    on time: "));
+  mip.console.print(chestLED.onTime);
+  mip.console.println(F(" milliseconds"));
+  mip.console.print(F("    off time: "));
+  mip.console.print(chestLED.offTime);
+  mip.console.println(F(" milliseconds"));
 }
 
 /**
@@ -71,21 +71,21 @@ static void printCurrentChestLEDSetting() {
  *  - Setting a static color (green) using a MiPChestLED struct.
  *  - Repeating the sequence using unverified write APIs.
  *
- * The function prints status messages to Serial1 and uses
+ * The function prints status messages to mip.console and uses
  * printCurrentChestLEDSetting() to display the current chest LED state after
  * each verified write.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("ChestLED.ino: Failed connecting to MiP!"));
+    mip.console.println(F("ChestLED.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("ChestLED.ino: Set Chest LED to different colors."));
+  mip.console.println(F("ChestLED.ino: Set Chest LED to different colors."));
 
   // 1. Set static color (magenta) using verified write
-  Serial1.println(F(" Set chest LED to magenta, no time specified."));
+  mip.console.println(F(" Set chest LED to magenta, no time specified."));
   uint8_t red = 0xFF;
   uint8_t green = 0x01;
   uint8_t blue = 0xFE;
@@ -94,7 +94,7 @@ void setup() {
   delay(1000);
 
   // 2. Set flashing color (red) using verified write
-  Serial1.println(F(" Set chest LED to blink red, on time: 990ms, off time: 989ms."));
+  mip.console.println(F(" Set chest LED to blink red, on time: 990ms, off time: 989ms."));
   red = 0xFF;
   green = 0x01;
   blue = 0x05;
@@ -105,7 +105,7 @@ void setup() {
   delay(4000);
 
   // 3. Set static color (green) using a MiPChestLED struct
-  Serial1.println(F(" Set chest LED back to green, no time specified."));
+  mip.console.println(F(" Set chest LED back to green, no time specified."));
   MiPChestLED chestLED;
   chestLED.red = 0x00;
   chestLED.green = 0xFF;
@@ -117,21 +117,21 @@ void setup() {
   delay(1000);
 
   // 4. Repeat sequence using unverified write (fire-and-forget) APIs
-  Serial1.println(F(" Trying to set chest LED to magenta, no time specified."));
+  mip.console.println(F(" Trying to set chest LED to magenta, no time specified."));
   red = 0xFF;
   green = 0x01;
   blue = 0xFE;
   mip.chestLED.unverifiedWrite(red, green, blue);
   delay(1000);
 
-  Serial1.println(F(" Trying to set chest LED to blink red, with time specified."));
+  mip.console.println(F(" Trying to set chest LED to blink red, with time specified."));
   red = 0xFF;
   green = 0x01;
   blue = 0x05;
   mip.chestLED.unverifiedWrite(red, green, blue, onTime, offTime);
   delay(4000);
 
-  Serial1.println(F(" Trying to set chest LED back to green with a flash time."));
+  mip.console.println(F(" Trying to set chest LED back to green with a flash time."));
   chestLED.red = 0x00;
   chestLED.green = 0xFF;
   chestLED.blue = 0x00;
@@ -141,7 +141,7 @@ void setup() {
   delay(1000);
 
   // Restore solid green state at the end of the test
-  Serial1.println(F(" Set chest LED back to solid green."));
+  mip.console.println(F(" Set chest LED back to solid green."));
   chestLED.red = 0x00;
   chestLED.green = 0xFF;
   chestLED.blue = 0x00;
@@ -149,7 +149,7 @@ void setup() {
   chestLED.offTime = 0;
   mip.chestLED.write(chestLED);
 
-  Serial1.println(F("ChestLED.ino: Done."));
+  mip.console.println(F("ChestLED.ino: Done."));
 }
 
 /**

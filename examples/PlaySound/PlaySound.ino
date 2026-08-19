@@ -24,7 +24,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -44,7 +44,7 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. On success, the sketch demonstrates:
  *   - Playing a single sound with sound.play().
  *   - Building a sound list using sound.beginList() and sound.addEntryToList().
@@ -57,11 +57,11 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("PlaySound.ino: Failed connecting to MiP!"));
+    mip.console.println(F("PlaySound.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("PlaySound.ino: Play a few sounds."));
+  mip.console.println(F("PlaySound.ino: Play a few sounds."));
 
   // Play a single sound (drinking) at volume level 4.
   mip.sound.play(MIP_SOUND_ACTION_DRINKING, MIP_VOLUME_4);
@@ -81,8 +81,8 @@ void setup() {
   delay(10000);
   mip.sound.playList();
 
-  Serial1.println();
-  Serial1.println(F("PlaySound.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("PlaySound.ino: Done."));
 }
 
 /**

@@ -7,7 +7,7 @@
  * packets. The example sends a 4-byte command to set the chest LED to purple
  * and then requests MiP's firmware revision using a raw receive command. If a
  * valid firmware response is returned, the sketch prints a human-readable
- * software version string to Serial1.
+ * software version string to mip.console.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -22,7 +22,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -41,7 +41,7 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. On success, the sketch:
  *   - Sends a 4-byte raw command to set the chest LED to purple.
  *   - Sends a raw request to query MiP's firmware version and attempts to
@@ -53,11 +53,11 @@ bool connectResult;
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("RawSendReceive.ino: Failed connecting to MiP!"));
+    mip.console.println(F("RawSendReceive.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("RawSendReceive.ino: Use raw*() functions. Should set "
+  mip.console.println(F("RawSendReceive.ino: Use raw*() functions. Should set "
                     "chest LED to purple and display MiP firmware revision."));
 
   /* Send 4-byte MiP command to set Chest LED to Purple.
@@ -86,21 +86,21 @@ void setup() {
    *   response[4] contains the build number.
    */
   if (result == MiP::MIP_ERROR_NONE && responseLength == 5 && response[0] == 0x14) {
-    Serial1.print(F(" MiP Software Version: "));
-    Serial1.print(response[1] + 2000);  // Year offset stored as (year - 2000)
-    Serial1.print('-');
-    if (response[2] < 10) Serial1.print('0');  // Month zero-padding
-    Serial1.print(response[2]);                // Month
-    Serial1.print('-');
-    if (response[3] < 10) Serial1.print('0');  // Day zero-padding
-    Serial1.print(response[3]);                // Day
-    Serial1.print(F(" (build #"));
-    Serial1.print(response[4]);  // Build number
-    Serial1.print(')');
+    mip.console.print(F(" MiP Software Version: "));
+    mip.console.print(response[1] + 2000);  // Year offset stored as (year - 2000)
+    mip.console.print('-');
+    if (response[2] < 10) mip.console.print('0');  // Month zero-padding
+    mip.console.print(response[2]);                // Month
+    mip.console.print('-');
+    if (response[3] < 10) mip.console.print('0');  // Day zero-padding
+    mip.console.print(response[3]);                // Day
+    mip.console.print(F(" (build #"));
+    mip.console.print(response[4]);  // Build number
+    mip.console.print(')');
   }
 
-  Serial1.println();
-  Serial1.println(F("RawSendReceive.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("RawSendReceive.ino: Done."));
 }
 
 /**

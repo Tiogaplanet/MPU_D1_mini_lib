@@ -21,7 +21,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -40,18 +40,18 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. On success, a status message is printed describing the
  * continuous drive demonstration.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("ContinuousDrive.ino: Failed connecting to MiP!"));
+    mip.console.println(F("ContinuousDrive.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("ContinuousDrive.ino: Use continuousDrive() function. Drive forward "
+  mip.console.println(F("ContinuousDrive.ino: Use continuousDrive() function. Drive forward "
                     "with right turn and then backward with left turn."));
 }
 
@@ -110,8 +110,8 @@ void loop() {
         // Stop motion when the demonstration completes
         mip.motion.stop();
 
-        Serial1.println();
-        Serial1.println(F("ContinuousDrive.ino: Done."));
+        mip.console.println();
+        mip.console.println(F("ContinuousDrive.ino: Done."));
         state = DONE;
       }
       break;

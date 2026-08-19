@@ -6,7 +6,7 @@
  * MiP to intentionally fall forward and backward using the motion.fallForward()
  * and motion.fallBackward() APIs. The sketch first waits for MiP to be
  * standing upright (position.isUpright()) before issuing each fall command and
- * prints status messages to Serial1 so the sequence can be observed.
+ * prints status messages to mip.console so the sequence can be observed.
  *
  * The example exercises these API calls:
  *   - mip.begin()
@@ -22,7 +22,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -41,7 +41,7 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. On success, the function:
  *   - Waits until MiP reports being upright using position.isUpright().
  *   - Pauses briefly to ensure stability.
@@ -49,41 +49,41 @@ bool connectResult;
  *   - Waits again for MiP to be standing upright, then commands a fall
  *     backward with motion.fallBackward().
  *
- * The function prints progress and status messages to Serial1 to make the
+ * The function prints progress and status messages to mip.console to make the
  * demonstration easy to follow.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("FallDown.ino: Failed connecting to MiP!"));
+    mip.console.println(F("FallDown.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("FallDown.ino: Fall forward and backward.\n"));
+  mip.console.println(F("FallDown.ino: Fall forward and backward.\n"));
 
-  Serial1.println(F(" Waiting for MiP to be standing upright."));
+  mip.console.println(F(" Waiting for MiP to be standing upright."));
   while (!mip.position.isUpright()) {
     // Yield CPU time to prevent ESP8266 watchdog resets while waiting
     delay(100);
   }
   delay(1000);
 
-  Serial1.println(F(" Falling forward."));
+  mip.console.println(F(" Falling forward."));
   mip.motion.fallForward();
 
   delay(1000);
-  Serial1.println(F(" Waiting for MiP to be standing upright again."));
+  mip.console.println(F(" Waiting for MiP to be standing upright again."));
   while (!mip.position.isUpright()) {
     // Yield CPU time to prevent ESP8266 watchdog resets while waiting
     delay(100);
   }
   delay(1000);
 
-  Serial1.println(F(" Falling backward."));
+  mip.console.println(F(" Falling backward."));
   mip.motion.fallBackward();
 
-  Serial1.println();
-  Serial1.println(F("FallDown.ino: Done."));
+  mip.console.println();
+  mip.console.println(F("FallDown.ino: Done."));
 }
 
 /**

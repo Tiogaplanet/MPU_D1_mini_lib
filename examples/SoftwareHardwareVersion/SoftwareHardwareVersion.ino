@@ -24,7 +24,7 @@
  *   - mip.version.readSoftware()
  *   - mip.version.readHardware()
  *
- * The output is printed to Serial1 in a human-readable format so the user can
+ * The output is printed to mip.console in a human-readable format so the user can
  * inspect MiP's firmware build date, revision, hardware details, and link
  * speed.
  *
@@ -36,7 +36,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -57,7 +57,7 @@ bool connectResult;
  *
  * @details
  * - Attempts to initialize the MiP connection via mip.begin().
- * - If the connection fails, prints an error to Serial1 and returns early.
+ * - If the connection fails, prints an error to mip.console and returns early.
  * - On success, prints the MPU library version string and active UART baud
  * rate.
  * - Reads the software version into a MiPSoftwareVersion struct
@@ -65,52 +65,52 @@ bool connectResult;
  * - Reads hardware information into a MiPHardwareInfo struct and prints the
  *   voice chip and body hardware revision values.
  *
- * The function prints progress and completion messages to Serial1 so the
+ * The function prints progress and completion messages to mip.console so the
  * user can observe the retrieved version, hardware, and link speed details.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("SoftwareHardwareVersion.ino: Failed connecting to MiP."));
+    mip.console.println(F("SoftwareHardwareVersion.ino: Failed connecting to MiP."));
     return;
   }
 
-  Serial1.println(F("SoftwareHardwareVersion.ino: Use getBaudRate(), version.readSoftware(), "
+  mip.console.println(F("SoftwareHardwareVersion.ino: Use getBaudRate(), version.readSoftware(), "
                     "and version.readHardware() functions."));
 
   // Display the Arduino library version string
-  Serial1.print(F(" MiP Power Up library version: "));
-  Serial1.println(mip.version.readMPUString());
+  mip.console.print(F(" MiP Power Up library version: "));
+  mip.console.println(mip.version.readMPUString());
 
   // Display the active UART baud rate negotiated during begin()
-  Serial1.print(F(" Active UART link speed: "));
-  Serial1.print(mip.getBaudRate());
-  Serial1.println(F(" baud"));
+  mip.console.print(F(" Active UART link speed: "));
+  mip.console.print(mip.getBaudRate());
+  mip.console.println(F(" baud"));
 
   /* Read and display software version information. */
   MiPSoftwareVersion softwareVersion;
   mip.version.readSoftware(softwareVersion);
-  Serial1.print(F(" Software version: "));
-  Serial1.print(softwareVersion.year);
-  Serial1.print('-');
-  if (softwareVersion.month < 10) Serial1.print('0');  // Month zero-padding
-  Serial1.print(softwareVersion.month);
-  Serial1.print('-');
-  if (softwareVersion.day < 10) Serial1.print('0');  // Day zero-padding
-  Serial1.print(softwareVersion.day);
-  Serial1.print('.');
-  Serial1.println(softwareVersion.uniqueVersion);
+  mip.console.print(F(" Software version: "));
+  mip.console.print(softwareVersion.year);
+  mip.console.print('-');
+  if (softwareVersion.month < 10) mip.console.print('0');  // Month zero-padding
+  mip.console.print(softwareVersion.month);
+  mip.console.print('-');
+  if (softwareVersion.day < 10) mip.console.print('0');  // Day zero-padding
+  mip.console.print(softwareVersion.day);
+  mip.console.print('.');
+  mip.console.println(softwareVersion.uniqueVersion);
 
   /* Read and display hardware information. */
   MiPHardwareInfo hardwareInfo;
   mip.version.readHardware(hardwareInfo);
-  Serial1.println(F(" Hardware info"));
-  Serial1.print(F("  Voice chip version: "));
-  Serial1.println(hardwareInfo.voiceChip);
-  Serial1.print(F("  Hardware version: "));
-  Serial1.println(hardwareInfo.hardware);
+  mip.console.println(F(" Hardware info"));
+  mip.console.print(F("  Voice chip version: "));
+  mip.console.println(hardwareInfo.voiceChip);
+  mip.console.print(F("  Hardware version: "));
+  mip.console.println(hardwareInfo.hardware);
 
-  Serial1.println(F("SoftwareHardwareVersion.ino: Done."));
+  mip.console.println(F("SoftwareHardwareVersion.ino: Done."));
 }
 
 /**

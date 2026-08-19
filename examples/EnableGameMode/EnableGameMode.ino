@@ -5,7 +5,7 @@
  * @details This sketch cycles through MiP's built-in game modes
  * (Cage, Dance, Stack, Trick, Roam, App), enabling each mode in turn and
  * verifying the change using the corresponding isXEnabled() query.
- * It prints status messages to Serial1 and pauses between mode changes so
+ * It prints status messages to mip.console and pauses between mode changes so
  * the behavior can be observed. The delay between mode changes can be
  * shortened for bench testing or lengthened to watch MiP perform.
  *
@@ -31,7 +31,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -46,7 +46,7 @@ MiP mip;
 /**
  * @brief Delay period between mode changes in milliseconds.
  *
- * @details Set to a short value (10000 ms) for bench testing with Serial1,
+ * @details Set to a short value (10000 ms) for bench testing with mip.console,
  * or increase to observe MiP's behavior for longer intervals.
  */
 const uint32_t delayPeriod = 10000;
@@ -60,20 +60,20 @@ bool connectResult;
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP by calling mip.begin().
- * If the connection fails, an error message is printed to Serial1 and setup
+ * If the connection fails, an error message is printed to mip.console and setup
  * returns early. On success, a brief status message is printed and the sketch
  * sets speaker volume to level 7 before entering the main loop that cycles
  * through modes.
  */
 void setup() {
-  // First need to initialize the Serial1 connection with MiP.
+  // First need to initialize the mip.console connection with MiP.
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("EnableGameMode.ino: Failed connecting to MiP!"));
+    mip.console.println(F("EnableGameMode.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("EnableGameMode.ino: Cycles through each mode available."));
+  mip.console.println(F("EnableGameMode.ino: Cycles through each mode available."));
 
   delay(500);
 
@@ -88,7 +88,7 @@ void setup() {
  * @details Repeatedly enables each available game mode on MiP in
  * sequence. After enabling a mode, the sketch queries the corresponding
  * mode.isXEnabled() function to verify the mode was activated and prints a
- * confirmation message to Serial1. The sketch then delays for delayPeriod
+ * confirmation message to mip.console. The sketch then delays for delayPeriod
  * milliseconds before moving to the next mode.
  *
  * Sequence:
@@ -104,26 +104,26 @@ void loop() {
   if (!connectResult) { return; }
 
   mip.mode.enableCage();
-  if (mip.mode.isCageEnabled()) { Serial1.println(F(" Cage mode enabled.")); }
+  if (mip.mode.isCageEnabled()) { mip.console.println(F(" Cage mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableDance();
-  if (mip.mode.isDanceEnabled()) { Serial1.println(F(" Dance mode enabled.")); }
+  if (mip.mode.isDanceEnabled()) { mip.console.println(F(" Dance mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableStack();
-  if (mip.mode.isStackEnabled()) { Serial1.println(F(" Stack mode enabled.")); }
+  if (mip.mode.isStackEnabled()) { mip.console.println(F(" Stack mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableTrick();
-  if (mip.mode.isTrickEnabled()) { Serial1.println(F(" Trick mode enabled.")); }
+  if (mip.mode.isTrickEnabled()) { mip.console.println(F(" Trick mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableRoam();
-  if (mip.mode.isRoamEnabled()) { Serial1.println(F(" Roam mode enabled.")); }
+  if (mip.mode.isRoamEnabled()) { mip.console.println(F(" Roam mode enabled.")); }
   delay(delayPeriod);
 
   mip.mode.enableApp();
-  if (mip.mode.isAppEnabled()) { Serial1.println(F(" App mode enabled.")); }
+  if (mip.mode.isAppEnabled()) { mip.console.println(F(" App mode enabled.")); }
   delay(delayPeriod);
 }

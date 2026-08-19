@@ -14,7 +14,7 @@
  *   - Command MiP to fall forward on the tray.
  *   - Attempt to get up again.
  *
- * The sketch prints status messages to Serial1 so the user can observe the
+ * The sketch prints status messages to mip.console so the user can observe the
  * sequence. The example exercises these API calls:
  *   - mip.begin()
  *   - mip.motion.fallForward()
@@ -28,7 +28,7 @@
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-#include <MiP_Power_Up_-_D1_mini.h>
+#include <MiP_Power_Up.h>
 
 /**
  * @brief Global MiP instance used to communicate with MiP.
@@ -48,33 +48,33 @@ bool connectResult;
  *
  * @details Called once after the board powers up or resets. This function:
  *   - Initializes communication with MiP via mip.begin().
- *   - If the connection fails, prints an error to Serial1 and returns early.
+ *   - If the connection fails, prints an error to mip.console and returns early.
  *   - Commands MiP to get up from the kickstand, wait for stabilization, then
  * fall forward and attempt to get up again from the front position.
- *   - Prints progress and completion messages to Serial1.
+ *   - Prints progress and completion messages to mip.console.
  */
 void setup() {
   connectResult = mip.begin();
   if (!connectResult) {
-    Serial1.println(F("GetUp.ino: Failed connecting to MiP!"));
+    mip.console.println(F("GetUp.ino: Failed connecting to MiP!"));
     return;
   }
 
-  Serial1.println(F("GetUp.ino: Get up from the kickstand and tray."));
+  mip.console.println(F("GetUp.ino: Get up from the kickstand and tray."));
 
-  Serial1.println(F(" Getting up from kickstand."));
+  mip.console.println(F(" Getting up from kickstand."));
   mip.motion.getUp(MIP_GETUP_FROM_BACK);
   delay(3000);  // Allow MiP enough time to balance and stabilize
 
-  Serial1.println(F(" Falling forward."));
+  mip.console.println(F(" Falling forward."));
   mip.motion.fallForward();
   delay(2000);  // Allow time for the fall to complete
 
-  Serial1.println(F(" Getting up again."));
+  mip.console.println(F(" Getting up again."));
   mip.motion.getUp(MIP_GETUP_FROM_FRONT);
   delay(3000);  // Allow MiP enough time to stand up and balance
 
-  Serial1.println(F("GetUp.ino: Done."));
+  mip.console.println(F("GetUp.ino: Done."));
 }
 
 /**
