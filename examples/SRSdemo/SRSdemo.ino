@@ -105,18 +105,18 @@ static void animateEyes(int8_t direction) {
  * @brief Initialize connection to MiP and print demo banner.
  *
  * @details Attempts to initialize the MiP connection via g_mip.begin().
- * If the connection fails, an error is printed to mip.console and setup returns
+ * If the connection fails, an error is printed to g_mip.console and setup returns
  * early. On success, a short banner is printed to indicate the demo is running.
  */
 void setup() {
-  // First need to initialize the mip.console connection with MiP.
+  // First need to initialize the g_mip.console connection with MiP.
   connectResult = g_mip.begin();
   if (!connectResult) {
-    mip.console.println(F("SRSdemo.ino: Failed connecting to MiP!"));
+    g_mip.console.println(F("SRSdemo.ino: Failed connecting to MiP!"));
     return;
   }
 
-  mip.console.println(F("Seattle Robotics Society Demo for April 21st, 2018."));
+  g_mip.console.println(F("Seattle Robotics Society Demo for April 21st, 2018."));
 }
 
 /**
