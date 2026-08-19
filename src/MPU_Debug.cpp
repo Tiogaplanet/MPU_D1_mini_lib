@@ -12,7 +12,7 @@
  * https://opensource.org/licenses/MIT.
  */
 #include "MPU_Debug.h"
-#include "MiP_Power_Up_-_D1_mini.h"
+#include "MiP_Power_Up.h"
 
 WiFiServer telnetServer(MiP_Debug::TELNET_PORT);
 WiFiClient telnetClient;
