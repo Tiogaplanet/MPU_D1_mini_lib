@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - minor-edits
+      - 49-consolidate-the-d1-mini-and-pro-mini-libraries
   pull_request:
     branches:
       - master
