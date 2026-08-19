@@ -297,7 +297,7 @@ void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) 
     default:
       MIP_DEBUG_WARN_PREFIX();
       MIP_DEBUG_WARN_PRINT(F("MiP: Unknown OOB Event: 0x"));
-      if (command < 0x10) MIP_DEBUG_WARN_PRINT(F("0"));
+      if (command < 0x10) { MIP_DEBUG_WARN_PRINT(F("0")); }
       MIP_DEBUG_WARN_PRINTLN(command, HEX);
       break;
   }
@@ -324,7 +324,7 @@ int8_t MiP::parseStatus(MiPStatus& status, const uint8_t response[], size_t resp
   return MIP_ERROR_NONE;
 }
 
-void MiP::mipAssert(bool condition, uint32_t lineNumber, const char* fileName) {
+void MiP::mipAssert(bool condition, [[maybe_unused]] uint32_t lineNumber, [[maybe_unused]] const char* fileName) {
   if (!condition) {
     MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINT(F("MiP: Assert failed in file "));

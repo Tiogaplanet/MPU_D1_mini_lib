@@ -181,7 +181,7 @@ void MiP_Serial::processOobResponseData(uint8_t commandByte) {
       [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
       MIP_DEBUG_ERROR_PREFIX();
       MIP_DEBUG_ERROR_PRINT(F("MiP: Bad OOB command byte: 0x"));
-      if (commandByte < 0x10) MIP_DEBUG_ERROR_PRINT(F("0"));
+      if (commandByte < 0x10) { MIP_DEBUG_ERROR_PRINT(F("0")); }
       MIP_DEBUG_ERROR_PRINT(commandByte, HEX);
       MIP_DEBUG_ERROR_PRINT(F(" (discarded "));
       MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(discarded));
@@ -221,7 +221,7 @@ bool MiP_Serial::readIrLength(size_t& length) {
   length = (parseHexDigit(nibbles[0]) << 4) | parseHexDigit(nibbles[1]);
 
   if (length < 2 || length > 4) {
-    uint8_t discarded = discardUnexpectedSerialData();
+    [[maybe_unused]] uint8_t discarded = discardUnexpectedSerialData();
     MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINT(F("MiP: Bad IR code length: 0x"));
     MIP_DEBUG_ERROR_PRINT(static_cast<unsigned>(length), HEX);
