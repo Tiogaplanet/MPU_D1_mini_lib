@@ -23,12 +23,9 @@ This library dynamically adapts to your hardware, compiling the exact features y
 * **Telnet Debugging:** Stream live logs and interact with MiP wirelessly via a built-in Telnet server.
 * **Persistent Memory:** Read and write files to the onboard LittleFS flash memory.
 
-### 2. AVR ATmega328P (e.g., 3.3V Arduino Pro Mini)
+### 2. AVR ATmega328P (e.g., 5V Arduino Pro Mini)
 * **The Lightweight Classic:** Highly optimized for tight memory constraints.
 * **Auto-Multiplexing:** The Pro Mini only has one hardware Serial port. This library automatically manages a digital pin (Pin 4) to toggle a hardware multiplexer, seamlessly sharing the single UART line between your PC console and MiP.
-
-### 3. ESP32-S2 (Coming Soon)
-* Built with extensibility in mind, native ESP32-S2 support is currently in development!
 
 ---
 
