@@ -126,14 +126,15 @@ void MiP::end() {
 
   clear();
 
+  // Shut down the MiP UART link, but KEEP the PC Console alive for error reporting!
 #if defined(__AVR__)
-  Serial.end();
+  // AVR shares the Serial port. Do not call Serial.end() so the console still works.
 #elif defined(ESP8266)
   Serial.swap();
-  Serial.end();
-  Serial1.end();
+  Serial.end();      // Kills the MiP link on Serial
+  // Serial1.end();  <--- REMOVE THIS! Keep the debug console alive.
 #elif defined(ESP32)
-  Serial1.end();
+  Serial1.end();     // Kills the MiP link on Serial1 (Console is on Serial, untouched)
 #endif
 }
 
