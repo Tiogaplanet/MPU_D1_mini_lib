@@ -1,11 +1,10 @@
 /**
  * @file MPU_Console.h
- * @brief Auto-switching UART console for sending debug text to the PC.
+ * @brief Defines the public interface for the PC serial console in the MiP library.
  *
- * @details This header defines the MiP_Console class, which inherits from
- * Arduino's Stream class. It provides transparent redirection of print
- * statements to the PC Serial Monitor over a shared single hardware UART on the
- * Arduino Pro Mini.
+ * @details This header declares the console API used to print diagnostic and 
+ * status messages to the PC. It abstracts the underlying serial hardware across 
+ * different architectures (AVR, ESP8266, ESP32).
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -19,171 +18,72 @@
 #define MPU_CONSOLE_H
 
 #include <Arduino.h>
-#include <Stream.h>
+#include "Print.h"
 
-// Forward declaration of the main MiP class to avoid circular includes
+// Forward-declare the main MiP class to avoid circular include dependencies.
 class MiP;
 
 /**
- * @brief Redirects Print/Stream writes to the PC Serial Monitor by temporarily
- *        switching the Pro Mini's UART multiplexer away from MiP.
+ * @brief Manages serial output to the PC console across multiple architectures.
  *
- * @details The MiP_Console class allows debug messages and standard Stream I/O
- *          operations to be sent to and received from an external PC via the
- *          shared HardwareSerial connection without interfering with regular
- *          communication to MiP.
+ * @details Inherits from the Arduino Print class, providing access to standard
+ * print(), println(), and formatting functions. Automatically handles hardware
+ * UART multiplexing on AVR targets and routes to appropriate debug serial ports
+ * on ESP8266/ESP32 targets.
  */
-class MiP_Console : public Stream {
-public:
-  // --- Stream Interface Overrides ---
-
+class MiP_Console : public Print {
+ public:
   /**
-   * @brief Queries the number of bytes available for reading from the PC Serial
-   * Monitor.
+   * @brief Writes a single byte to the PC console.
    *
-   * @details Lazy-initializes the hardware serial port if necessary before
-   * checking the input buffer.
-   *
-   * @return int Number of bytes available to read, or 0 if no data is present.
-   */
-  virtual int available() override;
-
-  /**
-   * @brief Reads the next available character from the PC Serial Monitor.
-   *
-   * @details Removes the byte from the incoming serial buffer.
-   *
-   * @return int The next character read from the stream, or -1 if no data is
-   * available.
-   */
-  virtual int read() override;
-
-  /**
-   * @brief Peeks at the next incoming character from the PC Serial Monitor
-   * without removing it.
-   *
-   * @return int The next character in the buffer, or -1 if no data is
-   * available.
-   */
-  virtual int peek() override;
-
-  // --- Print Interface Overrides ---
-
-  using Print::write;
-
-  /**
-   * @brief Writes a single byte to the PC Serial Monitor.
-   *
-   * @details Toggles the multiplexer to PC, writes the byte, flushes the
-   * transmit buffer, and restores communication back to MiP if MiP was active
-   * beforehand.
-   *
-   * @param byte The single character or byte value to transmit.
-   * @return size_t The number of bytes written (returns 1 on success, 0 on
-   * failure).
+   * @param byte The byte to send to the console.
+   * @return size_t Number of bytes written (1 on success).
    */
   virtual size_t write(uint8_t byte) override;
 
   /**
-   * @brief Writes a buffer of bytes to the PC Serial Monitor.
+   * @brief Writes a buffer of bytes to the PC console.
    *
-   * @details Toggles the multiplexer to PC, writes the buffer, flushes the
-   * transmit buffer, and restores communication back to MiP if MiP was active
-   * beforehand.
-   *
-   * @param pBuffer Pointer to the array of bytes to transmit.
-   * @param size    Number of bytes in the buffer to transmit.
-   * @return size_t The total number of bytes successfully written to the serial
-   * port.
+   * @param buffer Pointer to the array of bytes to send.
+   * @param size Number of bytes to send.
+   * @return size_t Number of bytes successfully written.
    */
-  virtual size_t write(const uint8_t* pBuffer, size_t size) override;
+  virtual size_t write(const uint8_t* buffer, size_t size) override;
+
+ protected:
+#if defined(__AVR__)
+  /**
+   * @brief Digital I/O pin used to control the Pro Mini UART hardware multiplexer.
+   */
+  static constexpr uint8_t UART_SELECT_PIN = 4;
 
   /**
-   * @brief Returns the amount of buffer space available for writing without
-   * blocking.
-   *
-   * @return int Number of bytes that can be written to the serial buffer
-   * without blocking.
+   * @brief Pin state to route UART to MiP.
    */
-  virtual int availableForWrite() override;
+  static constexpr uint8_t UART_SELECT_MIP = LOW;
 
   /**
-   * @brief Waits for any outgoing serial transmission to complete.
-   *
-   * @details Blocks execution until all buffered outgoing serial bytes have
-   * been sent.
+   * @brief Pin state to route UART to the PC console.
    */
-  virtual void flush() override;
+  static constexpr uint8_t UART_SELECT_PC = HIGH;
 
-  // --- HardwareSerial Compatibility Methods ---
+  void switchSerialToMiP();
+  void switchSerialToPC();
+#endif
 
+ private:
   /**
-   * @brief Starts serial communication with specified baud rate.
+   * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *
-   * @param baud Baud rate parameter in bits per second (defaults to 115200).
-   */
-  void begin(unsigned long baud = kDefaultBaudRate);
-
-  /**
-   * @brief Starts serial communication with specified baud rate and
-   * configuration mode.
-   *
-   * @param baud   Baud rate parameter in bits per second.
-   * @param config Serial data configuration (e.g., SERIAL_8N1).
-   */
-  void begin(unsigned long baud, uint16_t config);
-
-  /**
-   * @brief Disables serial communication and frees the serial hardware port.
-   */
-  void end();
-
-  /**
-   * @brief Boolean evaluation operator for checking if the serial stream is
-   * ready.
-   *
-   * @return true Always returns true to indicate readiness.
-   */
-  explicit operator bool() const {
-    return true;
-  }
-
-private:
-  // --- Constants ---
-  static constexpr unsigned long kDefaultBaudRate = 115200;
-  static constexpr uint16_t kDefaultConfig = SERIAL_8N1;
-
-  /**
-   * @brief Constructs the Console manager instance.
-   *
-   * @param mip Reference to the main MiP instance for multiplexer control.
+   * @param mip A reference to the main MiP object.
    */
   explicit MiP_Console(MiP& mip);
 
-  /**
-   * @brief Lazy-initialization helper to ensure HardwareSerial is started prior
-   * to I/O operations.
-   */
-  void initIfNeeded();
+  MiP& m_mip;  // Stores a reference to the main MiP class.
 
   /**
-   * @brief Prepares multiplexer for writing to PC.
-   *
-   * @return true if communication was routed to MiP prior to switching.
+   * @brief Allows MiP to call private constructor.
    */
-  bool prepareForPcWrite();
-
-  /**
-   * @brief Flushes TX buffer and restores multiplexer back to MiP if needed.
-   *
-   * @param needToRestore Whether communication was active with MiP prior to
-   * write.
-   */
-  void restoreAfterPcWrite(bool needToRestore);
-
-  MiP& m_mip;     ///< Reference to the main MiP instance
-  bool m_isInit;  ///< Flag tracking HardwareSerial initialization status
-
   friend class MiP;
 };
 
