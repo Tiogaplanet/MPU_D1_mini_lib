@@ -36,7 +36,7 @@
 
 #if defined(ESP8266) || defined(ESP32)
   #include <MPU_Debug.h>
-//  #include "secrets.h" Commented out to pass arduino-cli.
+  #include "secrets.h"
 
   const char* ssid = SECRET_SSID;
   const char* password = SECRET_PASS;

@@ -39,7 +39,7 @@ jobs:
           path = os.path.expanduser('~/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/elf2bin.py')
           if os.path.exists(path):
               with open(path, 'r') as f: text = f.read()
-              text = text.replace(\"re.split('\s+', line)\", \"re.split(r'\s+', line)\")
+              text = text.replace(\"re.split('\re.split(\'\\s+\', line)\', \"re.split(r'\s+', line)\")
               with open(path, 'w') as f: f.write(text)
               print('Successfully patched elf2bin.py')
           else:
@@ -51,6 +51,16 @@ jobs:
           mkdir -p $HOME/Arduino/libraries
           # Symlink the workspace into the Arduino libraries folder using the unified library name
           ln -s $GITHUB_WORKSPACE $HOME/Arduino/libraries/MiP_Power_Up
+
+      - name: Generate fake secrets.h for CI tests
+        run: |
+          # Create a dummy secrets.h file in every example directory so #include "secrets.h" compiles successfully
+          for example in $HOME/Arduino/libraries/MiP_Power_Up/examples/*; do
+            if [ -d "$example" ]; then
+              echo '#define SECRET_SSID "CI_TEST_SSID"' > "$example/secrets.h"
+              echo '#define SECRET_PASS "CI_TEST_PASS"' >> "$example/secrets.h"
+            fi
+          done
 
       - name: Compile all examples across architectures
         run: |
