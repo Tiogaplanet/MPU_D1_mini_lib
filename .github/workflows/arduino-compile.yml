@@ -1,5 +1,8 @@
 name: Compile Arduino Examples
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
