@@ -1,7 +1,7 @@
 /**
- * @file TelnetDebug.ino
+ * @file Debug.ino
  * @brief Example sketch demonstrating telnet-based debug output for MiP on
- * ESP8266.
+ * the D1 mini.
  *
  * @details
  * This sketch shows how to initialize a MiP connection over WiFi on an ESP8266
