@@ -79,8 +79,8 @@ jobs:
               echo "Target: ESP8266 (D1 mini)"
               arduino-cli compile --warnings all --fqbn esp8266:esp8266:d1_mini "$example"
               
-              # Skip AVR compilation for examples that use networking
-              if [[ "$EXAMPLE_NAME" == *"WiFi"* || "$EXAMPLE_NAME" == *"Telnet"* ]]; then
+              # Skip AVR compilation for examples that use networking primarily
+              if [[ "$EXAMPLE_NAME" == *"WiFi"* || "$EXAMPLE_NAME" == *"Debug"* ]]; then
                 echo "Target: AVR (Pro Mini) -> SKIPPED (Requires ESP8266 network features)"
               else
                 echo "Target: AVR (Pro Mini)"
