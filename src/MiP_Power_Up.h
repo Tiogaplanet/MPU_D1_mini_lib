@@ -3,8 +3,8 @@
  * @brief Defines the core MPU API and unified subsystem interfaces.
  *
  * @details This header declares the main MiP class and the public interfaces
- * exposed by the library subsystems. It supports multiple architectures including
- * ESP8266 (D1 mini), AVR (Pro Mini), and ESP32-S2.
+ * exposed by the library subsystems. It supports multiple architectures
+ * including ESP8266 (D1 mini), AVR (Pro Mini), and ESP32-S2.
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -105,15 +105,18 @@
 #define MIP_DEBUG_INFO_PRINTLN(...)
 #endif
 
-// Define an assert mechanism that can be used to log and halt when the API is called incorrectly.
+// Define an assert mechanism that can be used to log and halt when the API is
+// called incorrectly.
 #define MIP_ASSERT(EXPRESSION) m_mip.mipAssert((EXPRESSION), __LINE__, __FILE__)
 
 /**
  * @brief MiP's current stance position and battery voltage.
  */
 class MiPStatus {
- public:
-  MiPStatus() { clear(); }
+public:
+  MiPStatus() {
+    clear();
+  }
 
   void clear() {
     battery = 0.0f;
@@ -131,12 +134,16 @@ class MiPStatus {
  * from ESP8266 (D1 mini), ESP32-S2, and AVR (Pro Mini) platforms.
  */
 class MiP {
- public:
-  static constexpr uint8_t MIP_ERROR_NONE = 0;          ///< Operation succeeded.
-  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;       ///< Timed out waiting for response.
-  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;      ///< No event has arrived yet.
-  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;  ///< Unexpected response received.
-  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;   ///< Exceeded maximum retries.
+public:
+  static constexpr uint8_t MIP_ERROR_NONE = 0;      ///< Operation succeeded.
+  static constexpr uint8_t MIP_ERROR_TIMEOUT = 1;   ///< Timed out waiting for
+                                                    ///< response.
+  static constexpr uint8_t MIP_ERROR_NO_EVENT = 2;  ///< No event has arrived
+                                                    ///< yet.
+  static constexpr uint8_t MIP_ERROR_BAD_RESPONSE = 3;  ///< Unexpected response
+                                                        ///< received.
+  static constexpr uint8_t MIP_ERROR_MAX_RETRIES = 4;   ///< Exceeded maximum
+                                                        ///< retries.
 
   // --- Core Lifecycle Functions ---
   MiP();
@@ -176,20 +183,31 @@ class MiP {
   MiP_WiFi wifi;
 #endif
 
- protected:
-  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;  ///< Disconnect command byte.
-  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;           ///< Sleep command byte.
-  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;      ///< Status query command byte.
+protected:
+  static constexpr uint8_t MIP_CMD_DISCONNECT_APP = 0xFE;  ///< Disconnect
+                                                           ///< command byte.
+  static constexpr uint8_t MIP_CMD_SLEEP = 0xFA;       ///< Sleep command byte.
+  static constexpr uint8_t MIP_CMD_GET_STATUS = 0x79;  ///< Status query command
+                                                       ///< byte.
 
-  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES = 5;       ///< Max retries in begin().
-  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT = 500;     ///< Delay between retries in begin() (ms).
-  static constexpr uint32_t MIP_FAST_BAUD_RATE = 115200;    ///< High-speed UART link rate.
-  static constexpr uint32_t MIP_SLOW_BAUD_RATE = 9600;      ///< Low-speed UART link rate.
+  static constexpr uint8_t MIP_MAX_BEGIN_RETRIES = 5;    ///< Max retries in
+                                                         ///< begin().
+  static constexpr uint16_t MIP_BEGIN_RETRY_WAIT = 500;  ///< Delay between
+                                                         ///< retries in begin()
+                                                         ///< (ms).
+  static constexpr uint32_t MIP_FAST_BAUD_RATE = 115200;  ///< High-speed UART
+                                                          ///< link rate.
+  static constexpr uint32_t MIP_SLOW_BAUD_RATE = 9600;  ///< Low-speed UART link
+                                                        ///< rate.
 
 #if defined(ESP8266)
-  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE = 74880; ///< Default ESP8266 bootloader debug rate.
+  static constexpr uint32_t ESP8266_DEBUG_BAUD_RATE = 74880;  ///< Default
+                                                              ///< ESP8266
+                                                              ///< bootloader
+                                                              ///< debug rate.
 #elif defined(__AVR__)
-  static constexpr uint8_t UART_SELECT_PIN = 2; ///< Pin for Pro Mini UART multiplexer.
+  static constexpr uint8_t UART_SELECT_PIN = 2;  ///< Pin for Pro Mini UART
+                                                 ///< multiplexer.
 #endif
 
   void clear();
@@ -197,7 +215,9 @@ class MiP {
 
   // --- Hardware UART Multiplexer Methods (AVR Only) ---
 #if defined(__AVR__)
-  bool isSerialGoingToMiP() const { return m_serialGoingToMiP; }
+  bool isSerialGoingToMiP() const {
+    return m_serialGoingToMiP;
+  }
   void switchSerialToMiP();
   void switchSerialToPC();
   bool m_serialGoingToMiP;

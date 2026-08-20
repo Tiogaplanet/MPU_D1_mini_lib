@@ -1,11 +1,12 @@
 /**
  * @file EEPROM.ino
- * @brief Exhaustive test and demonstration of MiP's non-volatile EEPROM storage.
+ * @brief Exhaustive test and demonstration of MiP's non-volatile EEPROM
+ * storage.
  *
  * @details This sketch serves as both a tutorial for the user and an exhaustive
  * test suite for the MiP_EEPROM class. It systematically exercises the read and
  * write methods available in the class. It reads the current state of offset 0,
- * writes a test byte, verifies the write via readback, writes 0 to clear it, 
+ * writes a test byte, verifies the write via readback, writes 0 to clear it,
  * verifies the clear, and then restores the original state.
  *
  * A summary table is printed to the console at the end of the automated tests.
@@ -43,13 +44,11 @@ bool connectResult;
 void printTestResult(const char* testName, bool passed) {
   mip.console.print(F(" "));
   mip.console.print(testName);
-  
+
   // Calculate padding to align the results column (32 characters wide)
   int padding = 33 - strlen(testName);
-  for (int i = 0; i < padding; i++) {
-    mip.console.print(F(" "));
-  }
-  
+  for (int i = 0; i < padding; i++) { mip.console.print(F(" ")); }
+
   mip.console.print(F("| "));
   if (passed) {
     mip.console.println(F("PASS"));
@@ -84,16 +83,16 @@ void setup() {
   uint8_t originalValue = 0;
 
   // ---------------------------------------------------------
-  // TEST 1: read() 
+  // TEST 1: read()
   // ---------------------------------------------------------
   mip.console.println(F("Test 1: Read offset 0 (Preserve original state)"));
   originalValue = mip.eeprom.read(0);
   t_read = !mip.didLastCallFail();
-  
+
   mip.console.print(F("  -> Original Value at Offset 0: 0x"));
   if (originalValue < 0x10) mip.console.print(F("0"));
   mip.console.println(originalValue, HEX);
-  
+
   delay(500);
 
   // ---------------------------------------------------------
@@ -101,12 +100,13 @@ void setup() {
   // ---------------------------------------------------------
   mip.console.println(F("Test 2: Write 0xAA to offset 0 and verify readback"));
   mip.eeprom.write(0, 0xAA);
-  
-  // Implicitly, write() already verifies via rawRead() internally. But we 
-  // explicitly read it back here to prove the public read() works after write().
+
+  // Implicitly, write() already verifies via rawRead() internally. But we
+  // explicitly read it back here to prove the public read() works after
+  // write().
   uint8_t readbackValue = mip.eeprom.read(0);
   t_write = !mip.didLastCallFail() && (readbackValue == 0xAA);
-  
+
   delay(500);
 
   // ---------------------------------------------------------
@@ -114,10 +114,10 @@ void setup() {
   // ---------------------------------------------------------
   mip.console.println(F("Test 3: Write 0x00 to offset 0 (Zeroing) and verify readback"));
   mip.eeprom.write(0, 0x00);
-  
+
   readbackValue = mip.eeprom.read(0);
   t_write_zero = !mip.didLastCallFail() && (readbackValue == 0x00);
-  
+
   delay(500);
 
   // ---------------------------------------------------------
@@ -135,11 +135,11 @@ void setup() {
   mip.console.println(F("=================================================="));
   mip.console.println(F(" Method / Feature                 | Result"));
   mip.console.println(F("----------------------------------|---------------"));
-  
+
   printTestResult("read()", t_read);
   printTestResult("write() (Test Byte)", t_write);
   printTestResult("write() (Zeroing)", t_write_zero);
-  
+
   mip.console.println(F("=================================================="));
   mip.console.println(F("EEPROM.ino: Tests Complete."));
 }
@@ -151,7 +151,5 @@ void setup() {
  * repeated work in loop().
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

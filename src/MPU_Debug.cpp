@@ -1,6 +1,7 @@
 /**
  * @file MPU_Debug.cpp
- * @brief Implements the debug functionality for the MiP library on ESP8266/ESP32 targets.
+ * @brief Implements the debug functionality for the MiP library on
+ * ESP8266/ESP32 targets.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -350,7 +351,7 @@ void MiP_Debug::showHelp() {
   String help = "";
 
   help += "*** Welcome to MiP's debug terminal. This is version ";
-  help += MIP_POWER_UP_VERSION; // Pull dynamically from MiP_Power_Up.h
+  help += MIP_POWER_UP_VERSION;  // Pull dynamically from MiP_Power_Up.h
   help += ".\r\n* Hostname: ";
   help += m_hostname;
   help += "\r\n* IP: ";
@@ -542,4 +543,4 @@ bool MiP_Debug::isCRLF(char character) {
   return (character == '\r' || character == '\n');
 }
 
-#endif // defined(ESP8266) || defined(ESP32)
+#endif  // defined(ESP8266) || defined(ESP32)

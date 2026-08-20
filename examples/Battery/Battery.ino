@@ -4,7 +4,7 @@
  *
  * @details This sketch serves as both a tutorial for the user and an exhaustive
  * test suite for the MiP_Battery class. It exercises the single public method
- * available in the class and verifies that a plausible voltage is returned 
+ * available in the class and verifies that a plausible voltage is returned
  * without generating any internal API errors.
  *
  * A summary table is printed to the console at the end of the test.
@@ -41,13 +41,11 @@ bool connectResult;
 void printTestResult(const char* testName, bool passed) {
   mip.console.print(F(" "));
   mip.console.print(testName);
-  
+
   // Calculate padding to align the results column (32 characters wide)
   int padding = 33 - strlen(testName);
-  for (int i = 0; i < padding; i++) {
-    mip.console.print(F(" "));
-  }
-  
+  for (int i = 0; i < padding; i++) { mip.console.print(F(" ")); }
+
   mip.console.print(F("| "));
   if (passed) {
     mip.console.println(F("PASS"));
@@ -60,7 +58,8 @@ void printTestResult(const char* testName, bool passed) {
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP, retrieves his current battery
- * voltage, verifies the reading is valid, and outputs a formatted summary table.
+ * voltage, verifies the reading is valid, and outputs a formatted summary
+ * table.
  */
 void setup() {
   connectResult = mip.begin();
@@ -79,21 +78,19 @@ void setup() {
   // TEST 1: readVoltage()
   // ---------------------------------------------------------
   mip.console.println(F("Test 1: Reading cached battery voltage"));
-  
+
   // Give MiP a moment to ensure background status events have updated the cache
-  delay(100); 
+  delay(100);
 
   float currentVoltage = mip.battery.readVoltage();
-  
+
   mip.console.print(F("  -> MiP reported battery voltage: "));
   mip.console.print(currentVoltage, 2);
   mip.console.println(F("V"));
 
   // Check if the call succeeded and returned a plausible non-zero voltage
-  if (!mip.didLastCallFail() && currentVoltage > 0.0f) {
-    t_readVoltage = true;
-  }
-  
+  if (!mip.didLastCallFail() && currentVoltage > 0.0f) { t_readVoltage = true; }
+
   delay(500);
 
   // ---------------------------------------------------------
@@ -105,9 +102,9 @@ void setup() {
   mip.console.println(F("=================================================="));
   mip.console.println(F(" Method / Feature                 | Result"));
   mip.console.println(F("----------------------------------|---------------"));
-  
+
   printTestResult("readVoltage()", t_readVoltage);
-  
+
   mip.console.println(F("=================================================="));
   mip.console.println(F("Battery.ino: Done."));
 }
@@ -119,7 +116,5 @@ void setup() {
  * repeated work in loop().
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

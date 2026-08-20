@@ -2,7 +2,7 @@
  * @file MPU_Console.cpp
  * @brief Implements multi-architecture console output for the MiP library.
  *
- * @details This source file routes Print class bytes to the correct hardware 
+ * @details This source file routes Print class bytes to the correct hardware
  * serial port depending on the target microcontroller (AVR, ESP8266, ESP32).
  *
  * @author Adam Green (Original Author)

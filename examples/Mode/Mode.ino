@@ -4,8 +4,8 @@
  *
  * @details This sketch serves as both a tutorial for the user and an exhaustive
  * test suite for the MiP_Mode class. It systematically exercises every public
- * method available in the class. It verifies success by setting MiP into a 
- * specific game/app mode, and then reading back the status to confirm the 
+ * method available in the class. It verifies success by setting MiP into a
+ * specific game/app mode, and then reading back the status to confirm the
  * mode change was accepted.
  *
  * A summary table is printed to the console at the end of the automated tests.
@@ -47,13 +47,11 @@ bool connectResult;
 void printTestResult(const char* testName, bool passed) {
   mip.console.print(F(" "));
   mip.console.print(testName);
-  
+
   // Calculate padding to align the results column (32 characters wide)
   int padding = 33 - strlen(testName);
-  for (int i = 0; i < padding; i++) {
-    mip.console.print(F(" "));
-  }
-  
+  for (int i = 0; i < padding; i++) { mip.console.print(F(" ")); }
+
   mip.console.print(F("| "));
   if (passed) {
     mip.console.println(F("PASS"));
@@ -66,8 +64,8 @@ void printTestResult(const char* testName, bool passed) {
  * @brief Arduino setup function.
  *
  * @details Initializes communication with MiP and runs a sequential, exhaustive
- * test of every MiP_Mode method. It leaves a short delay between tests so the 
- * user can hear MiP's audio cues as he changes modes. Finally, it outputs a 
+ * test of every MiP_Mode method. It leaves a short delay between tests so the
+ * user can hear MiP's audio cues as he changes modes. Finally, it outputs a
  * formatted summary table and restores MiP to App Mode (the default).
  */
 void setup() {
@@ -80,7 +78,8 @@ void setup() {
   mip.console.println(F("Mode.ino: Starting Exhaustive MiP_Mode Tests..."));
   mip.console.println();
 
-  // Reset MiP's volume to default so the user can hear him cycling through the modes.
+  // Reset MiP's volume to default so the user can hear him cycling through the
+  // modes.
   mip.sound.writeVolume(MIP_VOLUME_7);
   delay(500);
 
@@ -161,14 +160,14 @@ void setup() {
   mip.console.println(F("=================================================="));
   mip.console.println(F(" Method / Feature                 | Result"));
   mip.console.println(F("----------------------------------|---------------"));
-  
+
   printTestResult("Cage Mode", t_cage);
   printTestResult("Dance Mode", t_dance);
   printTestResult("Stack Mode", t_stack);
   printTestResult("Trick Mode", t_trick);
   printTestResult("Roam Mode", t_roam);
   printTestResult("App Mode", t_app);
-  
+
   mip.console.println(F("=================================================="));
   mip.console.println(F("Mode.ino: Tests Complete."));
 }
@@ -180,7 +179,5 @@ void setup() {
  * repeated work in loop().
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

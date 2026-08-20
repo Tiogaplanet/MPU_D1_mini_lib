@@ -24,9 +24,8 @@ MiP_WiFi::MiP_WiFi(MiP& mip) : m_mip(mip) {
   clear();
 }
 
-uint8_t MiP_WiFi::begin(const char* ssid,
-                        const char* password,
-                        const char* hostname /* = "MiP" */) {
+uint8_t MiP_WiFi::begin(
+  const char* ssid, const char* password, const char* hostname /* = "MiP" */) {
   // Memory-safe string copy operations:
   strncpy(m_ssid, ssid, sizeof(m_ssid) - 1);
   m_ssid[sizeof(m_ssid) - 1] = '\0';
@@ -49,9 +48,7 @@ void MiP_WiFi::enableAirplaneMode() {
 
   // App mode broadcasts BLE. If MiP is currently in app mode, switch to
   // the default gesture mode.
-  if (m_mip.mode.isAppEnabled()) {
-    m_mip.gesture.enable();
-  }
+  if (m_mip.mode.isAppEnabled()) { m_mip.gesture.enable(); }
 }
 
 uint8_t MiP_WiFi::disableAirplaneMode() {
@@ -80,8 +77,7 @@ uint8_t MiP_WiFi::connect() {
 
   while (WiFi.status() != WL_CONNECTED && attempts < MAX_CONNECT_ATTEMPTS) {
     // Animate the four head LEDs in a back-and-forth scanning pattern
-    MiPHeadLED leds[4] = {
-        MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF};
+    MiPHeadLED leds[4] = { MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF, MIP_HEAD_LED_OFF };
 
     leds[ledPos] = MIP_HEAD_LED_ON;
 
@@ -90,12 +86,10 @@ uint8_t MiP_WiFi::connect() {
     // Update scanner position for next frame
     if (direction) {
       ledPos++;
-      if (ledPos >= 3)
-        direction = false;
+      if (ledPos >= 3) direction = false;
     } else {
       ledPos--;
-      if (ledPos == 0)
-        direction = true;
+      if (ledPos == 0) direction = true;
     }
 
     MIP_DEBUG_WARN_PRINTLN(m_mip, F("MiP: WiFi connection attempt..."));
@@ -104,10 +98,8 @@ uint8_t MiP_WiFi::connect() {
   }
 
   // Restore original head LED state
-  m_mip.headLEDs.unverifiedWrite(originalLEDs.led1,
-                                 originalLEDs.led2,
-                                 originalLEDs.led3,
-                                 originalLEDs.led4);
+  m_mip.headLEDs.unverifiedWrite(
+    originalLEDs.led1, originalLEDs.led2, originalLEDs.led3, originalLEDs.led4);
 
   uint8_t connectStatus = WiFi.status();
   if (connectStatus == WL_CONNECTED) {
@@ -119,18 +111,18 @@ uint8_t MiP_WiFi::connect() {
       MIP_DEBUG_INFO_PRINT(m_mip, F("MiP: mDNS responder started with hostname of "));
       MIP_DEBUG_INFO_PRINT(m_mip, m_hostname);
       MIP_DEBUG_INFO_PRINTLN(m_mip, F(".local"));
-      
+
       MIP_DEBUG_INFO_PRINT(m_mip, F("MiP: IP address: "));
       MIP_DEBUG_INFO_PRINTLN(m_mip, WiFi.localIP().toString().c_str());
     }
 
     // Configure ArduinoOTA callbacks
     ArduinoOTA.onStart([]() {
-      String type =
-          (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
-      // We can't safely capture m_mip in standard lambdas across all architectures easily, 
-      // so raw Serial1 is acceptable here if required, though it is usually 
-      // preferred to avoid debug prints in asynchronous OTA ISR contexts anyway.
+      String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
+      // We can't safely capture m_mip in standard lambdas across all
+      // architectures easily, so raw Serial1 is acceptable here if required,
+      // though it is usually preferred to avoid debug prints in asynchronous
+      // OTA ISR contexts anyway.
     });
 
     ArduinoOTA.begin();
@@ -149,4 +141,4 @@ void MiP_WiFi::clear() {
   memset(m_hostname, 0, sizeof(m_hostname));
 }
 
-#endif // defined(ESP8266) || defined(ESP32)
+#endif  // defined(ESP8266) || defined(ESP32)

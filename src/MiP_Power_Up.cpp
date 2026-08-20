@@ -8,33 +8,20 @@
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)
  * @copyright Copyright (C) 2018-2026 Samuel Trassare
- * (https://github.com/Tiogaplanet) Licensed under the Apache License, Version 2.0.
+ * (https://github.com/Tiogaplanet) Licensed under the Apache License,
+ * Version 2.0.
  */
 #include "MiP_Power_Up.h"
 
 MiP::MiP()
-    : battery(*this),
-      chestLED(*this),
-      clap(*this),
-      console(*this),
-      eeprom(*this),
-      gesture(*this),
-      headLEDs(*this),
-      infrared(*this),
-      mode(*this),
-      motion(*this),
-      odometer(*this),
-      position(*this),
-      radar(*this),
-      serial(*this),
-      shake(*this),
-      sound(*this),
-      version(*this),
-      weight(*this),
+  : battery(*this), chestLED(*this), clap(*this), console(*this), eeprom(*this),
+    gesture(*this), headLEDs(*this), infrared(*this), mode(*this),
+    motion(*this), odometer(*this), position(*this), radar(*this),
+    serial(*this), shake(*this), sound(*this), version(*this), weight(*this),
 #if defined(ESP8266) || defined(ESP32)
-      wifi(*this),
+    wifi(*this),
 #endif
-      m_mip(*this) {
+    m_mip(*this) {
   clear();
 }
 
@@ -74,7 +61,7 @@ bool MiP::begin() {
 #elif defined(ESP32)
   Serial.begin(115200);
 #elif defined(__AVR__)
-  clear(); // mux -> PC
+  clear();  // mux -> PC
   Serial.begin(MIP_FAST_BAUD_RATE);
 #endif
 
@@ -87,7 +74,7 @@ bool MiP::begin() {
 
     if (attemptMiPConnection(MIP_FAST_BAUD_RATE) == MIP_ERROR_NONE) {
 #if defined(__AVR__)
-      switchSerialToMiP(); // Keep 115200 and route to MiP
+      switchSerialToMiP();  // Keep 115200 and route to MiP
 #endif
       return true;
     }
@@ -97,8 +84,8 @@ bool MiP::begin() {
 
     if (attemptMiPConnection(MIP_SLOW_BAUD_RATE) == MIP_ERROR_NONE) {
 #if defined(__AVR__)
-      // MiP only spoke at 9600. Switch UART back to 115200 so the console works,
-      // then leave the mux routed to MiP.
+      // MiP only spoke at 9600. Switch UART back to 115200 so the console
+      // works, then leave the mux routed to MiP.
       Serial.begin(MIP_FAST_BAUD_RATE);
       switchSerialToMiP();
 #endif
@@ -114,7 +101,7 @@ bool MiP::begin() {
 void MiP::end() {
   if (isInitialized()) {
     sound.end();
-    const uint8_t command[] = {MIP_CMD_DISCONNECT_APP};
+    const uint8_t command[] = { MIP_CMD_DISCONNECT_APP };
     serial.rawSend(command, sizeof(command));
 
 #if defined(ESP32)
@@ -126,20 +113,23 @@ void MiP::end() {
 
   clear();
 
-  // Shut down the MiP UART link, but KEEP the PC Console alive for error reporting!
+  // Shut down the MiP UART link, but KEEP the PC Console alive for error
+  // reporting!
 #if defined(__AVR__)
-  // AVR shares the Serial port. Do not call Serial.end() so the console still works.
+  // AVR shares the Serial port. Do not call Serial.end() so the console still
+  // works.
 #elif defined(ESP8266)
   Serial.swap();
-  Serial.end();      // Kills the MiP link on Serial
+  Serial.end();  // Kills the MiP link on Serial
   // Serial1.end();  <--- REMOVE THIS! Keep the debug console alive.
 #elif defined(ESP32)
-  Serial1.end();     // Kills the MiP link on Serial1 (Console is on Serial, untouched)
+  Serial1.end();  // Kills the MiP link on Serial1 (Console is on Serial,
+                  // untouched)
 #endif
 }
 
 void MiP::sleep() {
-  const uint8_t command[] = {MIP_CMD_SLEEP};
+  const uint8_t command[] = { MIP_CMD_SLEEP };
   serial.rawSend(command, sizeof(command));
 }
 
@@ -171,11 +161,10 @@ void MiP::printLastCallResult() {
         MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_BAD_RESPONSE (Unexpected response from MiP)"));
         break;
       case MIP_ERROR_MAX_RETRIES:
-        MIP_DEBUG_ERROR_PRINTLN(F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
+        MIP_DEBUG_ERROR_PRINTLN(
+          F("MIP_ERROR_MAX_RETRIES (Exceeded maximum number of retries)"));
         break;
-      default:
-        MIP_DEBUG_ERROR_PRINTLN(F("unknown error"));
-        break;
+      default: MIP_DEBUG_ERROR_PRINTLN(F("unknown error")); break;
     }
   }
 }
@@ -230,7 +219,7 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
 #endif
 
   // 0xFF tells MiP to enable its UART
-  const uint8_t initMipCommand[] = {0xFF};
+  const uint8_t initMipCommand[] = { 0xFF };
   serial.rawSend(initMipCommand, sizeof(initMipCommand));
 
   // Required spec delay (give 9600 baud extra settle time)
@@ -266,7 +255,7 @@ int8_t MiP::attemptMiPConnection(uint32_t baudRate) {
     MIP_DEBUG_INFO_PRINTLN(F(" baud"));
     m_baudRate = baudRate;
   }
-  
+
   return result;
 }
 
@@ -304,27 +293,29 @@ void MiP::dispatchEvent(uint8_t command, const uint8_t* payload, size_t length) 
 }
 
 int8_t MiP::rawGetStatus(MiPStatus& status) {
-  const uint8_t getStatus[1] = {MIP_CMD_GET_STATUS};
+  const uint8_t getStatus[1] = { MIP_CMD_GET_STATUS };
   uint8_t response[1 + 2];
   size_t responseLength;
   int result = serial.rawReceive(
-      getStatus, sizeof(getStatus), response, sizeof(response), responseLength);
+    getStatus, sizeof(getStatus), response, sizeof(response), responseLength);
   if (result) return result;
   return parseStatus(status, response, responseLength);
 }
 
 int8_t MiP::parseStatus(MiPStatus& status, const uint8_t response[], size_t responseLength) {
-  if (responseLength != 3 || response[0] != MIP_CMD_GET_STATUS ||
-      response[2] > MIP_POSITION_ON_BACK_WITH_KICKSTAND) {
+  if (responseLength != 3 || response[0] != MIP_CMD_GET_STATUS
+      || response[2] > MIP_POSITION_ON_BACK_WITH_KICKSTAND) {
     return MIP_ERROR_BAD_RESPONSE;
   }
 
-  status.battery = (float)(((response[1] - 0x4D) / (float)(0x7C - 0x4D)) * (6.4f - 4.0f)) + 4.0f;
+  status.battery =
+    (float)(((response[1] - 0x4D) / (float)(0x7C - 0x4D)) * (6.4f - 4.0f)) + 4.0f;
   status.position = static_cast<MiPPosition>(response[2]);
   return MIP_ERROR_NONE;
 }
 
-void MiP::mipAssert(bool condition, [[maybe_unused]] uint32_t lineNumber, [[maybe_unused]] const char* fileName) {
+void MiP::mipAssert(bool condition, [[maybe_unused]] uint32_t lineNumber,
+                    [[maybe_unused]] const char* fileName) {
   if (!condition) {
     MIP_DEBUG_ERROR_PREFIX();
     MIP_DEBUG_ERROR_PRINT(F("MiP: Assert failed in file "));

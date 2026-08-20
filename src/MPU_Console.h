@@ -1,9 +1,10 @@
 /**
  * @file MPU_Console.h
- * @brief Defines the public interface for the PC serial console in the MiP library.
+ * @brief Defines the public interface for the PC serial console in the MiP
+ * library.
  *
- * @details This header declares the console API used to print diagnostic and 
- * status messages to the PC. It abstracts the underlying serial hardware across 
+ * @details This header declares the console API used to print diagnostic and
+ * status messages to the PC. It abstracts the underlying serial hardware across
  * different architectures (AVR, ESP8266, ESP32).
  *
  * @author Adam Green (Original Author)
@@ -32,7 +33,7 @@ class MiP;
  * on ESP8266/ESP32 targets.
  */
 class MiP_Console : public Print {
- public:
+public:
   /**
    * @brief Writes a single byte to the PC console.
    *
@@ -50,10 +51,11 @@ class MiP_Console : public Print {
    */
   virtual size_t write(const uint8_t* buffer, size_t size) override;
 
- protected:
+protected:
 #if defined(__AVR__)
   /**
-   * @brief Digital I/O pin used to control the Pro Mini UART hardware multiplexer.
+   * @brief Digital I/O pin used to control the Pro Mini UART hardware
+   * multiplexer.
    */
   static constexpr uint8_t UART_SELECT_PIN = 4;
 
@@ -71,7 +73,7 @@ class MiP_Console : public Print {
   void switchSerialToPC();
 #endif
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
    *

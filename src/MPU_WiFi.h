@@ -3,8 +3,8 @@
  * @brief Defines the public interface for WiFi management in the MiP library.
  *
  * @details This header declares the WiFi API used to connect MiP to a network,
- * establishing capabilities like Over-The-Air (OTA) updates and mDNS name resolution
- * on ESP8266 and ESP32 targets.
+ * establishing capabilities like Over-The-Air (OTA) updates and mDNS name
+ * resolution on ESP8266 and ESP32 targets.
  *
  * @author Samuel Trassare (Original Author)
  * @copyright Copyright (C) 2018-2026 Samuel Trassare
@@ -32,7 +32,7 @@ class MiP;
  * @brief Manages MiP's WiFi capability.
  */
 class MiP_WiFi {
- public:
+public:
   /**
    * @brief Connects to a wireless access point and configures MiP with OTA
    * programming support.
@@ -40,11 +40,10 @@ class MiP_WiFi {
    * @param ssid     The station SSID.
    * @param password The access point's connection password.
    * @param hostname MiP's hostname on the wireless network (default: "MiP").
-   * @return uint8_t WL_CONNECTED if successful, otherwise returns WiFi error status code.
+   * @return uint8_t WL_CONNECTED if successful, otherwise returns WiFi error
+   * status code.
    */
-  uint8_t begin(const char* ssid,
-                const char* password,
-                const char* hostname = "MiP");
+  uint8_t begin(const char* ssid, const char* password, const char* hostname = "MiP");
 
   /**
    * @brief Connects to the configured WiFi access point.
@@ -52,38 +51,47 @@ class MiP_WiFi {
    * @details While attempting to connect, MiP's eyes light up in a
    * Knight Rider-style back-and-forth scanning animation.
    *
-   * @return uint8_t WL_CONNECTED if successful, otherwise returns WiFi error status code.
+   * @return uint8_t WL_CONNECTED if successful, otherwise returns WiFi error
+   * status code.
    */
   uint8_t connect();
 
   /**
    * @brief Turns off WiFi and Bluetooth.
    *
-   * @details Disconnects from WiFi, turns off the modem, and if MiP is in app mode,
-   * switches MiP to default gesture mode.
+   * @details Disconnects from WiFi, turns off the modem, and if MiP is in app
+   * mode, switches MiP to default gesture mode.
    */
   void enableAirplaneMode();
 
   /**
    * @brief Wakes the WiFi radio and attempts to reconnect to the access point.
    *
-   * @return uint8_t WL_CONNECTED if successful, otherwise returns WiFi error status code.
+   * @return uint8_t WL_CONNECTED if successful, otherwise returns WiFi error
+   * status code.
    */
   uint8_t disableAirplaneMode();
 
- protected:
-  static constexpr size_t MAX_SSID_LEN = 32;          ///< Max SSID buffer capacity.
-  static constexpr size_t MAX_PASSPHRASE_LEN = 64;    ///< Max WPA2 passphrase buffer capacity.
-  static constexpr size_t MAX_HOSTNAME_LEN = 63;      ///< Max mDNS hostname buffer capacity.
-  static constexpr uint8_t MAX_CONNECT_ATTEMPTS = 20; ///< Max connection retry iterations in connect().
-  static constexpr uint16_t ANIMATION_DELAY_MS = 300; ///< Eye LED scanner animation delay per iteration in ms.
+protected:
+  static constexpr size_t MAX_SSID_LEN = 32;  ///< Max SSID buffer capacity.
+  static constexpr size_t MAX_PASSPHRASE_LEN = 64;  ///< Max WPA2 passphrase
+                                                    ///< buffer capacity.
+  static constexpr size_t MAX_HOSTNAME_LEN = 63;  ///< Max mDNS hostname buffer
+                                                  ///< capacity.
+  static constexpr uint8_t MAX_CONNECT_ATTEMPTS = 20;  ///< Max connection retry
+                                                       ///< iterations in
+                                                       ///< connect().
+  static constexpr uint16_t ANIMATION_DELAY_MS = 300;  ///< Eye LED scanner
+                                                       ///< animation delay per
+                                                       ///< iteration in ms.
 
   void clear();
 
- private:
+private:
   /**
    * @brief Private constructor; instantiated strictly by MiP orchestrator.
-   * @param mip Reference to the main MiP object for core communication services.
+   * @param mip Reference to the main MiP object for core communication
+   * services.
    */
   explicit MiP_WiFi(MiP& mip);
 
@@ -98,5 +106,5 @@ class MiP_WiFi {
   friend class MiP;
 };
 
-#endif // defined(ESP8266) || defined(ESP32)
+#endif  // defined(ESP8266) || defined(ESP32)
 #endif  // MPU_WIFI_H

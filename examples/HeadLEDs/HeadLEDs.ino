@@ -3,9 +3,9 @@
  * @brief Exhaustive test and demonstration of MiP's head LED control.
  *
  * @details This sketch serves as both a tutorial for the user and an exhaustive
- * test suite for the MiP_HeadLEDs class. It systematically exercises every public
- * method available in the class, verifying success by writing LED patterns and
- * reading them back. 
+ * test suite for the MiP_HeadLEDs class. It systematically exercises every
+ * public method available in the class, verifying success by writing LED
+ * patterns and reading them back.
  *
  * A summary table is printed to the console at the end of the automated tests.
  *
@@ -46,13 +46,11 @@ bool connectResult;
 void printTestResult(const char* testName, bool passed) {
   mip.console.print(F(" "));
   mip.console.print(testName);
-  
+
   // Calculate padding to align the results column (32 characters wide)
   int padding = 33 - strlen(testName);
-  for (int i = 0; i < padding; i++) {
-    mip.console.print(F(" "));
-  }
-  
+  for (int i = 0; i < padding; i++) { mip.console.print(F(" ")); }
+
   mip.console.print(F("| "));
   if (passed) {
     mip.console.println(F("PASS"));
@@ -91,7 +89,7 @@ void setup() {
   MiPHeadLEDs configStruct;
 
   // ---------------------------------------------------------
-  // TEST 1: write(enums) 
+  // TEST 1: write(enums)
   // ---------------------------------------------------------
   mip.console.println(F("Test 1: write(enums) - Setting mixed eye pattern"));
   mip.headLEDs.write(MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_BLINK_SLOW, MIP_HEAD_LED_BLINK_FAST);
@@ -103,11 +101,9 @@ void setup() {
   // ---------------------------------------------------------
   mip.console.println(F("Test 2: read(struct) - Verifying mixed pattern"));
   mip.headLEDs.read(readback);
-  t_read = !mip.didLastCallFail() &&
-           (readback.led1 == MIP_HEAD_LED_ON) &&
-           (readback.led2 == MIP_HEAD_LED_OFF) &&
-           (readback.led3 == MIP_HEAD_LED_BLINK_SLOW) &&
-           (readback.led4 == MIP_HEAD_LED_BLINK_FAST);
+  t_read = !mip.didLastCallFail() && (readback.led1 == MIP_HEAD_LED_ON)
+           && (readback.led2 == MIP_HEAD_LED_OFF) && (readback.led3 == MIP_HEAD_LED_BLINK_SLOW)
+           && (readback.led4 == MIP_HEAD_LED_BLINK_FAST);
   delay(500);
 
   // ---------------------------------------------------------
@@ -126,11 +122,13 @@ void setup() {
   // TEST 4: unverifiedWrite(enums) & read()
   // ---------------------------------------------------------
   mip.console.println(F("Test 4: unverifiedWrite(enums) - Setting alternating pattern"));
-  mip.headLEDs.unverifiedWrite(MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
-  delay(100); // Give MiP a moment to process the fire-and-forget command
-  
+  mip.headLEDs.unverifiedWrite(
+    MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON, MIP_HEAD_LED_OFF, MIP_HEAD_LED_ON);
+  delay(100);  // Give MiP a moment to process the fire-and-forget command
+
   mip.headLEDs.read(readback);
-  if (!mip.didLastCallFail() && readback.led1 == MIP_HEAD_LED_OFF && readback.led2 == MIP_HEAD_LED_ON) {
+  if (!mip.didLastCallFail() && readback.led1 == MIP_HEAD_LED_OFF
+      && readback.led2 == MIP_HEAD_LED_ON) {
     t_unverified_enums = true;
   }
   delay(2000);
@@ -140,20 +138,23 @@ void setup() {
   // ---------------------------------------------------------
   mip.console.println(F("Test 5: MiPHeadLEDs::clear()"));
   configStruct.clear();
-  if (configStruct.led1 == MIP_HEAD_LED_OFF && configStruct.led2 == MIP_HEAD_LED_OFF && 
-      configStruct.led3 == MIP_HEAD_LED_OFF && configStruct.led4 == MIP_HEAD_LED_OFF) {
+  if (configStruct.led1 == MIP_HEAD_LED_OFF && configStruct.led2 == MIP_HEAD_LED_OFF
+      && configStruct.led3 == MIP_HEAD_LED_OFF && configStruct.led4 == MIP_HEAD_LED_OFF) {
     t_struct_clear = true;
   }
 
   // ---------------------------------------------------------
   // TEST 6: unverifiedWrite(struct) & read()
   // ---------------------------------------------------------
-  mip.console.println(F("Test 6: unverifiedWrite(struct) - Setting eyes OFF using cleared struct"));
-  mip.headLEDs.unverifiedWrite(configStruct); // configStruct is all OFF from the clear() test
+  mip.console.println(
+    F("Test 6: unverifiedWrite(struct) - Setting eyes OFF using cleared struct"));
+  mip.headLEDs.unverifiedWrite(configStruct);  // configStruct is all OFF from
+                                               // the clear() test
   delay(100);
-  
+
   mip.headLEDs.read(readback);
-  if (!mip.didLastCallFail() && readback.led1 == MIP_HEAD_LED_OFF && readback.led4 == MIP_HEAD_LED_OFF) {
+  if (!mip.didLastCallFail() && readback.led1 == MIP_HEAD_LED_OFF
+      && readback.led4 == MIP_HEAD_LED_OFF) {
     t_unverified_struct = true;
   }
   delay(2000);
@@ -173,14 +174,14 @@ void setup() {
   mip.console.println(F("=================================================="));
   mip.console.println(F(" Method / Feature                 | Result"));
   mip.console.println(F("----------------------------------|---------------"));
-  
+
   printTestResult("write(enums)", t_write_enums);
   printTestResult("read(struct)", t_read);
   printTestResult("write(struct)", t_write_struct);
   printTestResult("unverifiedWrite(enums)", t_unverified_enums);
   printTestResult("MiPHeadLEDs::clear()", t_struct_clear);
   printTestResult("unverifiedWrite(struct)", t_unverified_struct);
-  
+
   mip.console.println(F("=================================================="));
   mip.console.println(F("HeadLEDs.ino: Tests Complete."));
 }
@@ -192,7 +193,5 @@ void setup() {
  * repeated work in loop().
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

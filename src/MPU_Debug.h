@@ -1,10 +1,12 @@
 /**
  * @file MPU_Debug.h
- * @brief Defines the debug logging and telnet remote console interface for the MiP library.
+ * @brief Defines the debug logging and telnet remote console interface for the
+ * MiP library.
  *
- * @details This header declares the MiP_Debug class, severity constants, and global helper
- * macros (`mDebug`, `mDebugI`, `mDebugE`, etc.) used for multi-level logging, execution profiling,
- * text filtering, and wireless telnet debugging on ESP8266/ESP32 controllers.
+ * @details This header declares the MiP_Debug class, severity constants, and
+ * global helper macros (`mDebug`, `mDebugI`, `mDebugE`, etc.) used for
+ * multi-level logging, execution profiling, text filtering, and wireless telnet
+ * debugging on ESP8266/ESP32 controllers.
  *
  * @author Joao Lopes (Original Author)
  * @author Samuel Trassare (Maintainer)
@@ -30,7 +32,8 @@ extern "C" {
    * @details Adjusts the ESP8266 CPU clock frequency dynamically at runtime.
    *
    * @param freq Target CPU clock frequency in MHz (typically 80 or 160).
-   * @return **true** if the clock frequency change succeeded; **false** otherwise.
+   * @return **true** if the clock frequency change succeeded; **false**
+   * otherwise.
    */
   bool system_update_cpu_freq(uint8 freq);
 }
@@ -39,8 +42,9 @@ extern "C" {
  * @name Global Logging Helper Macros
  * @{
  *
- * @details Convenience macros that evaluate active logging severity thresholds before
- * formatting and emitting output over active debug channels (Telnet and/or Serial).
+ * @details Convenience macros that evaluate active logging severity thresholds
+ * before formatting and emitting output over active debug channels (Telnet
+ * and/or Serial).
  */
 
 #define mDebug(...) \
@@ -86,13 +90,15 @@ extern "C" {
 class MiP_Debug : public Print {
 public:
   // --- System Configuration Constants ---
-  static constexpr uint16_t TELNET_PORT = 23;  ///< Default TCP telnet port (23).
+  static constexpr uint16_t TELNET_PORT = 23;  ///< Default TCP telnet port
+                                               ///< (23).
 
   /**
    * @name Logging Severity Levels
    * @{
    */
-  static constexpr uint8_t PROFILER = 0;  ///< Execution timing section profiling.
+  static constexpr uint8_t PROFILER = 0;  ///< Execution timing section
+                                          ///< profiling.
   static constexpr uint8_t VERBOSE = 1;   ///< Detailed verbose messages.
   static constexpr uint8_t DEBUG = 2;     ///< Standard debug messages.
   static constexpr uint8_t INFO = 3;      ///< Informational status messages.
@@ -126,12 +132,14 @@ public:
 
 protected:
   // --- System Configuration Constants ---
-  static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity disconnect timeout (1 hour).
-  static constexpr size_t BUFFER_PRINT = 150;             ///< Print character buffer size.
+  static constexpr uint32_t MAX_TIME_INACTIVE = 3600000;  ///< Inactivity
+                                                          ///< disconnect
+                                                          ///< timeout (1 hour).
+  static constexpr size_t BUFFER_PRINT = 150;  ///< Print character buffer size.
 
 #ifdef CLIENT_BUFFERING
-  static constexpr uint32_t DELAY_TO_SEND = 10;           ///< Packet send delay in ms.
-  static constexpr size_t MAX_SIZE_SEND = 1460;           ///< TCP MSS limit.
+  static constexpr uint32_t DELAY_TO_SEND = 10;  ///< Packet send delay in ms.
+  static constexpr size_t MAX_SIZE_SEND = 1460;  ///< TCP MSS limit.
 #endif
 
   // --- ANSI Terminal Escape Codes ---
@@ -189,5 +197,5 @@ private:
 #endif
 };
 
-#endif // defined(ESP8266) || defined(ESP32)
-#endif // MPU_DEBUG_H
+#endif  // defined(ESP8266) || defined(ESP32)
+#endif  // MPU_DEBUG_H

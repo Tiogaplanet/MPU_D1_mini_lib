@@ -48,13 +48,11 @@ bool connectResult;
 void printTestResult(const char* testName, bool passed) {
   mip.console.print(F(" "));
   mip.console.print(testName);
-  
+
   // Calculate padding to align the results column (32 characters wide)
   int padding = 33 - strlen(testName);
-  for (int i = 0; i < padding; i++) {
-    mip.console.print(F(" "));
-  }
-  
+  for (int i = 0; i < padding; i++) { mip.console.print(F(" ")); }
+
   mip.console.print(F("| "));
   if (passed) {
     mip.console.println(F("PASS"));
@@ -96,7 +94,7 @@ void setup() {
   // TEST 1: write(r, g, b)
   // ---------------------------------------------------------
   mip.console.println(F("Test 1: Verified solid color (Magenta)"));
-  mip.chestLED.write(0xFF, 0x00, 0xFF); 
+  mip.chestLED.write(0xFF, 0x00, 0xFF);
   t_write_rgb = !mip.didLastCallFail();
   delay(1500);
 
@@ -115,10 +113,10 @@ void setup() {
   MiPChestLED configStruct;
   configStruct.red = 0x00;
   configStruct.green = 0x00;
-  configStruct.blue = 0xFC; // Hardware truncates bottom 2 bits, use 0xFC
+  configStruct.blue = 0xFC;  // Hardware truncates bottom 2 bits, use 0xFC
   configStruct.onTime = 0;
   configStruct.offTime = 0;
-  
+
   mip.chestLED.write(configStruct);
   t_write_struct = !mip.didLastCallFail();
   delay(1500);
@@ -128,11 +126,11 @@ void setup() {
   // ---------------------------------------------------------
   mip.console.println(F("Test 4: Unverified solid color (Yellow) & read()"));
   mip.chestLED.unverifiedWrite(0xFF, 0xFF, 0x00);
-  delay(100); // Give MiP a moment to process the fire-and-forget command
-  
+  delay(100);  // Give MiP a moment to process the fire-and-forget command
+
   mip.chestLED.read(readback);
   t_read = !mip.didLastCallFail();
-  
+
   // Verify it actually worked by checking our manual readback
   if (t_read && readback.red == 0xFF && readback.green == 0xFF && readback.blue == 0x00) {
     t_unverified_rgb = true;
@@ -145,7 +143,7 @@ void setup() {
   mip.console.println(F("Test 5: Unverified flashing color (Cyan)"));
   mip.chestLED.unverifiedWrite(0x00, 0xFF, 0xFC, 200, 200);
   delay(100);
-  
+
   mip.chestLED.read(readback);
   if (!mip.didLastCallFail() && readback.green == 0xFF && readback.onTime >= 180) {
     t_unverified_rgb_flash = true;
@@ -156,18 +154,18 @@ void setup() {
   // TEST 6: unverifiedWrite(const MiPChestLED&) & MiPChestLED::clear()
   // ---------------------------------------------------------
   mip.console.println(F("Test 6: Unverified struct config (Green) & struct clear()"));
-  
+
   // Test clear() functionality on the struct
   configStruct.clear();
   if (configStruct.red == 0 && configStruct.green == 0 && configStruct.onTime == 0) {
     t_struct_clear = true;
   }
-  
+
   // Load new values to test the unverified struct write
-  configStruct.green = 0xFF; 
+  configStruct.green = 0xFF;
   mip.chestLED.unverifiedWrite(configStruct);
   delay(100);
-  
+
   mip.chestLED.read(readback);
   if (!mip.didLastCallFail() && readback.green == 0xFF && readback.red == 0x00) {
     t_unverified_struct = true;
@@ -183,7 +181,7 @@ void setup() {
   mip.console.println(F("=================================================="));
   mip.console.println(F(" Method / Feature                 | Result"));
   mip.console.println(F("----------------------------------|---------------"));
-  
+
   printTestResult("write(r, g, b)", t_write_rgb);
   printTestResult("write(r, g, b, on, off)", t_write_rgb_flash);
   printTestResult("write(struct)", t_write_struct);
@@ -192,7 +190,7 @@ void setup() {
   printTestResult("unverifiedWrite(struct)", t_unverified_struct);
   printTestResult("read(struct)", t_read);
   printTestResult("MiPChestLED::clear()", t_struct_clear);
-  
+
   mip.console.println(F("=================================================="));
   mip.console.println(F("ChestLED.ino: Done."));
 }
@@ -204,7 +202,5 @@ void setup() {
  * repeated work in loop().
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 }

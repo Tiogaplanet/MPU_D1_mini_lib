@@ -4,7 +4,7 @@
  *
  * @details This sketch serves as both a tutorial for the user and an exhaustive
  * test suite for the MiP_Clap class. It systematically exercises every public
- * method available in the class, verifying success by writing configuration 
+ * method available in the class, verifying success by writing configuration
  * values and reading them back, as well as testing the event queue's behavior
  * in an empty state.
  *
@@ -52,13 +52,11 @@ bool connectResult;
 void printTestResult(const char* testName, bool passed) {
   mip.console.print(F(" "));
   mip.console.print(testName);
-  
+
   // Calculate padding to align the results column (32 characters wide)
   int padding = 33 - strlen(testName);
-  for (int i = 0; i < padding; i++) {
-    mip.console.print(F(" "));
-  }
-  
+  for (int i = 0; i < padding; i++) { mip.console.print(F(" ")); }
+
   mip.console.print(F("| "));
   if (passed) {
     mip.console.println(F("PASS"));
@@ -72,7 +70,7 @@ void printTestResult(const char* testName, bool passed) {
  *
  * @details Initializes communication with MiP and runs a sequential, exhaustive
  * test of every MiP_Clap method. It verifies disabled/enabled states, tests
- * delay configuration read/writes, tests empty queue responses, and outputs a 
+ * delay configuration read/writes, tests empty queue responses, and outputs a
  * formatted summary table.
  */
 void setup() {
@@ -126,8 +124,9 @@ void setup() {
 
   isEnabled = mip.clap.areEventsEnabled();
   bool t_are_true = !mip.didLastCallFail() && (isEnabled == true);
-  
-  // areEventsEnabled() fully passes if it accurately reported both false and true
+
+  // areEventsEnabled() fully passes if it accurately reported both false and
+  // true
   t_areEventsEnabled = (t_are_false && t_are_true);
   delay(500);
 
@@ -135,12 +134,10 @@ void setup() {
   // TEST 4: availableEvents() & readEvent() (Empty Queue)
   // ---------------------------------------------------------
   mip.console.println(F("Test 4: Queue functions (Empty State)"));
-  
+
   // Drain any incidental claps that might have just happened
-  while (mip.clap.availableEvents() > 0) {
-    mip.clap.readEvent();
-  }
-  
+  while (mip.clap.availableEvents() > 0) { mip.clap.readEvent(); }
+
   uint8_t avail = mip.clap.availableEvents();
   t_availableEvents = !mip.didLastCallFail() && (avail == 0);
 
@@ -167,7 +164,7 @@ void setup() {
   mip.console.println(F("=================================================="));
   mip.console.println(F(" Method / Feature                 | Result"));
   mip.console.println(F("----------------------------------|---------------"));
-  
+
   printTestResult("enableEvents()", t_enableEvents);
   printTestResult("disableEvents()", t_disableEvents);
   printTestResult("areEventsEnabled()", t_areEventsEnabled);
@@ -176,7 +173,7 @@ void setup() {
   printTestResult("availableEvents() (Empty)", t_availableEvents);
   printTestResult("readEvent() (Empty)", t_readEvent);
   printTestResult("MiPClapSettings::clear()", t_settingsClear);
-  
+
   mip.console.println(F("=================================================="));
   mip.console.println(F("Clap.ino: Tests Complete."));
   mip.console.println();
@@ -192,9 +189,7 @@ void setup() {
  * each event and the result is printed to the console.
  */
 void loop() {
-  if (!connectResult) {
-    return;
-  }
+  if (!connectResult) { return; }
 
   // Poll for available clap events interactively
   while (mip.clap.availableEvents() > 0) {
