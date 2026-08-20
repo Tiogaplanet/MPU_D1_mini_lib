@@ -62,6 +62,7 @@ jobs:
             if [ -d "$example" ]; then
               echo '#define SECRET_SSID "CI_TEST_SSID"' > "$example/secrets.h"
               echo '#define SECRET_PASS "CI_TEST_PASS"' >> "$example/secrets.h"
+              echo '#define SECRET_HOSTNAME "CI_TEST_HOSTNAME"' >> "$example/secrets.h"
             fi
           done
 
