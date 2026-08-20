@@ -34,17 +34,20 @@ jobs:
 
       - name: Patch elf2bin.py Syntax Warnings (ESP8266 toolchain fix)
         run: |
-          python3 -c "
+          python3 - << 'EOF'
           import os
           path = os.path.expanduser('~/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/elf2bin.py')
           if os.path.exists(path):
-              with open(path, 'r') as f: text = f.read()
-              text = text.replace(\"re.split('\re.split(\'\\s+\', line)\', \"re.split(r'\s+', line)\")
-              with open(path, 'w') as f: f.write(text)
+              with open(path, 'r') as f:
+                  text = f.read()
+              # Safely replace the regex string without shell escape interference
+              text = text.replace("re.split('\\s+', line)", "re.split(r'\\s+', line)")
+              with open(path, 'w') as f:
+                  f.write(text)
               print('Successfully patched elf2bin.py')
           else:
               print('Warning: elf2bin.py target file path not found')
-          "
+          EOF
 
       - name: Install Local Library
         run: |
