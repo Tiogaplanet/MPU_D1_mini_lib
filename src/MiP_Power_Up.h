@@ -4,7 +4,7 @@
  *
  * @details This header declares the main MiP class and the public interfaces
  * exposed by the library subsystems. It supports multiple architectures
- * including ESP8266 (D1 mini), AVR (Pro Mini), and ESP32-S2.
+ * including ESP8266 (D1 mini) and AVR (Pro Mini).
  *
  * @author Adam Green (Original Author)
  * @author Samuel Trassare (Maintainer)

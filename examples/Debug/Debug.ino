@@ -1,14 +1,13 @@
 /**
  * @file Debug.ino
- * @brief Example sketch demonstrating telnet-based debug output for MiP on
- * the D1 mini.
+ * @brief Example sketch demonstrating telnet-based debug output for MiP.
  *
  * @details
- * This sketch shows how to initialize a MiP connection over WiFi on an ESP8266
- * (MPU-D1 mini), enable a telnet debug service (MiP_Debug), and emit debug
- * messages at different verbosity levels. It also demonstrates enabling an
- * OTA handler so the device can be reprogrammed over the network while the
- * telnet debug service is running.
+ * This sketch shows how to initialize a MiP connection over WiFi on an ESP8266,
+ * enable a telnet debug service (MiP_Debug), and emit debug messages at 
+ * different verbosity levels. It also demonstrates enabling an OTA handler so
+ * the device can be reprogrammed over the network while the telnet debug
+ * service is running.
  *
  * Behavior summary:
  *   - Connect to WiFi using mip.wifi.begin(ssid, password, hostname).
